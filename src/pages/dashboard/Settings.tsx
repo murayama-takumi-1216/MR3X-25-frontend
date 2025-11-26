@@ -183,7 +183,7 @@ export function Settings() {
                 <Label htmlFor="baseUrl">URL Base</Label>
                 <Input
                   id="baseUrl"
-                  value="https://mr3x-25-backend-production.up.railway.app/api"
+                  value={import.meta.env.VITE_API_URL}
                   disabled
                   className="bg-muted"
                 />
