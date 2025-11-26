@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { useRef, useEffect, useState } from 'react';
 import { dashboardAPI } from '../../api';
 import { formatCurrency } from '../../lib/utils';
 import { Building2, Users, FileText, DollarSign, AlertCircle } from 'lucide-react';
