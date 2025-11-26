@@ -57,7 +57,7 @@ import {
   TooltipTrigger,
 } from '../../components/ui/tooltip';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = 'https://mr3x-25-backend-production.up.railway.app/api';
 
 export function Properties() {
   const { hasPermission, user } = useAuth();

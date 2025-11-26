@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL;
+// Production API URL
+const API_URL = 'https://mr3x-25-backend-production.up.railway.app/api';
 
 export const apiClient = axios.create({
   baseURL: API_URL,
