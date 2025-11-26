@@ -183,7 +183,7 @@ export function Settings() {
                 <Label htmlFor="baseUrl">URL Base</Label>
                 <Input
                   id="baseUrl"
-                  value={import.meta.env.VITE_API_URL || 'http://localhost:8081'}
+                  value={import.meta.env.VITE_API_URL}
                   disabled
                   className="bg-muted"
                 />

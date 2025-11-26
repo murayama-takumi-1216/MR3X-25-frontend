@@ -57,7 +57,7 @@ import {
   TooltipTrigger,
 } from '../../components/ui/tooltip';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export function Properties() {
   const { hasPermission, user } = useAuth();
