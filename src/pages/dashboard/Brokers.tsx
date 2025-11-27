@@ -9,6 +9,7 @@ import {
   Edit,
   Trash2,
   Eye,
+  EyeOff,
   MoreHorizontal,
   MapPin,
   Grid3X3,
@@ -64,6 +65,7 @@ export function Brokers() {
     name: '',
     phone: '',
     email: '',
+    password: '',
     birthDate: '',
     cep: '',
     address: '',
@@ -77,6 +79,7 @@ export function Brokers() {
     email: '',
     phone: '',
     document: '',
+    password: '',
     birthDate: '',
     address: '',
     cep: '',
@@ -92,6 +95,8 @@ export function Brokers() {
   const [updating, setUpdating] = useState(false)
   const [loadingDetails, setLoadingDetails] = useState(false)
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showEditPassword, setShowEditPassword] = useState(false)
 
   if (!canViewUsers) {
     return (
@@ -137,7 +142,7 @@ export function Brokers() {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       closeAllModals()
       setNewBroker({
-        document: '', name: '', phone: '', email: '', birthDate: '',
+        document: '', name: '', phone: '', email: '', password: '', birthDate: '',
         cep: '', address: '', neighborhood: '', city: '', state: ''
       })
       toast.success('Corretor criado com sucesso')
@@ -199,7 +204,6 @@ export function Brokers() {
       }
       const brokerToSend = {
         ...newBroker,
-        password: '123456',
         birthDate: newBroker.birthDate ? new Date(newBroker.birthDate) : null,
       }
       createBrokerMutation.mutate(brokerToSend)
@@ -222,10 +226,13 @@ export function Brokers() {
         toast.error('CEP invalido')
         return
       }
+      const { password, ...restData } = editForm;
+      // Only send password if it's not empty
       const brokerToSend = {
-        ...editForm,
+        ...restData,
         birthDate: editForm.birthDate || undefined,
-      }
+        ...(password ? { password } : {}),
+      };
       updateBrokerMutation.mutate({ id: selectedBroker.id, data: brokerToSend })
     } finally {
       setUpdating(false)
@@ -278,6 +285,7 @@ export function Brokers() {
         email: fullBrokerDetails.email || '',
         phone: fullBrokerDetails.phone || '',
         document: fullBrokerDetails.document || '',
+        password: '',
         birthDate: fullBrokerDetails.birthDate ? fullBrokerDetails.birthDate.split('T')[0] : '',
         address: fullBrokerDetails.address || '',
         cep: fullBrokerDetails.cep || '',
@@ -565,9 +573,24 @@ export function Brokers() {
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="birthDate">Data de Nascimento</Label>
-                  <Input id="birthDate" name="birthDate" type="date" value={newBroker.birthDate} onChange={handleInputChange} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="password">Senha *</Label>
+                    <div className="relative">
+                      <Input id="password" name="password" type={showNewPassword ? 'text' : 'password'} value={newBroker.password} onChange={handleInputChange} placeholder="Digite a senha" required className="pr-10" />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="birthDate">Data de Nascimento</Label>
+                    <Input id="birthDate" name="birthDate" type="date" value={newBroker.birthDate} onChange={handleInputChange} />
+                  </div>
                 </div>
               </div>
 
@@ -650,9 +673,24 @@ export function Brokers() {
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="edit-birthDate">Data de Nascimento</Label>
-                  <Input id="edit-birthDate" name="birthDate" type="date" value={editForm.birthDate} onChange={handleEditInputChange} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-password">Nova Senha</Label>
+                    <div className="relative">
+                      <Input id="edit-password" name="password" type={showEditPassword ? 'text' : 'password'} value={editForm.password} onChange={handleEditInputChange} placeholder="Deixe em branco para manter" className="pr-10" />
+                      <button
+                        type="button"
+                        onClick={() => setShowEditPassword(!showEditPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showEditPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-birthDate">Data de Nascimento</Label>
+                    <Input id="edit-birthDate" name="birthDate" type="date" value={editForm.birthDate} onChange={handleEditInputChange} />
+                  </div>
                 </div>
               </div>
 

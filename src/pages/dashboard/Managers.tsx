@@ -207,7 +207,7 @@ export function Managers() {
       }
       const managerToSend = {
         ...newManager,
-        password: '123456',
+        password: '',
         birthDate: newManager.birthDate ? new Date(newManager.birthDate) : null,
       }
       createManagerMutation.mutate(managerToSend)

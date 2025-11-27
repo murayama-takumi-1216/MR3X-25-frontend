@@ -9,6 +9,7 @@ import {
   Edit,
   Trash2,
   Eye,
+  EyeOff,
   MoreHorizontal,
   MessageSquare,
   MapPin,
@@ -69,6 +70,7 @@ export function Tenants() {
     name: '',
     phone: '',
     email: '',
+    password: '',
     birthDate: '',
     cep: '',
     address: '',
@@ -83,6 +85,7 @@ export function Tenants() {
     email: '',
     phone: '',
     document: '',
+    password: '',
     birthDate: '',
     address: '',
     cep: '',
@@ -99,6 +102,8 @@ export function Tenants() {
   const [updating, setUpdating] = useState(false)
   const [loadingEdit, setLoadingEdit] = useState(false)
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showEditPassword, setShowEditPassword] = useState(false)
 
   if (!canViewUsers) {
     return (
@@ -149,7 +154,7 @@ export function Tenants() {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       closeAllModals()
       setNewTenant({
-        document: '', name: '', phone: '', email: '', birthDate: '',
+        document: '', name: '', phone: '', email: '', password: '', birthDate: '',
         cep: '', address: '', neighborhood: '', city: '', state: '', agencyId: ''
       })
       toast.success('Inquilino criado com sucesso')
@@ -210,7 +215,6 @@ export function Tenants() {
       }
       const tenantToSend = {
         ...newTenant,
-        password: '123456',
         role: 'INQUILINO',
         plan: 'FREE',
         birthDate: newTenant.birthDate ? new Date(newTenant.birthDate) : null,
@@ -238,7 +242,10 @@ export function Tenants() {
         setUpdating(false)
         return
       }
-      updateTenantMutation.mutate({ id: selectedTenant.id, data: editForm })
+      const { password, ...restData } = editForm;
+      // Only send password if it's not empty
+      const updateData = password ? { ...restData, password } : restData;
+      updateTenantMutation.mutate({ id: selectedTenant.id, data: updateData })
     } finally {
       setUpdating(false)
     }
@@ -282,6 +289,7 @@ export function Tenants() {
         email: fullTenantDetails.email || '',
         phone: fullTenantDetails.phone || '',
         document: fullTenantDetails.document || '',
+        password: '',
         birthDate: fullTenantDetails.birthDate ? fullTenantDetails.birthDate.split('T')[0] : '',
         address: fullTenantDetails.address || '',
         cep: fullTenantDetails.cep || '',
@@ -675,15 +683,39 @@ export function Tenants() {
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="birthDate">Data de Nascimento</Label>
-                  <Input
-                    id="birthDate"
-                    name="birthDate"
-                    type="date"
-                    value={newTenant.birthDate}
-                    onChange={handleInputChange}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="password">Senha *</Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showNewPassword ? 'text' : 'password'}
+                        value={newTenant.password}
+                        onChange={handleInputChange}
+                        placeholder="Digite a senha"
+                        required
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="birthDate">Data de Nascimento</Label>
+                    <Input
+                      id="birthDate"
+                      name="birthDate"
+                      type="date"
+                      value={newTenant.birthDate}
+                      onChange={handleInputChange}
+                    />
+                  </div>
                 </div>
 
                 {/* Agency selector for CEO/ADMIN */}
@@ -851,15 +883,38 @@ export function Tenants() {
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="edit-birthDate">Data de Nascimento</Label>
-                  <Input
-                    id="edit-birthDate"
-                    name="birthDate"
-                    type="date"
-                    value={editForm.birthDate}
-                    onChange={handleEditInputChange}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-password">Nova Senha</Label>
+                    <div className="relative">
+                      <Input
+                        id="edit-password"
+                        name="password"
+                        type={showEditPassword ? 'text' : 'password'}
+                        value={editForm.password}
+                        onChange={handleEditInputChange}
+                        placeholder="Deixe em branco para manter"
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowEditPassword(!showEditPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showEditPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-birthDate">Data de Nascimento</Label>
+                    <Input
+                      id="edit-birthDate"
+                      name="birthDate"
+                      type="date"
+                      value={editForm.birthDate}
+                      onChange={handleEditInputChange}
+                    />
+                  </div>
                 </div>
               </div>
 

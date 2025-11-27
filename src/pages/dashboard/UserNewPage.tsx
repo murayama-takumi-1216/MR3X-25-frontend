@@ -54,7 +54,7 @@ export function UserNewPage() {
     document: '',
     role: '',
     status: 'ACTIVE',
-    password: '123456',
+    password: '',
     notificationPreferences: {
       email: true,
       whatsapp: true,
