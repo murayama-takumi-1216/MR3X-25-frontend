@@ -166,14 +166,7 @@ export function Contracts() {
   // Update contract
   const updateContractMutation = useMutation({
     mutationFn: ({ id, data }: { id: string, data: any }) => contractsAPI.updateContract(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['contracts', user?.id ?? 'anonymous', user?.role ?? 'unknown', user?.agencyId ?? 'none', user?.brokerId ?? 'none']
-      });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      closeAllModals();
-      toast.success('Contrato atualizado com sucesso');
-    },
+    // Note: onSuccess toast is handled in handleUpdateContract to provide context about PDF upload
     onError: () => {
       toast.error('Erro ao atualizar contrato');
     },

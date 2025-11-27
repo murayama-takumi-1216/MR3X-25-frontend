@@ -44,25 +44,25 @@ export function AgencyAdmin() {
     enabled: !!user,
   })
 
-  const { data: brokers, isLoading: loadingBrokers } = useQuery({
+  const { data: brokers } = useQuery({
     queryKey: ['agency-brokers', user?.agencyId],
     queryFn: () => usersAPI.listUsers({ role: 'BROKER' }),
     enabled: !!user,
   })
 
-  const { data: properties, isLoading: loadingProperties } = useQuery({
+  const { data: properties } = useQuery({
     queryKey: ['agency-properties', user?.agencyId],
     queryFn: () => propertiesAPI.getProperties(),
     enabled: !!user,
   })
 
-  const { data: contracts, isLoading: loadingContracts } = useQuery({
+  const { data: contracts } = useQuery({
     queryKey: ['agency-contracts', user?.agencyId],
     queryFn: () => contractsAPI.getContracts(),
     enabled: !!user,
   })
 
-  const { data: payments, isLoading: loadingPayments } = useQuery({
+  const { data: payments } = useQuery({
     queryKey: ['agency-payments', user?.agencyId],
     queryFn: () => paymentsAPI.getPayments(),
     enabled: !!user,
