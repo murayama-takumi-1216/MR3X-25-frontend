@@ -48,26 +48,28 @@ export function Notifications() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-muted-foreground">Acesso Negado</h2>
-          <p className="text-muted-foreground">Voce nao tem permissao para visualizar notificacoes.</p>
+          <p className="text-muted-foreground">Você não tem permissão para visualizar notificações.</p>
         </div>
       </div>
     )
   }
 
-  const { data: notifications, isLoading } = useQuery({
+  const { data: notificationsData, isLoading } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => notificationsAPI.getNotifications(),
     enabled: canViewNotifications,
   })
 
+  const notifications = notificationsData?.items || []
+
   const markAsReadMutation = useMutation({
     mutationFn: (id: string) => notificationsAPI.markAsRead(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      toast.success('Notificacao marcada como lida')
+      toast.success('Notificação marcada como lida')
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Erro ao marcar notificacao')
+      toast.error(error.message || 'Erro ao marcar notificação')
     },
   })
 
@@ -76,10 +78,10 @@ export function Notifications() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       setNotificationToDelete(null)
-      toast.success('Notificacao excluida')
+      toast.success('Notificação excluída')
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Erro ao excluir notificacao')
+      toast.error(error.message || 'Erro ao excluir notificação')
     },
   })
 
@@ -121,22 +123,22 @@ export function Notifications() {
     )
   }
 
-  const unreadCount = notifications?.filter((n: any) => !n.read)?.length || 0
+  const unreadCount = notifications.filter((n: any) => !n.read)?.length || 0
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Notificacoes</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Notificações</h1>
           <p className="text-sm sm:text-base text-muted-foreground mt-1">
-            {unreadCount > 0 ? `Voce tem ${unreadCount} notificacoes nao lidas` : 'Todas as notificacoes foram lidas'}
+            {unreadCount > 0 ? `Você tem ${unreadCount} notificações não lidas` : 'Todas as notificações foram lidas'}
           </p>
         </div>
       </div>
 
       {/* Notifications List */}
-      {notifications && notifications.length > 0 ? (
+      {notifications.length > 0 ? (
         <div className="space-y-4">
           {notifications.map((notification: any) => (
             <Card
@@ -151,7 +153,7 @@ export function Notifications() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className={`font-semibold ${!notification.read ? 'text-foreground' : 'text-muted-foreground'}`}>
-                        {notification.title}
+                        {notification.description || notification.title || 'Notificação'}
                       </h3>
                       <Badge className={getNotificationBadgeColor(notification.type)}>
                         {notification.type}
@@ -161,11 +163,16 @@ export function Notifications() {
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      {notification.message}
+                      {notification.message || notification.description}
                     </p>
+                    {notification.property && (
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Imóvel: {notification.property.name}
+                      </p>
+                    )}
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Calendar className="w-3 h-3" />
-                      {formatDateTime(notification.createdAt)}
+                      {formatDateTime(notification.creationDate || notification.createdAt)}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -197,8 +204,8 @@ export function Notifications() {
         <Card>
           <CardContent className="py-12 text-center">
             <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Nenhuma notificacao</h3>
-            <p className="text-muted-foreground">Voce nao tem notificacoes no momento</p>
+            <h3 className="text-lg font-semibold mb-2">Nenhuma notificação</h3>
+            <p className="text-muted-foreground">Você não tem notificações no momento</p>
           </CardContent>
         </Card>
       )}
