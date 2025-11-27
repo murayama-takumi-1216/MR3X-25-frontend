@@ -1052,8 +1052,8 @@ export function Properties() {
                           <p className="text-xs text-gray-600 truncate" title={property.broker?.name || property.broker?.email || 'Sem corretor'}>
                             Corretor: {property.broker?.name || property.broker?.email || 'Sem corretor'}
                           </p>
-                          <p className="text-xs text-gray-600 truncate" title={property.tenantName || 'Sem inquilino'}>
-                            Locatário: {property.tenantName || 'Sem inquilino'}
+                          <p className="text-xs text-gray-600 truncate" title={property.tenant?.name || property.tenant?.email || 'Sem inquilino'}>
+                            Locatário: {property.tenant?.name || property.tenant?.email || 'Sem inquilino'}
                           </p>
                           <p className="text-xs text-blue-700 font-medium mt-1 truncate">
                             Próx. vencimento: {property.nextDueDate ? new Date(property.nextDueDate).toLocaleDateString('pt-BR') : '-'}
@@ -1527,7 +1527,7 @@ export function Properties() {
                   <div><b>Estado:</b> {propertyDetail.stateNumber || '-'}</div>
                   <div><b>Proprietário:</b> {propertyDetail.owner?.name || propertyDetail.owner?.email || '-'}</div>
                   <div><b>Corretor:</b> {propertyDetail.broker?.name || propertyDetail.broker?.email || '-'}</div>
-                  <div><b>Locatário:</b> {propertyDetail.tenantName || '-'}</div>
+                  <div><b>Locatário:</b> {propertyDetail.tenant?.name || propertyDetail.tenant?.email || propertyDetail.tenantName || '-'}</div>
                   <div><b>Próx. vencimento:</b> {propertyDetail.nextDueDate ? new Date(propertyDetail.nextDueDate).toLocaleDateString('pt-BR') : '-'}</div>
                   <div><b>Aluguel mensal:</b> R$ {propertyDetail.monthlyRent?.toLocaleString('pt-BR') || '-'}</div>
                   <div><b>Dia do vencimento:</b> {propertyDetail.dueDay || '-'}</div>
@@ -1833,6 +1833,7 @@ export function Properties() {
                 <div className="space-y-2">
                   <Label>Selecione um corretor da sua agência</Label>
                   <Select
+                    key={`broker-select-${filteredBrokers.length}`}
                     value={selectedBrokerId}
                     onValueChange={setSelectedBrokerId}
                     disabled={brokersLoading || assignBrokerMutation.isPending}
@@ -1840,7 +1841,7 @@ export function Properties() {
                     <SelectTrigger>
                       <SelectValue placeholder={brokersLoading ? 'Carregando corretores...' : 'Escolha um corretor'} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" sideOffset={4}>
                       <SelectItem value="none">Sem corretor</SelectItem>
                       {filteredBrokers.map((broker: any) => (
                         <SelectItem key={broker.id} value={broker.id}>
@@ -1888,7 +1889,7 @@ export function Properties() {
         </Dialog>
 
         {/* Assign Tenant Modal */}
-        <Dialog open={assignTenantModalOpen} onOpenChange={setAssignTenantModalOpen}>
+        <Dialog open={assignTenantModalOpen} onOpenChange={setAssignTenantModalOpen} modal={true}>
           <DialogContent className="max-w-xl">
             <DialogHeader>
               <DialogTitle>Atribuir inquilino ao imóvel</DialogTitle>
@@ -1911,6 +1912,7 @@ export function Properties() {
                 <div className="space-y-2">
                   <Label>Selecione um inquilino</Label>
                   <Select
+                    key={`tenant-select-${tenants.length}`}
                     value={selectedTenantId}
                     onValueChange={setSelectedTenantId}
                     disabled={tenantsLoading || assignTenantMutation.isPending}
@@ -1918,7 +1920,7 @@ export function Properties() {
                     <SelectTrigger>
                       <SelectValue placeholder={tenantsLoading ? 'Carregando inquilinos...' : 'Escolha um inquilino'} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" sideOffset={4}>
                       <SelectItem value="none">Sem inquilino</SelectItem>
                       {tenants.map((tenant: any) => (
                         <SelectItem key={tenant.id} value={String(tenant.id)}>

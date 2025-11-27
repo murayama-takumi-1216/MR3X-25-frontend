@@ -176,28 +176,27 @@ export function DashboardHome() {
             </CardHeader>
             <CardContent>
               <div className="w-full" style={{ width: '100%', height: '320px', minHeight: '256px', position: 'relative' }}>
-                {revenueData && revenueData.length > 0 && (
-                  <ResponsiveContainer width="100%" height={320} debounce={1}>
+                {revenueData && revenueData.some(d => d.value > 0) ? (
+                  <ResponsiveContainer width="100%" height={320} debounce={50}>
                     <PieChart>
                       <Pie
                         data={revenueData}
                         dataKey="value"
                         nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      label={(props: any) => props.value > 0 ? `${props.name}: ${formatCurrency(props.value)}` : ''}
-                    >
-                      {revenueData.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
-                      ))}
-                    </Pie>
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        label={(props: any) => props.value > 0 ? `${props.name}: ${formatCurrency(props.value)}` : ''}
+                      >
+                        {revenueData.map((_, index) => (
+                          <Cell key={`cell-revenue-${index}`} fill={pieColors[index % pieColors.length]} />
+                        ))}
+                      </Pie>
                       <Legend />
                       <Tooltip formatter={(value: number) => formatCurrency(value)} />
                     </PieChart>
                   </ResponsiveContainer>
-                )}
-                {(!revenueData || revenueData.length === 0) && (
+                ) : (
                   <div className="flex items-center justify-center h-full text-muted-foreground">
                     <p>Nenhum dado disponível</p>
                   </div>
@@ -219,36 +218,35 @@ export function DashboardHome() {
             </CardHeader>
             <CardContent>
               <div className="w-full" style={{ width: '100%', height: '320px', minHeight: '256px', position: 'relative' }}>
-                {propertyStatusData && propertyStatusData.length > 0 && (
-                  <ResponsiveContainer width="100%" height={320} debounce={1}>
+                {propertyStatusData && propertyStatusData.some(d => d.value > 0) ? (
+                  <ResponsiveContainer width="100%" height={320} debounce={50}>
                     <PieChart>
                       <Pie
                         data={propertyStatusData}
                         dataKey="value"
                         nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      label={(props: any) => props.value > 0 ? `${props.name}: ${props.value}` : ''}
-                      labelLine={false}
-                    >
-                      {propertyStatusData.map((entry: any, index) => (
-                        <Cell key={`cell-status-${index}`} fill={entry.color || propertyStatusPieColors[index % propertyStatusPieColors.length]} />
-                      ))}
-                    </Pie>
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        label={(props: any) => props.value > 0 ? `${props.name}: ${props.value}` : ''}
+                        labelLine={false}
+                      >
+                        {propertyStatusData.map((entry: any, index) => (
+                          <Cell key={`cell-status-${index}`} fill={entry.color || propertyStatusPieColors[index % propertyStatusPieColors.length]} />
+                        ))}
+                      </Pie>
                       <Legend />
                       <Tooltip formatter={(value: number) => `${value} imóveis`} />
                     </PieChart>
                   </ResponsiveContainer>
-                )}
-                {(!propertyStatusData || propertyStatusData.length === 0) && (
+                ) : (
                   <div className="flex items-center justify-center h-full text-muted-foreground">
                     <p>Nenhum dado disponível</p>
                   </div>
                 )}
               </div>
               <div className="text-center mt-2 font-semibold text-sm sm:text-base">
-                Total de imóveis: {isCEO ? (overview.totalProperties ?? 0) : (overview.totalProperties ?? 0)}
+                Total de imóveis: {overview.totalProperties ?? 0}
               </div>
             </CardContent>
           </Card>
@@ -316,18 +314,17 @@ export function DashboardHome() {
             </CardHeader>
             <CardContent>
               <div className="w-full" style={{ width: '100%', height: '320px', minHeight: '256px', position: 'relative' }}>
-                {defaultInadimplenciaData && defaultInadimplenciaData.length > 0 && (
-                  <ResponsiveContainer width="100%" height={320} debounce={1}>
+                {defaultInadimplenciaData && defaultInadimplenciaData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={320} debounce={50}>
                     <BarChart data={defaultInadimplenciaData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" fontSize={12} />
-                    <YAxis fontSize={12} />
-                    <Tooltip />
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" fontSize={12} />
+                      <YAxis fontSize={12} />
+                      <Tooltip />
                       <Bar dataKey="inadimplencia" fill="#fd8431" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
-                )}
-                {(!defaultInadimplenciaData || defaultInadimplenciaData.length === 0) && (
+                ) : (
                   <div className="flex items-center justify-center h-full text-muted-foreground">
                     <p>Nenhum dado disponível</p>
                   </div>
