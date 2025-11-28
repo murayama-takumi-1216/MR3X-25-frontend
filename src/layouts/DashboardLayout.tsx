@@ -21,7 +21,7 @@ const baseNavigation = [
   { name: 'Split Configuration', href: '/dashboard/agency-split-config', icon: Handshake, perm: 'payments:read', roles: ['AGENCY_ADMIN'] },
   { name: 'Plano da Agência', href: '/dashboard/agency-plan-config', icon: Package, perm: 'agencies:update', roles: ['AGENCY_ADMIN'] },
   { name: 'Usuários', href: '/dashboard/users', icon: Users, perm: 'users:read' },
-  { name: 'Agências', href: '/dashboard/agencies', icon: Building, perm: 'agencies:read' },
+  { name: 'Agências', href: '/dashboard/agencies', icon: Building, perm: 'agencies:read', roles: ['CEO', 'ADMIN'] },
   { name: 'Relatórios', href: '/dashboard/reports', icon: BarChart3, perm: 'reports:read' },
   { name: 'Planos', href: '/dashboard/plans', icon: Package, perm: undefined, roles: ['CEO', 'ADMIN'] },
   { name: 'Faturamento', href: '/dashboard/billing', icon: Receipt, perm: 'billing:read', roles: ['CEO', 'ADMIN', 'INDEPENDENT_OWNER'] },
@@ -102,7 +102,6 @@ export function DashboardLayout() {
         '/dashboard/tenants',
         '/dashboard/owners',
         '/dashboard/managers',
-        '/dashboard/agency-admin',
         '/dashboard/agency-split-config',
         '/dashboard/agency-plan-config',
       ];
