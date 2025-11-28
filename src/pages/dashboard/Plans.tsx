@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Package, Edit, Crown, Star, Zap, Building2, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { Package, Edit, Crown, Star, Zap, Building2, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
@@ -51,6 +51,19 @@ export default function PlansPage() {
   const [selectedRequest, setSelectedRequest] = useState<ModificationRequest | null>(null)
   const [showRejectModal, setShowRejectModal] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
+  const [expandedRequests, setExpandedRequests] = useState<Set<string>>(new Set())
+
+  const toggleRequestExpanded = (requestId: string) => {
+    setExpandedRequests(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(requestId)) {
+        newSet.delete(requestId)
+      } else {
+        newSet.add(requestId)
+      }
+      return newSet
+    })
+  }
 
   const [planForm, setPlanForm] = useState({
     price: '',
@@ -433,93 +446,131 @@ export default function PlansPage() {
               {isCEO ? 'Revise e aprove ou rejeite as solicitações de modificação dos administradores.' : 'Histórico das suas solicitações de modificação.'}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-2">
             {allRequests.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">Nenhuma solicitação encontrada.</p>
             ) : (
-              allRequests.map((request: ModificationRequest) => (
-                <Card key={request.id} className={`${request.status === 'PENDING' ? 'border-yellow-500' : ''}`}>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{request.planName}</CardTitle>
-                      <Badge className={
-                        request.status === 'PENDING' ? 'bg-yellow-500' :
-                        request.status === 'APPROVED' ? 'bg-green-500' : 'bg-red-500'
-                      }>
-                        {request.status === 'PENDING' ? 'Pendente' :
-                         request.status === 'APPROVED' ? 'Aprovado' : 'Rejeitado'}
-                      </Badge>
-                    </div>
-                    <CardDescription>
-                      Solicitado por: {request.requestedBy.name || request.requestedBy.email} em {new Date(request.createdAt).toLocaleDateString('pt-BR')}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <h4 className="font-semibold mb-2">Valores Atuais</h4>
-                        <ul className="space-y-1 text-muted-foreground">
-                          <li>Preço: R$ {request.currentValues.price?.toFixed(2) || '0.00'}</li>
-                          <li>Limite de Propriedades: {request.currentValues.propertyLimit}</li>
-                          <li>Limite de Usuários: {request.currentValues.userLimit}</li>
-                        </ul>
+              allRequests.map((request: ModificationRequest) => {
+                const isExpanded = expandedRequests.has(request.id)
+                return (
+                  <Card key={request.id} className={`${request.status === 'PENDING' ? 'border-yellow-500' : ''}`}>
+                    {/* Summary Header - Always Visible */}
+                    <div
+                      className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => toggleRequestExpanded(request.id)}
+                    >
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">{request.planName}</span>
+                            <Badge className={
+                              request.status === 'PENDING' ? 'bg-yellow-500' :
+                              request.status === 'APPROVED' ? 'bg-green-500' : 'bg-red-500'
+                            }>
+                              {request.status === 'PENDING' ? 'Pendente' :
+                               request.status === 'APPROVED' ? 'Aprovado' : 'Rejeitado'}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {new Date(request.createdAt).toLocaleDateString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })} • {request.requestedBy.name || request.requestedBy.email}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-semibold mb-2">Valores Solicitados</h4>
-                        <ul className="space-y-1">
-                          <li className={request.requestedValues.price !== request.currentValues.price ? 'text-blue-600 font-medium' : 'text-muted-foreground'}>
-                            Preço: R$ {request.requestedValues.price?.toFixed(2) || '0.00'}
-                          </li>
-                          <li className={request.requestedValues.propertyLimit !== request.currentValues.propertyLimit ? 'text-blue-600 font-medium' : 'text-muted-foreground'}>
-                            Limite de Propriedades: {request.requestedValues.propertyLimit}
-                          </li>
-                          <li className={request.requestedValues.userLimit !== request.currentValues.userLimit ? 'text-blue-600 font-medium' : 'text-muted-foreground'}>
-                            Limite de Usuários: {request.requestedValues.userLimit}
-                          </li>
-                        </ul>
+                      <div className="flex items-center gap-2">
+                        {isExpanded ? (
+                          <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                        )}
                       </div>
                     </div>
 
-                    {request.status === 'REJECTED' && request.rejectionReason && (
-                      <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                        <p className="text-sm text-red-700 dark:text-red-300">
-                          <strong>Motivo da rejeição:</strong> {request.rejectionReason}
-                        </p>
-                      </div>
-                    )}
+                    {/* Expanded Content */}
+                    <div
+                      className={`grid transition-all duration-300 ease-in-out ${
+                        isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                      }`}
+                    >
+                      <div className="overflow-hidden">
+                        <CardContent className="pt-0 border-t">
+                          <div className="grid grid-cols-2 gap-4 text-sm mt-4">
+                          <div>
+                            <h4 className="font-semibold mb-2">Valores Atuais</h4>
+                            <ul className="space-y-1 text-muted-foreground">
+                              <li>Preço: R$ {request.currentValues.price?.toFixed(2) || '0.00'}</li>
+                              <li>Limite de Propriedades: {request.currentValues.propertyLimit}</li>
+                              <li>Limite de Usuários: {request.currentValues.userLimit}</li>
+                            </ul>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold mb-2">Valores Solicitados</h4>
+                            <ul className="space-y-1">
+                              <li className={request.requestedValues.price !== request.currentValues.price ? 'text-blue-600 font-medium' : 'text-muted-foreground'}>
+                                Preço: R$ {request.requestedValues.price?.toFixed(2) || '0.00'}
+                              </li>
+                              <li className={request.requestedValues.propertyLimit !== request.currentValues.propertyLimit ? 'text-blue-600 font-medium' : 'text-muted-foreground'}>
+                                Limite de Propriedades: {request.requestedValues.propertyLimit}
+                              </li>
+                              <li className={request.requestedValues.userLimit !== request.currentValues.userLimit ? 'text-blue-600 font-medium' : 'text-muted-foreground'}>
+                                Limite de Usuários: {request.requestedValues.userLimit}
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
 
-                    {request.reviewedBy && (
-                      <p className="text-xs text-muted-foreground mt-3">
-                        Revisado por: {request.reviewedBy.name || request.reviewedBy.email} em {new Date(request.reviewedAt!).toLocaleDateString('pt-BR')}
-                      </p>
-                    )}
+                        {request.status === 'REJECTED' && request.rejectionReason && (
+                          <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                            <p className="text-sm text-red-700 dark:text-red-300">
+                              <strong>Motivo da rejeição:</strong> {request.rejectionReason}
+                            </p>
+                          </div>
+                        )}
 
-                    {isCEO && request.status === 'PENDING' && (
-                      <div className="flex gap-2 mt-4">
-                        <Button
-                          size="sm"
-                          onClick={() => approveRequestMutation.mutate(request.id)}
-                          disabled={approveRequestMutation.isPending}
-                        >
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Aprovar
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => {
-                            setSelectedRequest(request)
-                            setShowRejectModal(true)
-                          }}
-                        >
-                          <XCircle className="w-4 h-4 mr-2" />
-                          Rejeitar
-                        </Button>
+                        {request.reviewedBy && (
+                          <p className="text-xs text-muted-foreground mt-3">
+                            Revisado por: {request.reviewedBy.name || request.reviewedBy.email} em {new Date(request.reviewedAt!).toLocaleDateString('pt-BR')}
+                          </p>
+                        )}
+
+                        {isCEO && request.status === 'PENDING' && (
+                          <div className="flex gap-2 mt-4">
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                approveRequestMutation.mutate(request.id)
+                              }}
+                              disabled={approveRequestMutation.isPending}
+                            >
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Aprovar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedRequest(request)
+                                setShowRejectModal(true)
+                              }}
+                            >
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Rejeitar
+                            </Button>
+                          </div>
+                        )}
+                        </CardContent>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))
+                    </div>
+                  </Card>
+                )
+              })
             )}
           </div>
         </DialogContent>
