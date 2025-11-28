@@ -13,6 +13,7 @@ import {
   MapPin,
   Phone,
   Mail,
+  RefreshCw,
 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -75,9 +76,7 @@ export function Agencies() {
 
   const { data: agencies, isLoading } = useQuery({
     queryKey: ['agencies'],
-    queryFn: async () => {
-      return await agenciesAPI.getAgencies()
-    },
+    queryFn: agenciesAPI.getAgencies,
     enabled: canViewAgencies,
   })
 
@@ -209,12 +208,31 @@ export function Agencies() {
     }
   }
 
+  const getPlanLabel = (plan: string) => {
+    switch (plan) {
+      case 'FREE': return 'Gratuito'
+      case 'ESSENTIAL': return 'Essencial'
+      case 'PROFESSIONAL': return 'Profissional'
+      case 'ENTERPRISE': return 'Empresarial'
+      default: return plan
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ACTIVE': return 'bg-green-100 text-green-800'
       case 'SUSPENDED': return 'bg-red-100 text-red-800'
       case 'PENDING': return 'bg-yellow-100 text-yellow-800'
       default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'ACTIVE': return 'Ativo'
+      case 'SUSPENDED': return 'Suspenso'
+      case 'PENDING': return 'Pendente'
+      default: return status
     }
   }
 
@@ -226,6 +244,15 @@ export function Agencies() {
             <h1 className="text-2xl font-bold text-foreground">Agencias</h1>
             <p className="text-muted-foreground">Visualize e gerencie agencias imobiliarias cadastradas</p>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['agencies'] })}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Atualizar
+          </Button>
         </div>
 
         {isLoading ? (
@@ -295,10 +322,10 @@ export function Agencies() {
                   <div className="flex items-center justify-between pt-2 border-t">
                     <div className="flex gap-2">
                       <Badge className={getPlanColor(agency.plan)}>
-                        {agency.plan}
+                        {getPlanLabel(agency.plan)}
                       </Badge>
                       <Badge className={getStatusColor(agency.status)}>
-                        {agency.status}
+                        {getStatusLabel(agency.status)}
                       </Badge>
                     </div>
                   </div>
@@ -374,11 +401,11 @@ export function Agencies() {
                 </div>
                 <div>
                   <Label>Plano</Label>
-                  <div className="text-sm text-foreground mt-1">{agencyDetail.plan}</div>
+                  <div className="text-sm text-foreground mt-1">{getPlanLabel(agencyDetail.plan)}</div>
                 </div>
                 <div>
                   <Label>Status</Label>
-                  <div className="text-sm text-foreground mt-1">{agencyDetail.status}</div>
+                  <div className="text-sm text-foreground mt-1">{getStatusLabel(agencyDetail.status)}</div>
                 </div>
                 <div>
                   <Label>Usuarios</Label>
@@ -425,9 +452,9 @@ export function Agencies() {
                       value={selectedAgency.status || 'ACTIVE'}
                       onChange={(e) => setSelectedAgency({ ...selectedAgency, status: e.target.value })}
                     >
-                      <option value="ACTIVE">ACTIVE</option>
-                      <option value="SUSPENDED">SUSPENDED</option>
-                      <option value="PENDING">PENDING</option>
+                      <option value="ACTIVE">Ativo</option>
+                      <option value="SUSPENDED">Suspenso</option>
+                      <option value="PENDING">Pendente</option>
                     </select>
                   </div>
                   <div className="md:col-span-2">
@@ -466,10 +493,10 @@ export function Agencies() {
                       value={selectedAgency.plan || 'FREE'}
                       onChange={(e) => setSelectedAgency({ ...selectedAgency, plan: e.target.value })}
                     >
-                      <option value="FREE">FREE</option>
-                      <option value="ESSENTIAL">ESSENTIAL</option>
-                      <option value="PROFESSIONAL">PROFESSIONAL</option>
-                      <option value="ENTERPRISE">ENTERPRISE</option>
+                      <option value="FREE">Gratuito</option>
+                      <option value="ESSENTIAL">Essencial</option>
+                      <option value="PROFESSIONAL">Profissional</option>
+                      <option value="ENTERPRISE">Empresarial</option>
                     </select>
                   </div>
                   <div>

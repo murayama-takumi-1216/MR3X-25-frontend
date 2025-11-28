@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Package, Edit, Crown, Star, Zap, Building2 } from 'lucide-react'
+import { Package, Edit, Crown, Star, Zap, Building2, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
 import { Textarea } from '../../components/ui/textarea'
@@ -12,14 +12,45 @@ import { toast } from 'sonner'
 import { useAuth } from '../../contexts/AuthContext'
 import { plansAPI } from '../../api'
 
+interface ModificationRequest {
+  id: string
+  planName: string
+  requestedBy: { id: string; name: string; email: string }
+  status: string
+  currentValues: {
+    price?: number
+    propertyLimit?: number
+    userLimit?: number
+    features?: string[]
+    description?: string
+  }
+  requestedValues: {
+    price?: number
+    propertyLimit?: number
+    userLimit?: number
+    features?: string[]
+    description?: string
+  }
+  reviewedBy?: { id: string; name: string; email: string }
+  reviewedAt?: string
+  rejectionReason?: string
+  createdAt: string
+}
+
 export default function PlansPage() {
-  const { hasPermission } = useAuth()
+  const { hasPermission, user } = useAuth()
   const queryClient = useQueryClient()
 
+  const isCEO = user?.role === 'CEO'
+  const isAdmin = user?.role === 'ADMIN'
   const canManagePlans = hasPermission('plans:update')
 
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<any>(null)
+  const [showRequestsModal, setShowRequestsModal] = useState(false)
+  const [selectedRequest, setSelectedRequest] = useState<ModificationRequest | null>(null)
+  const [showRejectModal, setShowRejectModal] = useState(false)
+  const [rejectReason, setRejectReason] = useState('')
 
   const [planForm, setPlanForm] = useState({
     price: '',
@@ -42,6 +73,20 @@ export default function PlansPage() {
     },
   })
 
+  // Fetch pending modification requests (CEO only)
+  const { data: pendingRequests = [] } = useQuery({
+    queryKey: ['plan-modification-requests-pending'],
+    queryFn: plansAPI.getPendingModificationRequests,
+    enabled: isCEO,
+  })
+
+  // Fetch all modification requests (CEO and ADMIN)
+  const { data: allRequests = [] } = useQuery({
+    queryKey: ['plan-modification-requests'],
+    queryFn: plansAPI.getAllModificationRequests,
+    enabled: isCEO || isAdmin,
+  })
+
   const handleEdit = (plan: any) => {
     setSelectedPlan(plan)
     setPlanForm({
@@ -56,20 +101,59 @@ export default function PlansPage() {
 
   const updatePlanMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => plansAPI.updatePlan(id, data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['plans'] })
-      toast.success('Plano atualizado com sucesso!')
+      queryClient.invalidateQueries({ queryKey: ['plan-modification-requests'] })
+      queryClient.invalidateQueries({ queryKey: ['plan-modification-requests-pending'] })
+
+      // Check if it's a modification request (ADMIN) or direct update (CEO)
+      if (response.status === 'PENDING') {
+        toast.success(response.message || 'Solicitação de modificação enviada para aprovação do CEO!')
+      } else {
+        toast.success('Plano atualizado com sucesso!')
+      }
       setShowEditModal(false)
       setSelectedPlan(null)
     },
     onError: (error: any) => {
       let errorMessage = 'Erro ao atualizar plano'
-      if (error?.data?.message) {
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (error?.data?.message) {
         errorMessage = error.data.message
       } else if (error?.message) {
         errorMessage = error.message
       }
       toast.error(errorMessage)
+    },
+  })
+
+  const approveRequestMutation = useMutation({
+    mutationFn: (id: string) => plansAPI.approveModificationRequest(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plans'] })
+      queryClient.invalidateQueries({ queryKey: ['plan-modification-requests'] })
+      queryClient.invalidateQueries({ queryKey: ['plan-modification-requests-pending'] })
+      toast.success('Solicitação aprovada! As alterações foram aplicadas ao plano.')
+      setSelectedRequest(null)
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Erro ao aprovar solicitação')
+    },
+  })
+
+  const rejectRequestMutation = useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) => plansAPI.rejectModificationRequest(id, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plan-modification-requests'] })
+      queryClient.invalidateQueries({ queryKey: ['plan-modification-requests-pending'] })
+      toast.success('Solicitação rejeitada.')
+      setShowRejectModal(false)
+      setSelectedRequest(null)
+      setRejectReason('')
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Erro ao rejeitar solicitação')
     },
   })
 
@@ -137,7 +221,45 @@ export default function PlansPage() {
             Gerencie os planos de assinatura da plataforma
           </p>
         </div>
+        <div className="flex gap-2">
+          {isCEO && pendingRequests.length > 0 && (
+            <Button
+              onClick={() => setShowRequestsModal(true)}
+              className="relative"
+            >
+              <AlertCircle className="w-4 h-4 mr-2" />
+              Solicitações Pendentes
+              <Badge className="absolute -top-2 -right-2 bg-red-500 text-white">
+                {pendingRequests.length}
+              </Badge>
+            </Button>
+          )}
+          {(isCEO || isAdmin) && (
+            <Button
+              variant="outline"
+              onClick={() => setShowRequestsModal(true)}
+            >
+              <Clock className="w-4 h-4 mr-2" />
+              Histórico
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* ADMIN Notice */}
+      {isAdmin && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-yellow-800 dark:text-yellow-200">Aprovação Necessária</h3>
+              <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                Como administrador, suas alterações nos planos precisam ser aprovadas pelo CEO antes de entrarem em vigor.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {plans.length === 0 ? (
         <div className="flex items-center justify-center h-64">
@@ -295,7 +417,150 @@ export default function PlansPage() {
                 onClick={handleUpdatePlan}
                 disabled={updatePlanMutation.isPending}
               >
-                {updatePlanMutation.isPending ? 'Salvando...' : 'Salvar'}
+                {updatePlanMutation.isPending ? 'Salvando...' : (isAdmin ? 'Enviar para Aprovação' : 'Salvar')}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modification Requests Modal */}
+      <Dialog open={showRequestsModal} onOpenChange={setShowRequestsModal}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Solicitações de Modificação de Planos</DialogTitle>
+            <DialogDescription>
+              {isCEO ? 'Revise e aprove ou rejeite as solicitações de modificação dos administradores.' : 'Histórico das suas solicitações de modificação.'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {allRequests.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">Nenhuma solicitação encontrada.</p>
+            ) : (
+              allRequests.map((request: ModificationRequest) => (
+                <Card key={request.id} className={`${request.status === 'PENDING' ? 'border-yellow-500' : ''}`}>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">{request.planName}</CardTitle>
+                      <Badge className={
+                        request.status === 'PENDING' ? 'bg-yellow-500' :
+                        request.status === 'APPROVED' ? 'bg-green-500' : 'bg-red-500'
+                      }>
+                        {request.status === 'PENDING' ? 'Pendente' :
+                         request.status === 'APPROVED' ? 'Aprovado' : 'Rejeitado'}
+                      </Badge>
+                    </div>
+                    <CardDescription>
+                      Solicitado por: {request.requestedBy.name || request.requestedBy.email} em {new Date(request.createdAt).toLocaleDateString('pt-BR')}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <h4 className="font-semibold mb-2">Valores Atuais</h4>
+                        <ul className="space-y-1 text-muted-foreground">
+                          <li>Preço: R$ {request.currentValues.price?.toFixed(2) || '0.00'}</li>
+                          <li>Limite de Propriedades: {request.currentValues.propertyLimit}</li>
+                          <li>Limite de Usuários: {request.currentValues.userLimit}</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-2">Valores Solicitados</h4>
+                        <ul className="space-y-1">
+                          <li className={request.requestedValues.price !== request.currentValues.price ? 'text-blue-600 font-medium' : 'text-muted-foreground'}>
+                            Preço: R$ {request.requestedValues.price?.toFixed(2) || '0.00'}
+                          </li>
+                          <li className={request.requestedValues.propertyLimit !== request.currentValues.propertyLimit ? 'text-blue-600 font-medium' : 'text-muted-foreground'}>
+                            Limite de Propriedades: {request.requestedValues.propertyLimit}
+                          </li>
+                          <li className={request.requestedValues.userLimit !== request.currentValues.userLimit ? 'text-blue-600 font-medium' : 'text-muted-foreground'}>
+                            Limite de Usuários: {request.requestedValues.userLimit}
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    {request.status === 'REJECTED' && request.rejectionReason && (
+                      <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                        <p className="text-sm text-red-700 dark:text-red-300">
+                          <strong>Motivo da rejeição:</strong> {request.rejectionReason}
+                        </p>
+                      </div>
+                    )}
+
+                    {request.reviewedBy && (
+                      <p className="text-xs text-muted-foreground mt-3">
+                        Revisado por: {request.reviewedBy.name || request.reviewedBy.email} em {new Date(request.reviewedAt!).toLocaleDateString('pt-BR')}
+                      </p>
+                    )}
+
+                    {isCEO && request.status === 'PENDING' && (
+                      <div className="flex gap-2 mt-4">
+                        <Button
+                          size="sm"
+                          onClick={() => approveRequestMutation.mutate(request.id)}
+                          disabled={approveRequestMutation.isPending}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Aprovar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => {
+                            setSelectedRequest(request)
+                            setShowRejectModal(true)
+                          }}
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          Rejeitar
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Request Modal */}
+      <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rejeitar Solicitação</DialogTitle>
+            <DialogDescription>
+              Você está rejeitando a solicitação de modificação do plano {selectedRequest?.planName}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="reject-reason">Motivo da Rejeição (opcional)</Label>
+              <Textarea
+                id="reject-reason"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Explique o motivo da rejeição..."
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => {
+                setShowRejectModal(false)
+                setRejectReason('')
+              }}>
+                Cancelar
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  if (selectedRequest) {
+                    rejectRequestMutation.mutate({ id: selectedRequest.id, reason: rejectReason })
+                  }
+                }}
+                disabled={rejectRequestMutation.isPending}
+              >
+                {rejectRequestMutation.isPending ? 'Rejeitando...' : 'Confirmar Rejeição'}
               </Button>
             </div>
           </div>

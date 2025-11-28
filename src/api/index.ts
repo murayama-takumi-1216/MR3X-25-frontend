@@ -347,6 +347,27 @@ export const plansAPI = {
     const response = await apiClient.post('/plans/update-counts');
     return response.data;
   },
+
+  // Modification requests
+  getPendingModificationRequests: async () => {
+    const response = await apiClient.get('/plans/modification-requests/pending');
+    return response.data;
+  },
+
+  getAllModificationRequests: async () => {
+    const response = await apiClient.get('/plans/modification-requests');
+    return response.data;
+  },
+
+  approveModificationRequest: async (id: string) => {
+    const response = await apiClient.post(`/plans/modification-requests/${id}/approve`);
+    return response.data;
+  },
+
+  rejectModificationRequest: async (id: string, reason?: string) => {
+    const response = await apiClient.post(`/plans/modification-requests/${id}/reject`, { reason });
+    return response.data;
+  },
 };
 
 // Notifications API

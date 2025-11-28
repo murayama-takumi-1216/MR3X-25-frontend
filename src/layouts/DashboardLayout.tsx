@@ -14,7 +14,7 @@ const baseNavigation = [
   { name: 'Inquilinos', href: '/dashboard/tenants', icon: Users, perm: 'users:read' },
   { name: 'Corretores', href: '/dashboard/brokers', icon: Briefcase, perm: 'users:read' },
   { name: 'Proprietários', href: '/dashboard/owners', icon: UserCog, perm: 'users:read' },
-  { name: 'Diretor Agência', href: '/dashboard/agency-admin', icon: Crown, perm: 'dashboard:read', roles: ['ADMIN'] },
+  { name: 'Diretor Agência', href: '/dashboard/agency-admin', icon: Crown, perm: 'dashboard:read', roles: ['CEO', 'ADMIN'] },
   { name: 'Gerentes', href: '/dashboard/managers', icon: UserCheck, perm: 'users:read', roles: ['AGENCY_ADMIN'] },
   { name: 'Contratos', href: '/dashboard/contracts', icon: FileText, perm: 'contracts:read' },
   { name: 'Pagamentos', href: '/dashboard/payments', icon: DollarSign, perm: 'payments:read' },
