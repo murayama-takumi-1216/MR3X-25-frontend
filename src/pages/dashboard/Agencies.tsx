@@ -4,17 +4,14 @@ import { toast } from 'sonner'
 import { useAuth } from '@/contexts/AuthContext'
 import { usersAPI } from '@/api'
 import {
-  Building,
   Edit,
   Trash2,
   Eye,
   MoreHorizontal,
-  Users,
   MapPin,
   Phone,
   Mail,
   RefreshCw,
-  Home,
   User,
 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'

@@ -66,10 +66,10 @@ export function AgencyAdmin() {
   const { data: agencyAdminsData, isLoading } = useQuery({
     queryKey: ['agency-admins'],
     queryFn: () => usersAPI.listUsers({ role: 'AGENCY_ADMIN' }),
-    enabled: canView,
+    enabled: !!canView,
   })
 
-  const agencyAdmins = agencyAdminsData?.items || []
+  const agencyAdmins = (agencyAdminsData as any)?.items || []
 
   if (!canView) {
     return (
