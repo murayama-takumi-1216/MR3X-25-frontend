@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { propertiesAPI, usersAPI, addressAPI, paymentsAPI } from '../../api';
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -22,7 +23,9 @@ import {
   X,
   UserPlus,
   Loader2,
-  Search
+  Search,
+  Crown,
+  AlertTriangle
 } from 'lucide-react';
 import { FrozenBadge } from '../../components/ui/FrozenBadge';
 import { CEPInput } from '../../components/ui/cep-input';
@@ -72,6 +75,8 @@ export function Properties() {
   const canUpdateProperties = hasPermission('properties:update') && !isCEO;
   const canDeleteProperties = hasPermission('properties:delete') && !isCEO;
 
+  const navigate = useNavigate();
+
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -82,6 +87,8 @@ export function Properties() {
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeErrorMessage, setUpgradeErrorMessage] = useState('');
 
   // Form states
   const [newProperty, setNewProperty] = useState({
@@ -424,8 +431,21 @@ export function Properties() {
       setSelectedImages([]);
       toast.success('Propriedade criada com sucesso');
     },
-    onError: () => {
-      toast.error('Erro ao criar propriedade');
+    onError: (error: any) => {
+      // Check if it's a plan limit error (403 Forbidden with plan-related message)
+      const errorMessage = error?.response?.data?.message || error?.data?.message || error?.message || '';
+      const isPlanLimitError = error?.response?.status === 403 ||
+        errorMessage.toLowerCase().includes('plano') ||
+        errorMessage.toLowerCase().includes('limite') ||
+        errorMessage.toLowerCase().includes('plan');
+
+      if (isPlanLimitError) {
+        setUpgradeErrorMessage(errorMessage || 'Você atingiu o limite do seu plano.');
+        setShowCreateModal(false);
+        setShowUpgradeModal(true);
+      } else {
+        toast.error('Erro ao criar propriedade');
+      }
     },
   });
 
@@ -2203,6 +2223,106 @@ export function Properties() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Upgrade Plan Modal */}
+        <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-amber-600">
+                <AlertTriangle className="w-6 h-6" />
+                Limite do Plano Atingido
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="flex items-center justify-center py-4">
+                <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
+                  <Crown className="w-8 h-8 text-amber-600" />
+                </div>
+              </div>
+
+              <div className="text-center space-y-2">
+                <p className="text-lg font-semibold text-gray-900">
+                  Você está no plano gratuito
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {upgradeErrorMessage || 'No plano gratuito, você pode cadastrar apenas 1 imóvel.'}
+                </p>
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-2">
+                <p className="text-sm font-medium text-amber-800">
+                  Com o plano gratuito você pode:
+                </p>
+                <ul className="text-sm text-amber-700 space-y-1">
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    Cadastrar 1 imóvel
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    Cadastrar 1 usuário
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    Criar 1 contrato
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
+                <p className="text-sm font-medium text-green-800">
+                  Faça upgrade para desbloquear:
+                </p>
+                <ul className="text-sm text-green-700 space-y-1">
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    Imóveis ilimitados
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    Usuários ilimitados
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    Contratos ilimitados
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    Relatórios avançados
+                  </li>
+                </ul>
+              </div>
+
+              <p className="text-center text-sm text-muted-foreground">
+                Deseja fazer upgrade do seu plano agora?
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowUpgradeModal(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white"
+                onClick={() => {
+                  setShowUpgradeModal(false);
+                  // Navigate to plans page based on user role
+                  if (user?.role === 'AGENCY_ADMIN' || user?.role === 'AGENCY_MANAGER') {
+                    navigate('/dashboard/agency-plan-config');
+                  } else {
+                    navigate('/dashboard/plans');
+                  }
+                }}
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                Fazer Upgrade
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   );
