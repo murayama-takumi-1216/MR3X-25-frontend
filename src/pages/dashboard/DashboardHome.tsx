@@ -12,6 +12,18 @@ export function DashboardHome() {
   const { hasPermission, user } = useAuth();
   const navigate = useNavigate();
 
+  // Redirect INQUILINO users to their dedicated tenant dashboard
+  if (user?.role === 'INQUILINO') {
+    navigate('/dashboard/tenant-dashboard', { replace: true });
+    return null;
+  }
+
+  // Redirect BROKER users to their dedicated broker dashboard
+  if (user?.role === 'BROKER') {
+    navigate('/dashboard/broker-dashboard', { replace: true });
+    return null;
+  }
+
   // Check permissions for different dashboard sections
   const canViewDashboard = hasPermission('dashboard:read');
   const canViewProperties = hasPermission('properties:read');

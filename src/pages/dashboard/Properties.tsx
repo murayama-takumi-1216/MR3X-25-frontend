@@ -2312,6 +2312,8 @@ export function Properties() {
                   // Navigate to plans page based on user role
                   if (user?.role === 'AGENCY_ADMIN' || user?.role === 'AGENCY_MANAGER') {
                     navigate('/dashboard/agency-plan-config');
+                  } else if (user?.role === 'INDEPENDENT_OWNER') {
+                    navigate('/dashboard/owner-plan-config');
                   } else {
                     navigate('/dashboard/plans');
                   }

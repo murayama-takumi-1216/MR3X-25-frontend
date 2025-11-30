@@ -4,12 +4,20 @@ import {
   Home, Building2, Users, FileText, DollarSign, MessageSquare, Bell,
   LogOut, Menu, X, BarChart3, User, Shield, Building, Briefcase,
   UserCheck, Handshake, UserCog, ShieldCheck, Settings, FileDown,
-  Crown, Package, Mail, Wrench, Receipt, Key
+  Crown, Package, Mail, Wrench, Receipt, Key, ClipboardCheck, FileSignature
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const baseNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home, perm: undefined },
+  // Tenant-specific menu items (INQUILINO role only)
+  { name: 'Meu Imóvel', href: '/dashboard/tenant-dashboard', icon: Home, perm: undefined, roles: ['INQUILINO'] },
+  { name: 'Meu Contrato', href: '/dashboard/tenant-contract', icon: FileText, perm: undefined, roles: ['INQUILINO'] },
+  { name: 'Meus Pagamentos', href: '/dashboard/tenant-payments', icon: DollarSign, perm: undefined, roles: ['INQUILINO'] },
+  { name: 'Meu Perfil', href: '/dashboard/tenant-profile', icon: User, perm: undefined, roles: ['INQUILINO'] },
+  // Broker-specific menu items (BROKER role only)
+  { name: 'Meu Painel', href: '/dashboard/broker-dashboard', icon: Home, perm: undefined, roles: ['BROKER'] },
+  // Regular menu items for other roles
   { name: 'Propriedades', href: '/dashboard/properties', icon: Building2, perm: 'properties:read' },
   { name: 'Inquilinos', href: '/dashboard/tenants', icon: Users, perm: 'users:read' },
   { name: 'Corretores', href: '/dashboard/brokers', icon: Briefcase, perm: 'users:read' },
@@ -17,6 +25,9 @@ const baseNavigation = [
   { name: 'Diretor Agência', href: '/dashboard/agency-admin', icon: Crown, perm: undefined, roles: ['CEO', 'ADMIN'] },
   { name: 'Gerentes', href: '/dashboard/managers', icon: UserCheck, perm: 'users:read', roles: ['AGENCY_ADMIN'] },
   { name: 'Contratos', href: '/dashboard/contracts', icon: FileText, perm: 'contracts:read' },
+  { name: 'Vistorias', href: '/dashboard/inspections', icon: ClipboardCheck, perm: undefined },
+  { name: 'Acordos', href: '/dashboard/agreements', icon: FileSignature, perm: undefined },
+  { name: 'Faturas', href: '/dashboard/invoices', icon: Receipt, perm: undefined },
   { name: 'Pagamentos', href: '/dashboard/payments', icon: DollarSign, perm: 'payments:read' },
   { name: 'Split Configuration', href: '/dashboard/agency-split-config', icon: Handshake, perm: 'payments:read', roles: ['AGENCY_ADMIN'] },
   { name: 'Plano da Agência', href: '/dashboard/agency-plan-config', icon: Package, perm: 'agencies:update', roles: ['AGENCY_ADMIN'] },
@@ -98,6 +109,9 @@ export function DashboardLayout() {
       const excludeForAdmin = [
         '/dashboard/properties',
         '/dashboard/contracts',
+        '/dashboard/inspections',
+        '/dashboard/agreements',
+        '/dashboard/invoices',
         '/dashboard/payments',
         '/dashboard/brokers',
         '/dashboard/tenants',
@@ -133,6 +147,9 @@ export function DashboardLayout() {
       const excludeForPlatformManager = [
         '/dashboard/properties', // NO agency operations
         '/dashboard/contracts', // NO agency operations
+        '/dashboard/inspections', // NO agency operations
+        '/dashboard/agreements', // NO agency operations
+        '/dashboard/invoices', // NO agency operations
         '/dashboard/payments', // NO agency operations
         '/dashboard/tenants', // NO agency operations
         '/dashboard/brokers', // NO agency operations
@@ -173,27 +190,28 @@ export function DashboardLayout() {
       if (excludeForAgencyManager.includes(item.href)) return false;
     }
 
-    // BROKER: Manages own properties/contracts only
+    // BROKER (Corretor): Property Acquisition Agent inside an Agency
+    // Can: Create/edit properties, manage assigned properties, create contracts,
+    //      conduct inspections, upload documents, communicate with tenants/owners
+    // Cannot: Manage agency, create users, see other brokers, edit financial splits
     if (user?.role === 'BROKER') {
-      const excludeForBroker = [
-        '/dashboard/brokers',
-        '/dashboard/owners',
-        '/dashboard/users',
-        '/dashboard/reports', // Limited report access
-        '/dashboard/agencies',
-        '/dashboard/managers',
-        '/dashboard/agency-admin',
-        '/dashboard/agency-split-config',
-        '/dashboard/agency-plan-config',
-        '/dashboard/plans',
-        '/dashboard/billing',
-        '/dashboard/communications',
-        '/dashboard/integrations',
-        '/dashboard/audit',
-        '/dashboard/documents',
-        '/dashboard/settings',
+      const allowForBroker = [
+        '/dashboard', // Main dashboard (redirects to broker dashboard)
+        '/dashboard/broker-dashboard', // Broker-specific dashboard
+        '/dashboard/properties', // Create/edit properties (assigned to them)
+        '/dashboard/contracts', // Create/prepare contracts
+        '/dashboard/inspections', // Conduct inspections
+        '/dashboard/agreements', // View/sign agreements
+        '/dashboard/invoices', // View invoices (read-only)
+        '/dashboard/tenants', // View and interact with tenants
+        '/dashboard/payments', // View payments (read-only, no financial edits)
+        '/dashboard/documents', // Upload and generate documents
+        '/dashboard/notifications', // Receive notifications
+        '/dashboard/chat', // Communicate with tenants/owners
+        '/dashboard/change-password', // Security
       ];
-      if (excludeForBroker.includes(item.href)) return false;
+      // Only allow explicitly listed pages for brokers
+      if (!allowForBroker.includes(item.href)) return false;
     }
 
     // PROPRIETARIO: Owner linked to agency - limited access
@@ -244,28 +262,22 @@ export function DashboardLayout() {
       if (excludeForIndependentOwner.includes(item.href)) return false;
     }
 
-    // INQUILINO: Tenant - very limited access
+    // INQUILINO: Tenant - End-User with NO operation control
+    // Only shows: Dashboard, Tenant-specific pages, Notifications, Change Password
+    // Can: View contract, View/pay invoices, View receipts, Receive notifications, Update profile
+    // Cannot: Create/edit anything, Access admin features, See other users/contracts
     if (user?.role === 'INQUILINO') {
-      const excludeForInquilino = [
-        '/dashboard/brokers',
-        '/dashboard/owners',
-        '/dashboard/tenants',
-        '/dashboard/users',
-        '/dashboard/agencies',
-        '/dashboard/managers',
-        '/dashboard/agency-admin',
-        '/dashboard/agency-split-config',
-        '/dashboard/agency-plan-config',
-        '/dashboard/plans',
-        '/dashboard/billing',
-        '/dashboard/communications',
-        '/dashboard/integrations',
-        '/dashboard/audit',
-        '/dashboard/documents',
-        '/dashboard/settings',
-        '/dashboard/reports', // Limited or no report access
+      const allowForInquilino = [
+        '/dashboard', // Main dashboard (redirects to tenant dashboard)
+        '/dashboard/tenant-dashboard', // Tenant-specific dashboard
+        '/dashboard/tenant-contract', // View their contract
+        '/dashboard/tenant-payments', // View/make payments
+        '/dashboard/tenant-profile', // Update their profile
+        '/dashboard/notifications', // Receive notifications
+        '/dashboard/change-password', // Security
       ];
-      if (excludeForInquilino.includes(item.href)) return false;
+      // Only allow explicitly listed pages for tenants
+      if (!allowForInquilino.includes(item.href)) return false;
     }
 
     // BUILDING_MANAGER: Condominium manager - limited to common areas
@@ -280,6 +292,9 @@ export function DashboardLayout() {
         '/dashboard/agency-admin',
         '/dashboard/agency-split-config',
         '/dashboard/agency-plan-config',
+        '/dashboard/inspections',
+        '/dashboard/agreements',
+        '/dashboard/invoices',
         '/dashboard/plans',
         '/dashboard/billing',
         '/dashboard/communications',
@@ -303,6 +318,9 @@ export function DashboardLayout() {
         '/dashboard/agency-admin',
         '/dashboard/agency-split-config',
         '/dashboard/agency-plan-config',
+        '/dashboard/inspections',
+        '/dashboard/agreements',
+        '/dashboard/invoices',
         '/dashboard/plans',
         '/dashboard/billing',
         '/dashboard/communications',
@@ -320,6 +338,9 @@ export function DashboardLayout() {
       const excludeForRepresentative = [
         '/dashboard/properties',
         '/dashboard/contracts',
+        '/dashboard/inspections',
+        '/dashboard/agreements',
+        '/dashboard/invoices',
         '/dashboard/payments',
         '/dashboard/brokers',
         '/dashboard/owners',

@@ -118,6 +118,23 @@ export const contractsAPI = {
     });
     return response.data;
   },
+
+  // Sign contract
+  signContract: async (id: string, data: {
+    signature: string;
+    signatureType: 'tenant' | 'owner' | 'agency' | 'witness';
+    witnessName?: string;
+    witnessDocument?: string;
+  }) => {
+    const response = await apiClient.post(`/contracts/${id}/sign`, data);
+    return response.data;
+  },
+
+  // Get tenant's own contract
+  getMyContract: async () => {
+    const response = await apiClient.get('/contracts/my-contract/tenant');
+    return response.data;
+  },
 };
 
 // Contract Templates API
@@ -518,6 +535,313 @@ export const documentsAPI = {
     const response = await apiClient.post(`/documents/invoice/auto/${contractId}`, null, {
       responseType: 'blob',
     });
+    return response.data;
+  },
+};
+
+// Inspections API
+export const inspectionsAPI = {
+  getInspections: async (params?: {
+    propertyId?: string;
+    contractId?: string;
+    type?: string;
+    status?: string;
+    inspectorId?: string;
+    startDate?: string;
+    endDate?: string;
+  }) => {
+    const qs = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') {
+          qs.append(k, String(v));
+        }
+      });
+    }
+    const query = qs.toString();
+    const response = await apiClient.get(`/inspections${query ? `?${query}` : ''}`);
+    return Array.isArray(response.data) ? response.data : (response.data?.data || []);
+  },
+
+  getInspectionById: async (id: string) => {
+    const response = await apiClient.get(`/inspections/${id}`);
+    return response.data;
+  },
+
+  createInspection: async (inspection: any) => {
+    const response = await apiClient.post('/inspections', inspection);
+    return response.data;
+  },
+
+  updateInspection: async (id: string, inspection: any) => {
+    const response = await apiClient.put(`/inspections/${id}`, inspection);
+    return response.data;
+  },
+
+  deleteInspection: async (id: string) => {
+    const response = await apiClient.delete(`/inspections/${id}`);
+    return response.data;
+  },
+
+  signInspection: async (id: string, signatures: {
+    tenantSignature?: string;
+    ownerSignature?: string;
+    agencySignature?: string;
+    inspectorSignature?: string;
+  }) => {
+    const response = await apiClient.patch(`/inspections/${id}/sign`, signatures);
+    return response.data;
+  },
+
+  approveInspection: async (id: string) => {
+    const response = await apiClient.patch(`/inspections/${id}/approve`);
+    return response.data;
+  },
+
+  rejectInspection: async (id: string, rejectionReason: string) => {
+    const response = await apiClient.patch(`/inspections/${id}/reject`, { rejectionReason });
+    return response.data;
+  },
+
+  updateStatus: async (id: string, status: string) => {
+    const response = await apiClient.patch(`/inspections/${id}/status`, { status });
+    return response.data;
+  },
+
+  getStatistics: async () => {
+    const response = await apiClient.get('/inspections/statistics');
+    return response.data;
+  },
+
+  // Templates
+  getTemplates: async (params?: { type?: string; isDefault?: boolean }) => {
+    const qs = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') {
+          qs.append(k, String(v));
+        }
+      });
+    }
+    const query = qs.toString();
+    const response = await apiClient.get(`/inspections/templates${query ? `?${query}` : ''}`);
+    return response.data;
+  },
+
+  getTemplateById: async (id: string) => {
+    const response = await apiClient.get(`/inspections/templates/${id}`);
+    return response.data;
+  },
+
+  createTemplate: async (template: any) => {
+    const response = await apiClient.post('/inspections/templates', template);
+    return response.data;
+  },
+
+  updateTemplate: async (id: string, template: any) => {
+    const response = await apiClient.put(`/inspections/templates/${id}`, template);
+    return response.data;
+  },
+
+  deleteTemplate: async (id: string) => {
+    const response = await apiClient.delete(`/inspections/templates/${id}`);
+    return response.data;
+  },
+};
+
+// Agreements API
+export const agreementsAPI = {
+  getAgreements: async (params?: {
+    propertyId?: string;
+    contractId?: string;
+    type?: string;
+    status?: string;
+    tenantId?: string;
+    ownerId?: string;
+    startDate?: string;
+    endDate?: string;
+  }) => {
+    const qs = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') {
+          qs.append(k, String(v));
+        }
+      });
+    }
+    const query = qs.toString();
+    const response = await apiClient.get(`/agreements${query ? `?${query}` : ''}`);
+    return Array.isArray(response.data) ? response.data : (response.data?.data || []);
+  },
+
+  getAgreementById: async (id: string) => {
+    const response = await apiClient.get(`/agreements/${id}`);
+    return response.data;
+  },
+
+  createAgreement: async (agreement: any) => {
+    const response = await apiClient.post('/agreements', agreement);
+    return response.data;
+  },
+
+  updateAgreement: async (id: string, agreement: any) => {
+    const response = await apiClient.put(`/agreements/${id}`, agreement);
+    return response.data;
+  },
+
+  deleteAgreement: async (id: string) => {
+    const response = await apiClient.delete(`/agreements/${id}`);
+    return response.data;
+  },
+
+  signAgreement: async (id: string, signatures: {
+    tenantSignature?: string;
+    ownerSignature?: string;
+    agencySignature?: string;
+  }) => {
+    const response = await apiClient.patch(`/agreements/${id}/sign`, signatures);
+    return response.data;
+  },
+
+  sendForSignature: async (id: string) => {
+    const response = await apiClient.patch(`/agreements/${id}/send-for-signature`);
+    return response.data;
+  },
+
+  approveAgreement: async (id: string) => {
+    const response = await apiClient.patch(`/agreements/${id}/approve`);
+    return response.data;
+  },
+
+  rejectAgreement: async (id: string, rejectionReason: string) => {
+    const response = await apiClient.patch(`/agreements/${id}/reject`, { rejectionReason });
+    return response.data;
+  },
+
+  cancelAgreement: async (id: string) => {
+    const response = await apiClient.patch(`/agreements/${id}/cancel`);
+    return response.data;
+  },
+
+  updateStatus: async (id: string, status: string) => {
+    const response = await apiClient.patch(`/agreements/${id}/status`, { status });
+    return response.data;
+  },
+
+  getStatistics: async () => {
+    const response = await apiClient.get('/agreements/statistics');
+    return response.data;
+  },
+
+  // Templates
+  getTemplates: async (params?: { type?: string; isDefault?: boolean }) => {
+    const qs = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') {
+          qs.append(k, String(v));
+        }
+      });
+    }
+    const query = qs.toString();
+    const response = await apiClient.get(`/agreements/templates${query ? `?${query}` : ''}`);
+    return response.data;
+  },
+
+  getTemplateById: async (id: string) => {
+    const response = await apiClient.get(`/agreements/templates/${id}`);
+    return response.data;
+  },
+
+  createTemplate: async (template: any) => {
+    const response = await apiClient.post('/agreements/templates', template);
+    return response.data;
+  },
+
+  updateTemplate: async (id: string, template: any) => {
+    const response = await apiClient.put(`/agreements/templates/${id}`, template);
+    return response.data;
+  },
+
+  deleteTemplate: async (id: string) => {
+    const response = await apiClient.delete(`/agreements/templates/${id}`);
+    return response.data;
+  },
+};
+
+// Invoices API
+export const invoicesAPI = {
+  getInvoices: async (params?: {
+    propertyId?: string;
+    contractId?: string;
+    tenantId?: string;
+    ownerId?: string;
+    type?: string;
+    status?: string;
+    referenceMonth?: string;
+    startDate?: string;
+    endDate?: string;
+  }) => {
+    const qs = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') {
+          qs.append(k, String(v));
+        }
+      });
+    }
+    const query = qs.toString();
+    const response = await apiClient.get(`/invoices${query ? `?${query}` : ''}`);
+    return Array.isArray(response.data) ? response.data : (response.data?.data || []);
+  },
+
+  getInvoiceById: async (id: string) => {
+    const response = await apiClient.get(`/invoices/${id}`);
+    return response.data;
+  },
+
+  createInvoice: async (invoice: any) => {
+    const response = await apiClient.post('/invoices', invoice);
+    return response.data;
+  },
+
+  updateInvoice: async (id: string, invoice: any) => {
+    const response = await apiClient.put(`/invoices/${id}`, invoice);
+    return response.data;
+  },
+
+  markAsPaid: async (id: string, data: {
+    paymentMethod?: string;
+    paidValue?: number;
+    paidAt?: string;
+    notes?: string;
+  }) => {
+    const response = await apiClient.patch(`/invoices/${id}/mark-paid`, data);
+    return response.data;
+  },
+
+  cancelInvoice: async (id: string, reason?: string) => {
+    const response = await apiClient.patch(`/invoices/${id}/cancel`, { reason });
+    return response.data;
+  },
+
+  resendToTenant: async (id: string, email?: string) => {
+    const response = await apiClient.post(`/invoices/${id}/resend`, { email });
+    return response.data;
+  },
+
+  downloadInvoice: async (id: string) => {
+    const response = await apiClient.get(`/invoices/${id}/download`);
+    return response.data;
+  },
+
+  downloadReceipt: async (id: string) => {
+    const response = await apiClient.get(`/invoices/${id}/receipt`);
+    return response.data;
+  },
+
+  getStatistics: async () => {
+    const response = await apiClient.get('/invoices/statistics');
     return response.data;
   },
 };

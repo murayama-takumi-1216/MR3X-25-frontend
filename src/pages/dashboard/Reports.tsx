@@ -53,40 +53,32 @@ export default function Reports() {
     return Array.from({ length: 5 }).map((_, idx) => currentYear - idx)
   }, [currentYear])
 
-  // Load additional data
+  // Load additional data only when needed (lazy loading)
   useEffect(() => {
     const loadData = async () => {
       try {
-        const promises = []
-
-        if (canViewProperties) {
-          promises.push(propertiesAPI.getProperties())
-        } else {
-          promises.push(Promise.resolve([]))
+        // Only load properties and tenants when switching to those report types
+        if (reportType === 'property' && canViewProperties && properties.length === 0) {
+          const propertiesData = await propertiesAPI.getProperties()
+          setProperties(ensureArray(propertiesData))
         }
 
-        if (canViewUsers) {
-          promises.push(usersAPI.getTenants())
-        } else {
-          promises.push(Promise.resolve([]))
+        if (reportType === 'tenant' && canViewUsers && tenants.length === 0) {
+          const tenantsData = await usersAPI.getTenants()
+          setTenants(ensureArray(tenantsData))
         }
 
-        if (canViewPayments) {
-          promises.push(paymentsAPI.getPayments())
-        } else {
-          promises.push(Promise.resolve([]))
+        // Only load payments when needed for property/tenant performance
+        if ((reportType === 'property' || reportType === 'tenant') && canViewPayments && payments.length === 0) {
+          const paymentsData = await paymentsAPI.getPayments()
+          setPayments(ensureArray(paymentsData))
         }
-
-        const [propertiesData, tenantsData, paymentsData] = await Promise.all(promises)
-        setProperties(ensureArray(propertiesData))
-        setTenants(ensureArray(tenantsData))
-        setPayments(ensureArray(paymentsData))
       } catch (error) {
         console.error('Error loading data:', error)
       }
     }
     loadData()
-  }, [canViewProperties, canViewUsers, canViewPayments])
+  }, [reportType, canViewProperties, canViewUsers, canViewPayments])
 
   useEffect(() => {
     const fetchReport = async () => {

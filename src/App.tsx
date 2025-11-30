@@ -22,6 +22,14 @@ import { AgencyAdmin } from './pages/dashboard/AgencyAdmin';
 import { AgencyPlanConfig } from './pages/dashboard/AgencyPlanConfig';
 import { AgencySplitConfig } from './pages/dashboard/AgencySplitConfig';
 import { OwnerPlanConfig } from './pages/dashboard/OwnerPlanConfig';
+import { TenantDashboard } from './pages/dashboard/TenantDashboard';
+import { TenantContract } from './pages/dashboard/TenantContract';
+import { TenantPayments } from './pages/dashboard/TenantPayments';
+import { TenantProfile } from './pages/dashboard/TenantProfile';
+import { BrokerDashboard } from './pages/dashboard/BrokerDashboard';
+import { Inspections } from './pages/dashboard/Inspections';
+import { Agreements } from './pages/dashboard/Agreements';
+import { Invoices } from './pages/dashboard/Invoices';
 import { Audit } from './pages/dashboard/Audit';
 import { Notifications } from './pages/dashboard/Notifications';
 import { Chat } from './pages/dashboard/Chat';
@@ -83,6 +91,19 @@ function App() {
               <Route path="contracts/:id" element={<PlaceholderPage title="Detalhes do Contrato" />} />
               <Route path="contracts/:id/edit" element={<PlaceholderPage title="Editar Contrato" />} />
 
+              <Route path="inspections" element={<Inspections />} />
+              <Route path="inspections/new" element={<PlaceholderPage title="Nova Vistoria" />} />
+              <Route path="inspections/:id" element={<PlaceholderPage title="Detalhes da Vistoria" />} />
+              <Route path="inspections/:id/edit" element={<PlaceholderPage title="Editar Vistoria" />} />
+
+              <Route path="agreements" element={<Agreements />} />
+              <Route path="agreements/new" element={<PlaceholderPage title="Novo Acordo" />} />
+              <Route path="agreements/:id" element={<PlaceholderPage title="Detalhes do Acordo" />} />
+              <Route path="agreements/:id/edit" element={<PlaceholderPage title="Editar Acordo" />} />
+
+              <Route path="invoices" element={<Invoices />} />
+              <Route path="invoices/:id" element={<PlaceholderPage title="Detalhes da Fatura" />} />
+
               <Route path="payments" element={<Payments />} />
               <Route path="payments/new" element={<PlaceholderPage title="Novo Pagamento" />} />
               <Route path="payments/:id" element={<PlaceholderPage title="Detalhes do Pagamento" />} />
@@ -131,6 +152,15 @@ function App() {
               <Route path="chat" element={<Chat />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="change-password" element={<ChangePassword />} />
+
+              {/* Tenant-specific routes */}
+              <Route path="tenant-dashboard" element={<TenantDashboard />} />
+              <Route path="tenant-contract" element={<TenantContract />} />
+              <Route path="tenant-payments" element={<TenantPayments />} />
+              <Route path="tenant-profile" element={<TenantProfile />} />
+
+              {/* Broker-specific routes */}
+              <Route path="broker-dashboard" element={<BrokerDashboard />} />
             </Route>
 
             {/* Redirect root to dashboard or login */}

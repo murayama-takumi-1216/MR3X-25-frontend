@@ -49,7 +49,45 @@ export default function DocumentsPage() {
     instructions: '',
   })
 
+  const validateReceiptData = (): string[] => {
+    const errors: string[] = []
+    if (!receiptData.receiptNumber.trim()) errors.push('Número do Recibo')
+    if (!receiptData.paymentDate) errors.push('Data do Pagamento')
+    if (!receiptData.ownerName.trim()) errors.push('Nome do Proprietário')
+    if (!receiptData.ownerDocument.trim()) errors.push('CPF/CNPJ do Proprietário')
+    if (!receiptData.tenantName.trim()) errors.push('Nome do Inquilino')
+    if (!receiptData.tenantDocument.trim()) errors.push('CPF/CNPJ do Inquilino')
+    if (!receiptData.propertyAddress.trim()) errors.push('Endereço do Imóvel')
+    if (!receiptData.amount || parseFloat(receiptData.amount) <= 0) errors.push('Valor')
+    if (!receiptData.description.trim()) errors.push('Descrição')
+    if (!receiptData.paymentMethod.trim()) errors.push('Forma de Pagamento')
+    if (!receiptData.referenceMonth.trim()) errors.push('Mês de Referência')
+    return errors
+  }
+
+  const validateInvoiceData = (): string[] => {
+    const errors: string[] = []
+    if (!invoiceData.invoiceNumber.trim()) errors.push('Número da Fatura')
+    if (!invoiceData.invoiceDate) errors.push('Data da Fatura')
+    if (!invoiceData.dueDate) errors.push('Data de Vencimento')
+    if (!invoiceData.ownerName.trim()) errors.push('Nome do Proprietário')
+    if (!invoiceData.ownerDocument.trim()) errors.push('CPF/CNPJ do Proprietário')
+    if (!invoiceData.tenantName.trim()) errors.push('Nome do Inquilino')
+    if (!invoiceData.tenantDocument.trim()) errors.push('CPF/CNPJ do Inquilino')
+    if (!invoiceData.propertyAddress.trim()) errors.push('Endereço do Imóvel')
+    if (!invoiceData.referenceMonth.trim()) errors.push('Mês de Referência')
+    if (!invoiceData.originalValue || parseFloat(invoiceData.originalValue) <= 0) errors.push('Valor Original')
+    if (!invoiceData.finalValue || parseFloat(invoiceData.finalValue) <= 0) errors.push('Valor Final')
+    return errors
+  }
+
   const handleGenerateReceipt = async () => {
+    const errors = validateReceiptData()
+    if (errors.length > 0) {
+      toast.error(`Preencha os campos obrigatórios: ${errors.join(', ')}`)
+      return
+    }
+
     setGenerating(true)
     try {
       const data = {
@@ -79,6 +117,12 @@ export default function DocumentsPage() {
   }
 
   const handleGenerateInvoice = async () => {
+    const errors = validateInvoiceData()
+    if (errors.length > 0) {
+      toast.error(`Preencha os campos obrigatórios: ${errors.join(', ')}`)
+      return
+    }
+
     setGenerating(true)
     try {
       const data = {
@@ -128,9 +172,9 @@ export default function DocumentsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* Receipt Generator */}
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Receipt className="w-5 h-5 text-orange-600" />
@@ -140,7 +184,8 @@ export default function DocumentsPage() {
               Gere um recibo de pagamento automaticamente
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col flex-1">
+            <div className="space-y-4 flex-1 overflow-y-auto max-h-[650px]">
             <div className="space-y-2">
               <Label htmlFor="receiptNumber">Número do Recibo</Label>
               <Input
@@ -254,11 +299,13 @@ export default function DocumentsPage() {
                 />
               </div>
             </div>
+            </div>
 
             <Button
+              type="button"
               onClick={handleGenerateReceipt}
               disabled={generating}
-              className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white mt-4"
             >
               <FileText className="w-4 h-4 mr-2" />
               {generating ? 'Gerando...' : 'Gerar Recibo PDF'}
@@ -267,7 +314,7 @@ export default function DocumentsPage() {
         </Card>
 
         {/* Invoice Generator */}
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2">
               <ReceiptText className="w-5 h-5 text-blue-600" />
@@ -277,7 +324,8 @@ export default function DocumentsPage() {
               Gere uma fatura com cálculos automáticos
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 max-h-[600px] overflow-y-auto">
+          <CardContent className="flex flex-col flex-1">
+            <div className="space-y-4 flex-1 overflow-y-auto max-h-[650px]">
             <div className="space-y-2">
               <Label htmlFor="invoiceNumber">Número da Fatura</Label>
               <Input
@@ -488,11 +536,13 @@ export default function DocumentsPage() {
                 placeholder="Depositar na conta..."
               />
             </div>
+            </div>
 
             <Button
+              type="button"
               onClick={handleGenerateInvoice}
               disabled={generating}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-4"
             >
               <Download className="w-4 h-4 mr-2" />
               {generating ? 'Gerando...' : 'Gerar Fatura PDF'}
