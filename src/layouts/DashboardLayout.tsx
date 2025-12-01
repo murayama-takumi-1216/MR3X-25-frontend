@@ -39,7 +39,7 @@ const baseNavigation = [
   { name: 'Faturamento', href: '/dashboard/billing', icon: Receipt, perm: 'billing:read', roles: ['CEO', 'ADMIN', 'INDEPENDENT_OWNER'] },
   { name: 'Comunicação', href: '/dashboard/communications', icon: Mail, perm: undefined, roles: ['CEO', 'ADMIN'] },
   { name: 'Centro Técnico', href: '/dashboard/integrations', icon: Wrench, perm: 'integrations:read', roles: ['CEO', 'ADMIN', 'INDEPENDENT_OWNER'] },
-  { name: 'Auditoria', href: '/dashboard/audit', icon: ShieldCheck, perm: 'audit:read', roles: ['CEO', 'ADMIN'] },
+  { name: 'Uditorias', href: '/dashboard/audit', icon: ShieldCheck, perm: 'audit:read', roles: ['CEO', 'ADMIN'] },
   { name: 'Documentos', href: '/dashboard/documents', icon: FileDown, perm: 'documents:read', roles: ['CEO', 'ADMIN', 'INDEPENDENT_OWNER'] },
   { name: 'Configuracoes', href: '/dashboard/settings', icon: Settings, perm: 'settings:read', roles: ['CEO', 'ADMIN', 'INDEPENDENT_OWNER'] },
   { name: 'Chat', href: '/dashboard/chat', icon: MessageSquare, perm: 'chat:read' },
@@ -95,12 +95,23 @@ export function DashboardLayout() {
      * Role-based menu exclusions based on MR3X Hierarchy Requirements
      */
 
-    // CEO: Root profile - Can VIEW all pages but only EDIT specific things
-    // Can only create ADMIN users (enforced in backend and UserNewPage)
-    // CEO can view all menus - no exclusions for viewing
+    // CEO: Root profile - Limited menu access for governance oversight
+    // Only sees: Painel, Usuários, Agências, Planos, Faturamento, Centro Técnico, Uditorias, Configuracoes, Chat, Notificacoes, Alterar Senha
     if (user?.role === 'CEO') {
-      // CEO can view everything - no menu exclusions
-      // Edit restrictions are enforced at the component/backend level
+      const allowedForCEO = [
+        '/dashboard',              // Painel
+        '/dashboard/users',        // Usuários
+        '/dashboard/agencies',     // Agências
+        '/dashboard/plans',        // Planos
+        '/dashboard/billing',      // Faturamento
+        '/dashboard/integrations', // Centro Técnico
+        '/dashboard/audit',        // Uditorias
+        '/dashboard/settings',     // Configuracoes
+        '/dashboard/chat',         // Chat
+        '/dashboard/notifications', // Notificacoes
+        '/dashboard/change-password', // Alterar Senha
+      ];
+      if (!allowedForCEO.includes(item.href)) return false;
     }
 
     // ADMIN: SaaS administrator - manages agencies, internal users, integrations
