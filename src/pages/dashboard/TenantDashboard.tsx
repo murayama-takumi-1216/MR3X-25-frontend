@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { dashboardAPI } from '../../api';
 import { formatCurrency } from '../../lib/utils';
 import {
-  Home, FileText, DollarSign, Bell, Clock,
+  FileText, DollarSign, Bell, Clock,
   CheckCircle, AlertTriangle, User, Phone, Mail,
   CreditCard, Receipt, TrendingUp, Calendar, Building2
 } from 'lucide-react';
@@ -22,8 +22,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
   Legend,
   Area,
   AreaChart
@@ -316,7 +314,7 @@ export function TenantDashboard() {
                     outerRadius={90}
                     paddingAngle={5}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }: { name?: string; percent?: number }) => `${name || ''} ${((percent ?? 0) * 100).toFixed(0)}%`}
                     labelLine={false}
                   >
                     {chartData.pieData.map((_, index) => (

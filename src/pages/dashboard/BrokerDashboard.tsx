@@ -4,13 +4,29 @@ import { formatCurrency } from '../../lib/utils';
 import {
   Home, Building2, FileText, DollarSign, Users, Clock,
   CheckCircle, AlertTriangle, TrendingUp, Calendar, Briefcase,
-  ClipboardList
+  ClipboardList, Receipt, CreditCard, PieChart as PieChartIcon
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  AreaChart,
+  Area,
+} from 'recharts';
+import { useMemo } from 'react';
 
 export function BrokerDashboard() {
   const { user } = useAuth();
@@ -26,6 +42,84 @@ export function BrokerDashboard() {
     queryFn: () => dashboardAPI.getDueDates(),
   });
 
+  // Process data for charts
+  const chartData = useMemo(() => {
+    const recentPayments = dashboard?.recentPayments || [];
+    const properties = dashboard?.properties || [];
+    const overview = dashboard?.overview || {};
+
+    // Monthly revenue trend (last 6 months)
+    const monthlyTrend: Record<string, number> = {};
+    const now = new Date();
+
+    // Initialize last 6 months
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+      monthlyTrend[key] = 0;
+    }
+
+    // Fill with actual payments
+    recentPayments.forEach((payment: any) => {
+      if (payment.date) {
+        const date = new Date(payment.date);
+        const key = date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+        if (monthlyTrend[key] !== undefined) {
+          monthlyTrend[key] += Number(payment.amount) || 0;
+        }
+      }
+    });
+
+    const monthlyData = Object.entries(monthlyTrend).map(([month, total]) => ({
+      month,
+      total,
+    }));
+
+    // Property status distribution (pie chart)
+    const propertyStatusData = [
+      { name: 'Alugados', value: overview.occupiedProperties || properties.filter((p: any) => p.status === 'ALUGADO').length || 0, color: '#22c55e' },
+      { name: 'Disponíveis', value: overview.availableProperties || properties.filter((p: any) => p.status === 'DISPONIVEL').length || 0, color: '#3b82f6' },
+      { name: 'Manutenção', value: overview.maintenanceProperties || properties.filter((p: any) => p.status === 'MANUTENCAO').length || 0, color: '#f59e0b' },
+    ].filter(item => item.value > 0);
+
+    // Payment status from due dates
+    const dueData = dueDates || [];
+    const paymentStatusData = [
+      { name: 'Em dia', value: dueData.filter((d: any) => d.status === 'ok').length, color: '#22c55e' },
+      { name: 'Próximos', value: dueData.filter((d: any) => d.status === 'upcoming').length, color: '#f59e0b' },
+      { name: 'Vencidos', value: dueData.filter((d: any) => d.status === 'overdue').length, color: '#ef4444' },
+    ].filter(item => item.value > 0);
+
+    // Revenue by property (bar chart)
+    const revenueByProperty: Record<string, { name: string; total: number }> = {};
+    recentPayments.forEach((payment: any) => {
+      const propName = payment.property?.name || payment.property?.address || 'Outros';
+      if (!revenueByProperty[propName]) {
+        revenueByProperty[propName] = { name: propName.length > 15 ? propName.substring(0, 15) + '...' : propName, total: 0 };
+      }
+      revenueByProperty[propName].total += Number(payment.amount) || 0;
+    });
+
+    const propertyRevenueData = Object.values(revenueByProperty)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+
+    // Calculate totals
+    const totalRevenue = recentPayments.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0);
+    const avgRent = properties.length > 0
+      ? properties.reduce((sum: number, p: any) => sum + (Number(p.monthlyRent) || 0), 0) / properties.length
+      : 0;
+
+    return {
+      monthlyData,
+      propertyStatusData,
+      paymentStatusData,
+      propertyRevenueData,
+      totalRevenue,
+      avgRent,
+    };
+  }, [dashboard, dueDates]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -36,15 +130,15 @@ export function BrokerDashboard() {
 
   const overview = dashboard?.overview || {};
   const properties = dashboard?.properties || [];
-  const contracts = dashboard?.contracts || [];
   const pendingContracts = dashboard?.pendingPayments || [];
   const recentPayments = dashboard?.recentPayments || [];
 
   // Calculate statistics
   const totalProperties = overview.totalProperties || properties.length || 0;
   const occupiedProperties = overview.occupiedProperties || properties.filter((p: any) => p.status === 'ALUGADO').length || 0;
-  const activeContracts = overview.activeContracts || contracts.filter((c: any) => c.status === 'ATIVO').length || 0;
+  const activeContracts = overview.activeContracts || 0;
   const monthlyRevenue = overview.monthlyRevenue || 0;
+  const occupancyRate = totalProperties > 0 ? ((occupiedProperties / totalProperties) * 100).toFixed(1) : 0;
 
   // Get upcoming due dates count
   const upcomingDueDates = dueDates?.filter((d: any) => d.status === 'upcoming' || d.status === 'overdue') || [];
@@ -52,75 +146,254 @@ export function BrokerDashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl p-6 text-white">
+      <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl p-6 text-white">
         <div className="flex items-center gap-3 mb-2">
           <Briefcase className="w-8 h-8" />
           <h1 className="text-2xl font-bold">
             Olá, {user?.name || 'Corretor'}!
           </h1>
         </div>
-        <p className="text-yellow-100">
+        <p className="text-amber-100">
           Gerencie suas propriedades, contratos e acompanhe o desempenho dos imóveis sob sua responsabilidade.
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+      {/* Summary Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-blue-600 font-medium">Meus Imóveis</p>
+                <p className="text-2xl font-bold text-blue-700">{totalProperties}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center">
                 <Building2 className="w-6 h-6 text-blue-600" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Meus Imóveis</p>
-                <p className="text-2xl font-bold">{totalProperties}</p>
-              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-green-500">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-green-600 font-medium">Ocupados</p>
+                <p className="text-2xl font-bold text-green-700">{occupiedProperties}</p>
+              </div>
+              <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center">
                 <Users className="w-6 h-6 text-green-600" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Ocupados</p>
-                <p className="text-2xl font-bold">{occupiedProperties}</p>
-              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-purple-500">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-purple-600 font-medium">Contratos Ativos</p>
+                <p className="text-2xl font-bold text-purple-700">{activeContracts}</p>
+              </div>
+              <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
                 <FileText className="w-6 h-6 text-purple-600" />
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Contratos Ativos</p>
-                <p className="text-2xl font-bold">{activeContracts}</p>
+                <p className="text-sm text-amber-600 font-medium">Receita Mensal</p>
+                <p className="text-xl font-bold text-amber-700">{formatCurrency(monthlyRevenue)}</p>
+              </div>
+              <div className="w-12 h-12 bg-amber-200 rounded-full flex items-center justify-center">
+                <DollarSign className="w-6 h-6 text-amber-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-yellow-500">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-yellow-600" />
-              </div>
+        <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Receita Mensal</p>
-                <p className="text-xl font-bold text-green-600">
-                  {formatCurrency(monthlyRevenue)}
-                </p>
+                <p className="text-sm text-cyan-600 font-medium">Taxa Ocupação</p>
+                <p className="text-2xl font-bold text-cyan-700">{occupancyRate}%</p>
+              </div>
+              <div className="w-12 h-12 bg-cyan-200 rounded-full flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-cyan-600" />
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Monthly Revenue Trend */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-green-500" />
+              Evolução da Receita
+            </CardTitle>
+            <CardDescription>Receita mensal dos últimos 6 meses</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {chartData.monthlyData.some(d => d.total > 0) ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <AreaChart data={chartData.monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#F59E0B" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="month" fontSize={11} tick={{ fill: '#6B7280' }} />
+                  <YAxis tickFormatter={(v) => `R$${(v/1000).toFixed(0)}k`} fontSize={11} tick={{ fill: '#6B7280' }} />
+                  <Tooltip
+                    formatter={(value: number) => [formatCurrency(value), 'Receita']}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="total"
+                    stroke="#F59E0B"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorRevenue)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[250px] flex items-center justify-center text-muted-foreground">
+                <div className="text-center">
+                  <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Nenhum dado de receita disponível</p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Property Status Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <PieChartIcon className="w-5 h-5 text-blue-500" />
+              Status dos Imóveis
+            </CardTitle>
+            <CardDescription>Distribuição por status de ocupação</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {chartData.propertyStatusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={chartData.propertyStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={5}
+                    dataKey="value"
+                    label={({ name, value }) => `${name}: ${value}`}
+                    labelLine={false}
+                  >
+                    {chartData.propertyStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value: number) => `${value} imóveis`} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[250px] flex items-center justify-center text-muted-foreground">
+                <div className="text-center">
+                  <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Nenhum imóvel cadastrado</p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Second Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Payment Status Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-green-500" />
+              Status dos Pagamentos
+            </CardTitle>
+            <CardDescription>Situação dos vencimentos</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {chartData.paymentStatusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={chartData.paymentStatusData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={70}
+                    dataKey="value"
+                    label={({ name, value }) => `${name}: ${value}`}
+                  >
+                    {chartData.paymentStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[220px] flex items-center justify-center text-muted-foreground">
+                <div className="text-center">
+                  <Receipt className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Nenhum dado de pagamento</p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Revenue by Property Bar Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-amber-500" />
+              Receita por Imóvel
+            </CardTitle>
+            <CardDescription>Top 5 imóveis por receita</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {chartData.propertyRevenueData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={chartData.propertyRevenueData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis type="number" tickFormatter={(v) => `R$${(v/1000).toFixed(0)}k`} fontSize={11} />
+                  <YAxis type="category" dataKey="name" width={100} fontSize={10} tick={{ fill: '#6B7280' }} />
+                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Bar dataKey="total" fill="#F59E0B" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[220px] flex items-center justify-center text-muted-foreground">
+                <div className="text-center">
+                  <DollarSign className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Nenhum pagamento registrado</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -135,7 +408,7 @@ export function BrokerDashboard() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Button
               variant="outline"
-              className="h-auto py-4 flex flex-col items-center gap-2"
+              className="h-auto py-4 flex flex-col items-center gap-2 hover:bg-blue-50 hover:border-blue-300"
               onClick={() => navigate('/dashboard/properties')}
             >
               <Building2 className="w-6 h-6 text-blue-500" />
@@ -144,7 +417,7 @@ export function BrokerDashboard() {
 
             <Button
               variant="outline"
-              className="h-auto py-4 flex flex-col items-center gap-2"
+              className="h-auto py-4 flex flex-col items-center gap-2 hover:bg-purple-50 hover:border-purple-300"
               onClick={() => navigate('/dashboard/contracts')}
             >
               <FileText className="w-6 h-6 text-purple-500" />
@@ -153,7 +426,7 @@ export function BrokerDashboard() {
 
             <Button
               variant="outline"
-              className="h-auto py-4 flex flex-col items-center gap-2"
+              className="h-auto py-4 flex flex-col items-center gap-2 hover:bg-green-50 hover:border-green-300"
               onClick={() => navigate('/dashboard/tenants')}
             >
               <Users className="w-6 h-6 text-green-500" />
@@ -162,10 +435,10 @@ export function BrokerDashboard() {
 
             <Button
               variant="outline"
-              className="h-auto py-4 flex flex-col items-center gap-2"
+              className="h-auto py-4 flex flex-col items-center gap-2 hover:bg-amber-50 hover:border-amber-300"
               onClick={() => navigate('/dashboard/payments')}
             >
-              <DollarSign className="w-6 h-6 text-yellow-500" />
+              <DollarSign className="w-6 h-6 text-amber-500" />
               <span className="text-sm">Pagamentos</span>
             </Button>
           </div>
@@ -174,7 +447,7 @@ export function BrokerDashboard() {
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* My Properties */}
+        {/* My Properties List */}
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -224,14 +497,6 @@ export function BrokerDashboard() {
               <div className="text-center py-8 text-muted-foreground">
                 <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Nenhum imóvel atribuído</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-2"
-                  onClick={() => navigate('/dashboard/properties')}
-                >
-                  Ver Todos os Imóveis
-                </Button>
               </div>
             )}
           </CardContent>
@@ -316,7 +581,7 @@ export function BrokerDashboard() {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-green-500" />
+              <CreditCard className="w-5 h-5 text-green-500" />
               <CardTitle className="text-lg">Pagamentos Recentes</CardTitle>
             </div>
             <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/payments')}>
@@ -389,25 +654,6 @@ export function BrokerDashboard() {
           </CardContent>
         </Card>
       )}
-
-      {/* Information Card */}
-      <Card className="border-blue-200 bg-blue-50">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <ClipboardList className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <h4 className="font-semibold text-blue-700">Suas Responsabilidades</h4>
-              <ul className="text-sm text-blue-600 mt-2 space-y-1">
-                <li>• Gerenciar imóveis atribuídos à você</li>
-                <li>• Criar e preparar contratos</li>
-                <li>• Realizar vistorias e inspeções</li>
-                <li>• Atender inquilinos e proprietários</li>
-                <li>• Gerar documentos necessários</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
