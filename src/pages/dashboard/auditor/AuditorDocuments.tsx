@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import {
-  FileText, Search, Eye, FileSignature, ClipboardCheck, Bell, Upload, Download, Loader2, CheckCircle, Clock
+  FileText, Search, Eye, FileSignature, ClipboardCheck, Bell, Upload, CheckCircle, Clock
 } from 'lucide-react';
 import { auditorAPI } from '../../../api';
 

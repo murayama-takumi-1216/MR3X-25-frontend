@@ -1278,5 +1278,51 @@ export const apiClientDashboardAPI = {
   },
 };
 
+// Tenant Analysis API
+export const tenantAnalysisAPI = {
+  // Perform a new tenant analysis
+  analyze: async (data: { document: string; name?: string; analysisType?: 'FULL' | 'FINANCIAL' | 'BACKGROUND' | 'QUICK' }) => {
+    const response = await apiClient.post('/tenant-analysis/analyze', data);
+    return response.data;
+  },
+
+  // Get analysis history with filters
+  getHistory: async (params?: {
+    document?: string;
+    riskLevel?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    status?: 'PENDING' | 'COMPLETED' | 'FAILED' | 'EXPIRED';
+    page?: number;
+    limit?: number;
+  }) => {
+    const qs = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') qs.append(k, String(v));
+      });
+    }
+    const query = qs.toString();
+    const response = await apiClient.get(`/tenant-analysis/history${query ? `?${query}` : ''}`);
+    return response.data;
+  },
+
+  // Get analysis statistics for dashboard
+  getStats: async () => {
+    const response = await apiClient.get('/tenant-analysis/stats');
+    return response.data;
+  },
+
+  // Get specific analysis by ID
+  getById: async (id: string) => {
+    const response = await apiClient.get(`/tenant-analysis/${id}`);
+    return response.data;
+  },
+
+  // Health check
+  healthCheck: async () => {
+    const response = await apiClient.get('/tenant-analysis/health');
+    return response.data;
+  },
+};
+
 export { authApi } from './auth';
 export { default as apiClient } from './client';

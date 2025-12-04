@@ -17,7 +17,7 @@ export function AuditorDataIntegrity() {
   // Fetch integrity data from API
   const { data: integrityData, isLoading } = useQuery<IntegrityData>({
     queryKey: ['auditor-integrity'],
-    queryFn: () => auditorAPI.getIntegrity(),
+    queryFn: () => auditorAPI.getDataIntegrity(),
   });
 
   const getStatusStyle = (status?: string) => {

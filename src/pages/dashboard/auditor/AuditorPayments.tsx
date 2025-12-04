@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import {
-  Receipt, Search, Eye, DollarSign, ArrowUpRight, ArrowDownRight,
-  Clock, AlertTriangle, Building2, User, Loader2
+  Receipt, Search, Eye, DollarSign, ArrowUpRight,
+  Clock, Building2, User
 } from 'lucide-react';
 import { auditorAPI } from '../../../api';
 

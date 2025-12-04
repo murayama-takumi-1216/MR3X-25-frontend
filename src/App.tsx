@@ -14,6 +14,7 @@ import { UserNewPage } from './pages/dashboard/UserNewPage';
 import { UserDetailPage } from './pages/dashboard/UserDetailPage';
 import { UserEditPage } from './pages/dashboard/UserEditPage';
 import { Tenants } from './pages/dashboard/Tenants';
+import { TenantAnalysis } from './pages/dashboard/TenantAnalysis';
 import { Brokers } from './pages/dashboard/Brokers';
 import { Owners } from './pages/dashboard/Owners';
 import { Managers } from './pages/dashboard/Managers';
@@ -157,6 +158,8 @@ function App() {
               <Route path="tenants/new" element={<PlaceholderPage title="Novo Inquilino" />} />
               <Route path="tenants/:id" element={<PlaceholderPage title="Detalhes do Inquilino" />} />
               <Route path="tenants/:id/edit" element={<PlaceholderPage title="Editar Inquilino" />} />
+
+              <Route path="tenant-analysis" element={<TenantAnalysis />} />
 
               <Route path="brokers" element={<Brokers />} />
               <Route path="brokers/new" element={<PlaceholderPage title="Novo Corretor" />} />

@@ -19,15 +19,6 @@ export function AuditorSignatures() {
     queryFn: () => auditorAPI.getSignatureActivity(),
   });
 
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case 'valid': return 'bg-green-100 text-green-700';
-      case 'pending': return 'bg-yellow-100 text-yellow-700';
-      case 'expired': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}

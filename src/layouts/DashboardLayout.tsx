@@ -7,7 +7,7 @@ import {
   Crown, Package, Mail, Wrench, Receipt, Key, ClipboardCheck, FileSignature,
   Code, KeyRound, Activity, Webhook, BookOpen, UserCog2,
   Award, Inbox, TrendingUp, Kanban,
-  Database, GitCompare, Ticket, Headphones, Book, Zap
+  Database, GitCompare, Ticket, Headphones, Book, Zap, UserSearch
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -21,6 +21,7 @@ const baseNavigation = [
   // Regular menu items for other roles
   { name: 'Propriedades', href: '/dashboard/properties', icon: Building2, perm: 'properties:read' },
   { name: 'Inquilinos', href: '/dashboard/tenants', icon: Users, perm: 'users:read' },
+  { name: 'Análise de Inquilinos', href: '/dashboard/tenant-analysis', icon: UserSearch, perm: undefined },
   { name: 'Corretores', href: '/dashboard/brokers', icon: Briefcase, perm: 'users:read' },
   { name: 'Proprietários', href: '/dashboard/owners', icon: UserCog, perm: 'users:read' },
   { name: 'Diretor Agência', href: '/dashboard/agency-admin', icon: Crown, perm: undefined, roles: ['CEO', 'ADMIN'] },
@@ -251,6 +252,7 @@ export function DashboardLayout() {
         '/dashboard/agreements', // View/sign agreements
         '/dashboard/invoices', // View invoices (read-only)
         '/dashboard/tenants', // View and interact with tenants
+        '/dashboard/tenant-analysis', // Analyze prospective tenants
         '/dashboard/payments', // View payments (read-only, no financial edits)
         '/dashboard/documents', // Upload and generate documents
         '/dashboard/notifications', // Receive notifications

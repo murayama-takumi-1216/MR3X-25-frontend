@@ -1,8 +1,7 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import {
-  Shield, Key, Clock, Eye, CheckCircle, XCircle, AlertTriangle, Loader2, LogIn, LogOut
+  Shield, Key, Clock, Eye, CheckCircle, XCircle, AlertTriangle, Loader2, LogIn
 } from 'lucide-react';
 import { auditorAPI } from '../../../api';
 

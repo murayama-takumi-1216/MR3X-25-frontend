@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
-import { Input } from '../../../components/ui/input';
-import { Button } from '../../../components/ui/button';
 import {
-  Wrench, Search, GitCompare, Eye, CheckCircle, AlertTriangle, FileText, ArrowRight, Construction
+  Wrench, GitCompare, CheckCircle, Construction
 } from 'lucide-react';
 
 export function AuditorTools() {
   const [activeTab, setActiveTab] = useState<'compare' | 'integrity'>('compare');
-  const [searchTerm, setSearchTerm] = useState('');
 
   return (
     <div className="space-y-6">
