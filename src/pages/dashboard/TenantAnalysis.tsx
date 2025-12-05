@@ -663,14 +663,14 @@ export function TenantAnalysis() {
             <CardTitle>Histórico de Análises</CardTitle>
             <div className="flex gap-2">
               <Select
-                value={filters.riskLevel}
-                onValueChange={(value) => setFilters({ ...filters, riskLevel: value, page: 1 })}
+                value={filters.riskLevel || 'all'}
+                onValueChange={(value) => setFilters({ ...filters, riskLevel: value === 'all' ? '' : value, page: 1 })}
               >
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Nível de Risco" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="LOW">Baixo</SelectItem>
                   <SelectItem value="MEDIUM">Moderado</SelectItem>
                   <SelectItem value="HIGH">Alto</SelectItem>
@@ -678,14 +678,14 @@ export function TenantAnalysis() {
                 </SelectContent>
               </Select>
               <Select
-                value={filters.status}
-                onValueChange={(value) => setFilters({ ...filters, status: value, page: 1 })}
+                value={filters.status || 'all'}
+                onValueChange={(value) => setFilters({ ...filters, status: value === 'all' ? '' : value, page: 1 })}
               >
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="COMPLETED">Concluído</SelectItem>
                   <SelectItem value="PENDING">Pendente</SelectItem>
                   <SelectItem value="FAILED">Falha</SelectItem>
