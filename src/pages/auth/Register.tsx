@@ -72,6 +72,10 @@ export function Register() {
         setRequestId(result.requestId);
         setCooldown(result.cooldownSeconds || 60);
         setStep('code');
+        // DEV: Show code in console for testing
+        if ((result as any).debugCode) {
+          console.log(`🔑 Verification code: ${(result as any).debugCode}`);
+        }
         toast.success('Código enviado para seu email');
       } else if (step === 'code') {
         setLoading(true);
@@ -147,6 +151,10 @@ export function Register() {
       const result = await authApi.requestEmailCode(formData.email);
       setRequestId(result.requestId);
       setCooldown(result.cooldownSeconds || 60);
+      // DEV: Show code in console for testing
+      if ((result as any).debugCode) {
+        console.log(`🔑 Verification code: ${(result as any).debugCode}`);
+      }
       toast.success('Código reenviado');
     } catch (e: any) {
       toast.error(e.response?.data?.message || e.message || 'Falha ao reenviar');
