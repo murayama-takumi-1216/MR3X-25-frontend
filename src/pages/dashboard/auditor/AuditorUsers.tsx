@@ -95,10 +95,10 @@ export function AuditorUsers() {
       AGENCY_ADMIN: 'Diretor',
       AGENCY_MANAGER: 'Gestor',
       BROKER: 'Corretor',
-      PROPRIETARIO: 'Proprietário',
+      PROPRIETARIO: 'Imóvel',
       INQUILINO: 'Inquilino',
       LEGAL_AUDITOR: 'Auditor Legal',
-      INDEPENDENT_OWNER: 'Proprietário Indep.',
+      INDEPENDENT_OWNER: 'Imóvel Indep.',
       BUILDING_MANAGER: 'Síndico',
       API_CLIENT: 'Cliente API',
     };

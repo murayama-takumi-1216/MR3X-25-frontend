@@ -69,11 +69,13 @@ export function Properties() {
 
   // Check permissions
   // CEO can VIEW but cannot CREATE/EDIT/DELETE properties
+  // PROPRIETARIO (agency-managed owner) can only VIEW properties
   const isCEO = user?.role === 'CEO';
-  const canViewProperties = hasPermission('properties:read');
-  const canCreateProperties = hasPermission('properties:create') && !isCEO;
-  const canUpdateProperties = hasPermission('properties:update') && !isCEO;
-  const canDeleteProperties = hasPermission('properties:delete') && !isCEO;
+  const isProprietario = user?.role === 'PROPRIETARIO';
+  const canViewProperties = hasPermission('properties:read') || ['CEO', 'AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER', 'PROPRIETARIO'].includes(user?.role || '');
+  const canCreateProperties = hasPermission('properties:create') && !isCEO && !isProprietario;
+  const canUpdateProperties = hasPermission('properties:update') && !isCEO && !isProprietario;
+  const canDeleteProperties = hasPermission('properties:delete') && !isCEO && !isProprietario;
 
   const navigate = useNavigate();
 
@@ -429,7 +431,7 @@ export function Properties() {
         name: '', address: '', city: '', state: '', neighborhood: '', cep: '', monthlyRent: '', dueDay: '', ownerId: '', agencyFee: ''
       });
       setSelectedImages([]);
-      toast.success('Propriedade criada com sucesso');
+      toast.success('Imóvel criado com sucesso');
     },
     onError: (error: any) => {
       // Check if it's a plan limit error (403 Forbidden with plan-related message)
@@ -444,7 +446,7 @@ export function Properties() {
         setShowCreateModal(false);
         setShowUpgradeModal(true);
       } else {
-        toast.error('Erro ao criar propriedade');
+        toast.error('Erro ao criar imóvel');
       }
     },
   });
@@ -459,7 +461,7 @@ export function Properties() {
     },
     onError: (error) => {
       console.error('Property update error:', error);
-      toast.error('Erro ao atualizar propriedade');
+      toast.error('Erro ao atualizar imóvel');
     },
   });
 
@@ -471,10 +473,10 @@ export function Properties() {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['due-dates'] });
       closeAllModals();
-      toast.success('Propriedade excluída com sucesso');
+      toast.success('Imóvel excluído com sucesso');
     },
     onError: () => {
-      toast.error('Erro ao excluir propriedade');
+      toast.error('Erro ao excluir imóvel');
     },
   });
 
@@ -592,7 +594,7 @@ export function Properties() {
       };
 
       await updatePropertyMutation.mutateAsync({ id: selectedProperty.id, data: propertyToSend });
-      toast.success('Propriedade atualizada com sucesso!');
+      toast.success('Imóvel atualizado com sucesso!');
 
       if (editSelectedImages.length > 0) {
         setEditUploadingImages(true);
@@ -602,7 +604,7 @@ export function Properties() {
           toast.success('Imagens adicionadas com sucesso!');
         } catch (error) {
           console.error('Error uploading images:', error);
-          toast.error('Propriedade atualizada, mas falha ao enviar imagens');
+          toast.error('Imóvel atualizado, mas falha ao enviar imagens');
         } finally {
           setEditUploadingImages(false);
         }
@@ -624,7 +626,7 @@ export function Properties() {
       });
     } catch (error) {
       console.error('Error updating property:', error);
-      toast.error('Erro ao atualizar propriedade');
+      toast.error('Erro ao atualizar imóvel');
     } finally {
       setUpdating(false);
     }
@@ -1087,7 +1089,7 @@ export function Properties() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Propriedades</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Imóveis</h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Gerencie todos os seus imóveis em um só lugar
             </p>
@@ -1179,8 +1181,8 @@ export function Properties() {
                             {property.address}
                           </p>
                           <p className="text-xs text-gray-600 truncate">Estado: {property.stateNumber || '-'}</p>
-                          <p className="text-xs text-gray-600 truncate" title={property.owner?.name || property.owner?.email || 'Sem proprietário'}>
-                            Proprietário: {property.owner?.name || property.owner?.email || 'Sem proprietário'}
+                          <p className="text-xs text-gray-600 truncate" title={property.owner?.name || property.owner?.email || 'Sem imóvel'}>
+                            Imóvel: {property.owner?.name || property.owner?.email || 'Sem imóvel'}
                           </p>
                           <p className="text-xs text-gray-600 truncate" title={property.broker?.name || property.broker?.email || 'Sem corretor'}>
                             Corretor: {property.broker?.name || property.broker?.email || 'Sem corretor'}
@@ -1288,9 +1290,9 @@ export function Properties() {
             ) : (
               <div className="text-center py-12 sm:py-16 bg-card border border-border rounded-lg px-4 col-span-full">
                 <Building2 className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-base sm:text-lg font-semibold mb-2">Nenhuma propriedade cadastrada</h3>
+                <h3 className="text-base sm:text-lg font-semibold mb-2">Nenhum imóvel cadastrado</h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-4">
-                  Comece adicionando sua primeira propriedade
+                  Comece adicionando seu primeiro imóvel
                 </p>
                 {canCreateProperties && !(user?.role === 'BROKER') && (
                   <Button
@@ -1303,7 +1305,7 @@ export function Properties() {
                     className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Adicionar Propriedade
+                    Adicionar Imóvel
                   </Button>
                 )}
               </div>
@@ -1343,7 +1345,7 @@ export function Properties() {
               {/* Show owner select for non-INDEPENDENT_OWNER roles */}
               {user?.role !== 'INDEPENDENT_OWNER' ? (
                 <div>
-                  <Label htmlFor="ownerId">Proprietário</Label>
+                  <Label htmlFor="ownerId">Imóvel</Label>
                   <select
                     id="ownerId"
                     name="ownerId"
@@ -1368,7 +1370,7 @@ export function Properties() {
                 </div>
               ) : (
                 <div>
-                  <Label>Proprietário</Label>
+                  <Label>Imóvel</Label>
                   <div className="border rounded-md px-3 py-2 w-full bg-muted text-muted-foreground">
                     {user?.name || user?.email} (Você)
                   </div>
@@ -1522,14 +1524,14 @@ export function Properties() {
               {/* Show owner select for non-INDEPENDENT_OWNER roles */}
               {user?.role === 'INDEPENDENT_OWNER' ? (
                 <div>
-                  <Label>Proprietário</Label>
+                  <Label>Imóvel</Label>
                   <div className="border rounded-md px-3 py-2 w-full bg-muted text-muted-foreground">
                     {user?.name || user?.email} (Você)
                   </div>
                 </div>
               ) : user?.role === 'AGENCY_MANAGER' && !selectedProperty?.brokerId ? (
                 <div>
-                  <Label htmlFor="edit-ownerId">Proprietário</Label>
+                  <Label htmlFor="edit-ownerId">Imóvel</Label>
                   <select
                     id="edit-ownerId"
                     name="ownerId"
@@ -1700,7 +1702,7 @@ export function Properties() {
                   <div><b>Bairro:</b> {propertyDetail.neighborhood || '-'}</div>
                   <div><b>Cidade:</b> {propertyDetail.city || '-'}</div>
                   <div><b>Estado:</b> {propertyDetail.stateNumber || '-'}</div>
-                  <div><b>Proprietário:</b> {propertyDetail.owner?.name || propertyDetail.owner?.email || '-'}</div>
+                  <div><b>Imóvel:</b> {propertyDetail.owner?.name || propertyDetail.owner?.email || '-'}</div>
                   <div><b>Corretor:</b> {propertyDetail.broker?.name || propertyDetail.broker?.email || '-'}</div>
                   <div><b>Locatário:</b> {propertyDetail.tenant?.name || propertyDetail.tenant?.email || propertyDetail.tenantName || '-'}</div>
                   <div><b>Próx. vencimento:</b> {propertyDetail.nextDueDate ? new Date(propertyDetail.nextDueDate).toLocaleDateString('pt-BR') : '-'}</div>
@@ -2058,7 +2060,7 @@ export function Properties() {
                 <div className="bg-muted/40 p-3 rounded-md">
                   <p className="text-sm font-semibold">{propertyToAssign.name || propertyToAssign.address}</p>
                   <p className="text-xs text-muted-foreground">
-                    Proprietário: {propertyToAssign.owner?.name || propertyToAssign.owner?.email || 'Sem proprietário'}
+                    Imóvel: {propertyToAssign.owner?.name || propertyToAssign.owner?.email || 'Sem imóvel'}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Corretor atual: {propertyToAssign.broker?.name || propertyToAssign.broker?.email || 'Sem corretor'}
@@ -2134,7 +2136,7 @@ export function Properties() {
                 <div className="bg-muted/40 p-3 rounded-md">
                   <p className="text-sm font-semibold">{propertyToAssignTenant.name || propertyToAssignTenant.address}</p>
                   <p className="text-xs text-muted-foreground">
-                    Proprietário: {propertyToAssignTenant.owner?.name || propertyToAssignTenant.owner?.email || 'Sem proprietário'}
+                    Imóvel: {propertyToAssignTenant.owner?.name || propertyToAssignTenant.owner?.email || 'Sem imóvel'}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Corretor: {propertyToAssignTenant.broker?.name || propertyToAssignTenant.broker?.email || 'Sem corretor'}

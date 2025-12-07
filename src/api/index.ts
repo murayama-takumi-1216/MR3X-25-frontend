@@ -87,6 +87,11 @@ export const contractsAPI = {
     return response.data;
   },
 
+  getContractByToken: async (token: string) => {
+    const response = await apiClient.get(`/contracts/token/${token}`);
+    return response.data;
+  },
+
   createContract: async (contract: any) => {
     const response = await apiClient.post('/contracts', contract);
     return response.data;
@@ -119,7 +124,7 @@ export const contractsAPI = {
     return response.data;
   },
 
-  // Sign contract
+  // Sign contract (legacy)
   signContract: async (id: string, data: {
     signature: string;
     signatureType: 'tenant' | 'owner' | 'agency' | 'witness';
@@ -127,6 +132,89 @@ export const contractsAPI = {
     witnessDocument?: string;
   }) => {
     const response = await apiClient.post(`/contracts/${id}/sign`, data);
+    return response.data;
+  },
+
+  // Sign contract with geolocation (new)
+  signContractWithGeo: async (id: string, data: {
+    signature: string;
+    signatureType: 'tenant' | 'owner' | 'agency' | 'witness';
+    geoLat: number;
+    geoLng: number;
+    geoConsent: boolean;
+    witnessName?: string;
+    witnessDocument?: string;
+  }) => {
+    const response = await apiClient.post(`/contracts/${id}/sign-with-geo`, data);
+    return response.data;
+  },
+
+  // Prepare contract for signing (generates provisional PDF)
+  prepareForSigning: async (id: string) => {
+    const response = await apiClient.post(`/contracts/${id}/prepare-signing`);
+    return response.data;
+  },
+
+  // Finalize contract after all signatures
+  finalizeContract: async (id: string) => {
+    const response = await apiClient.post(`/contracts/${id}/finalize`);
+    return response.data;
+  },
+
+  // Download provisional PDF
+  downloadProvisionalPdf: async (id: string) => {
+    const response = await apiClient.get(`/contracts/${id}/provisional-pdf`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
+  // Download final PDF
+  downloadFinalPdf: async (id: string) => {
+    const response = await apiClient.get(`/contracts/${id}/final-pdf`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
+  // Update clauses
+  updateClauses: async (id: string, clauses: string, changeReason?: string) => {
+    const response = await apiClient.put(`/contracts/${id}/clauses`, { clauses, changeReason });
+    return response.data;
+  },
+
+  // Get clause history
+  getClauseHistory: async (id: string) => {
+    const response = await apiClient.get(`/contracts/${id}/clause-history`);
+    return response.data;
+  },
+
+  // Send signature invitation
+  sendSignatureInvitation: async (id: string, data: {
+    signerType: 'tenant' | 'owner' | 'agency' | 'witness';
+    signerEmail: string;
+    signerName?: string;
+    expiresInHours?: number;
+  }) => {
+    const response = await apiClient.post(`/contracts/${id}/send-invitation`, data);
+    return response.data;
+  },
+
+  // Get signature links for a contract
+  getSignatureLinks: async (id: string) => {
+    const response = await apiClient.get(`/contracts/${id}/signature-links`);
+    return response.data;
+  },
+
+  // Revoke a signature link
+  revokeSignatureLink: async (contractId: string, linkToken: string) => {
+    const response = await apiClient.post(`/contracts/${contractId}/revoke-link/${linkToken}`);
+    return response.data;
+  },
+
+  // Revoke contract
+  revokeContract: async (id: string, reason: string) => {
+    const response = await apiClient.post(`/contracts/${id}/revoke`, { reason });
     return response.data;
   },
 

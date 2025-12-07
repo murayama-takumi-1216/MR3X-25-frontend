@@ -57,11 +57,13 @@ export function Contracts() {
 
   // Check permissions
   // CEO can VIEW but cannot CREATE/EDIT/DELETE contracts
+  // PROPRIETARIO (agency-managed owner) can only VIEW contracts
   const isCEO = user?.role === 'CEO';
-  const canViewContracts = hasPermission('contracts:read');
-  const canCreateContracts = hasPermission('contracts:create') && !isCEO;
-  const canUpdateContracts = hasPermission('contracts:update') && !isCEO;
-  const canDeleteContracts = hasPermission('contracts:delete') && !isCEO;
+  const isProprietario = user?.role === 'PROPRIETARIO';
+  const canViewContracts = hasPermission('contracts:read') || ['CEO', 'AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER', 'PROPRIETARIO'].includes(user?.role || '');
+  const canCreateContracts = hasPermission('contracts:create') && !isCEO && !isProprietario;
+  const canUpdateContracts = hasPermission('contracts:update') && !isCEO && !isProprietario;
+  const canDeleteContracts = hasPermission('contracts:delete') && !isCEO && !isProprietario;
 
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);

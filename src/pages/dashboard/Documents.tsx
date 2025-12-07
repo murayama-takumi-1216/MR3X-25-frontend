@@ -53,8 +53,8 @@ export default function DocumentsPage() {
     const errors: string[] = []
     if (!receiptData.receiptNumber.trim()) errors.push('Número do Recibo')
     if (!receiptData.paymentDate) errors.push('Data do Pagamento')
-    if (!receiptData.ownerName.trim()) errors.push('Nome do Proprietário')
-    if (!receiptData.ownerDocument.trim()) errors.push('CPF/CNPJ do Proprietário')
+    if (!receiptData.ownerName.trim()) errors.push('Nome do Imóvel')
+    if (!receiptData.ownerDocument.trim()) errors.push('CPF/CNPJ do Imóvel')
     if (!receiptData.tenantName.trim()) errors.push('Nome do Inquilino')
     if (!receiptData.tenantDocument.trim()) errors.push('CPF/CNPJ do Inquilino')
     if (!receiptData.propertyAddress.trim()) errors.push('Endereço do Imóvel')
@@ -70,8 +70,8 @@ export default function DocumentsPage() {
     if (!invoiceData.invoiceNumber.trim()) errors.push('Número da Fatura')
     if (!invoiceData.invoiceDate) errors.push('Data da Fatura')
     if (!invoiceData.dueDate) errors.push('Data de Vencimento')
-    if (!invoiceData.ownerName.trim()) errors.push('Nome do Proprietário')
-    if (!invoiceData.ownerDocument.trim()) errors.push('CPF/CNPJ do Proprietário')
+    if (!invoiceData.ownerName.trim()) errors.push('Nome do Imóvel')
+    if (!invoiceData.ownerDocument.trim()) errors.push('CPF/CNPJ do Imóvel')
     if (!invoiceData.tenantName.trim()) errors.push('Nome do Inquilino')
     if (!invoiceData.tenantDocument.trim()) errors.push('CPF/CNPJ do Inquilino')
     if (!invoiceData.propertyAddress.trim()) errors.push('Endereço do Imóvel')
@@ -208,7 +208,7 @@ export default function DocumentsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="ownerName">Nome do Proprietário</Label>
+                <Label htmlFor="ownerName">Nome do Imóvel</Label>
                 <Input
                   id="ownerName"
                   value={receiptData.ownerName}
@@ -217,7 +217,7 @@ export default function DocumentsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="ownerDocument">CPF/CNPJ Proprietário</Label>
+                <Label htmlFor="ownerDocument">CPF/CNPJ Imóvel</Label>
                 <Input
                   id="ownerDocument"
                   value={receiptData.ownerDocument}
@@ -358,7 +358,7 @@ export default function DocumentsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="invoiceOwnerName">Nome do Proprietário</Label>
+              <Label htmlFor="invoiceOwnerName">Nome do Imóvel</Label>
               <Input
                 id="invoiceOwnerName"
                 value={invoiceData.ownerName}

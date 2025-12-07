@@ -602,7 +602,7 @@ function PaymentConfigurationTab({ canUpdateSettings }: { canUpdateSettings: boo
 
           {/* Owner Amount (Read-only) */}
           <div className="space-y-2">
-            <Label htmlFor="ownerFee">Valor do Proprietário</Label>
+            <Label htmlFor="ownerFee">Valor do Imóvel</Label>
             <div className="relative">
               <Input
                 id="ownerFee"
@@ -632,7 +632,7 @@ function PaymentConfigurationTab({ canUpdateSettings }: { canUpdateSettings: boo
               <span className="font-medium">R$ {((1000 * parseFloat(agencyFee || '0')) / 100).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Valor do Proprietário ({ownerFee.toFixed(2)}%):</span>
+              <span>Valor do Imóvel ({ownerFee.toFixed(2)}%):</span>
               <span className="font-medium">R$ {(1000 * ownerFee / 100).toFixed(2)}</span>
             </div>
             <div className="flex justify-between pt-2 border-t mt-2">

@@ -202,14 +202,15 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     requiresCreci: true,
   },
 
-  // Owner (linked to Agency) - Participatory role
+  // Owner (linked to Agency) - READ-ONLY participatory role
+  // Agency acts on behalf of PROPRIETARIO for all operations including signing
   [UserRole.PROPRIETARIO]: {
     view: AccessScope.PARTY_TO,
     create: false,
     edit: false,
     delete: false,
-    sign: true,
-    signatureTypes: [SignatureType.OWNER],
+    sign: false, // Agency signs on behalf of PROPRIETARIO
+    signatureTypes: [],
     approve: false,
     reject: false,
     cancel: false,

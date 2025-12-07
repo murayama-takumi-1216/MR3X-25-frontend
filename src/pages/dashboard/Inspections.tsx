@@ -102,12 +102,14 @@ export function Inspections() {
   const queryClient = useQueryClient();
 
   // Check permissions
+  // PROPRIETARIO (agency-managed owner) can only VIEW inspections
   const isCEO = user?.role === 'CEO';
-  const canViewInspections = hasPermission('inspections:read') || ['CEO', 'AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER'].includes(user?.role || '');
-  const canCreateInspections = (hasPermission('inspections:create') || ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER'].includes(user?.role || '')) && !isCEO;
-  const canUpdateInspections = (hasPermission('inspections:update') || ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER'].includes(user?.role || '')) && !isCEO;
-  const canDeleteInspections = (hasPermission('inspections:delete') || ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'INDEPENDENT_OWNER'].includes(user?.role || '')) && !isCEO;
-  const canApproveInspections = ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'INDEPENDENT_OWNER'].includes(user?.role || '');
+  const isProprietario = user?.role === 'PROPRIETARIO';
+  const canViewInspections = hasPermission('inspections:read') || ['CEO', 'AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER', 'PROPRIETARIO'].includes(user?.role || '');
+  const canCreateInspections = (hasPermission('inspections:create') || ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER'].includes(user?.role || '')) && !isCEO && !isProprietario;
+  const canUpdateInspections = (hasPermission('inspections:update') || ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER'].includes(user?.role || '')) && !isCEO && !isProprietario;
+  const canDeleteInspections = (hasPermission('inspections:delete') || ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'INDEPENDENT_OWNER'].includes(user?.role || '')) && !isCEO && !isProprietario;
+  const canApproveInspections = ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'INDEPENDENT_OWNER'].includes(user?.role || '') && !isProprietario;
 
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -1068,7 +1070,7 @@ export function Inspections() {
                           <SelectContent>
                             <SelectItem value="none">Não definido</SelectItem>
                             <SelectItem value="INQUILINO">Inquilino</SelectItem>
-                            <SelectItem value="PROPRIETARIO">Proprietário</SelectItem>
+                            <SelectItem value="PROPRIETARIO">Imóvel</SelectItem>
                             <SelectItem value="AGENCIA">Agência</SelectItem>
                           </SelectContent>
                         </Select>
@@ -1241,7 +1243,7 @@ export function Inspections() {
                             <SelectContent>
                               <SelectItem value="none">Não definido</SelectItem>
                               <SelectItem value="INQUILINO">Inquilino</SelectItem>
-                              <SelectItem value="PROPRIETARIO">Proprietário</SelectItem>
+                              <SelectItem value="PROPRIETARIO">Imóvel</SelectItem>
                               <SelectItem value="AGENCIA">Agência</SelectItem>
                             </SelectContent>
                           </Select>
@@ -1331,7 +1333,7 @@ export function Inspections() {
                   </div>
                   <div className="p-3 border rounded-lg text-center">
                     <PenTool className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
-                    <Label className="text-xs text-muted-foreground">Proprietário</Label>
+                    <Label className="text-xs text-muted-foreground">Imóvel</Label>
                     {inspectionDetail.ownerSignedAt ? (
                       <p className="text-xs text-green-600">Assinado em {formatDate(inspectionDetail.ownerSignedAt)}</p>
                     ) : (

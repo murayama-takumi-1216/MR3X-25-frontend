@@ -19,7 +19,7 @@ const baseNavigation = [
   { name: 'Meu Perfil', href: '/dashboard/tenant-profile', icon: User, perm: undefined, roles: ['INQUILINO'] },
   // Broker-specific menu items (BROKER role only) - Dashboard shows broker content
   // Regular menu items for other roles
-  { name: 'Propriedades', href: '/dashboard/properties', icon: Building2, perm: 'properties:read' },
+  { name: 'Imóveis', href: '/dashboard/properties', icon: Building2, perm: 'properties:read' },
   { name: 'Inquilinos', href: '/dashboard/tenants', icon: Users, perm: 'users:read' },
   { name: 'Análise de Inquilinos', href: '/dashboard/tenant-analysis', icon: UserSearch, perm: undefined },
   { name: 'Corretores', href: '/dashboard/brokers', icon: Briefcase, perm: 'users:read' },
@@ -263,7 +263,8 @@ export function DashboardLayout() {
       if (!allowForBroker.includes(item.href)) return false;
     }
 
-    // PROPRIETARIO: Owner linked to agency - limited access
+    // PROPRIETARIO: Owner linked to agency - limited READ-ONLY access
+    // Agency acts on behalf of PROPRIETARIO for all operations
     if (user?.role === 'PROPRIETARIO') {
       const excludeForProprietario = [
         '/dashboard/brokers',
@@ -281,6 +282,7 @@ export function DashboardLayout() {
         '/dashboard/audit',
         '/dashboard/documents',
         '/dashboard/tenants', // Cannot manage tenants - goes through agency
+        '/dashboard/tenant-analysis', // Cannot analyze tenants - agency does this
       ];
       if (excludeForProprietario.includes(item.href)) return false;
     }
@@ -502,8 +504,8 @@ export function DashboardLayout() {
                            user.role === 'AGENCY_ADMIN' ? 'Diretor' :
                            user.role === 'AGENCY_MANAGER' ? 'Gestor' :
                          user.role === 'BROKER' ? 'Corretor' :
-                         user.role === 'INDEPENDENT_OWNER' ? 'Proprietário Indep.' :
-                         user.role === 'PROPRIETARIO' ? 'Proprietário' :
+                         user.role === 'INDEPENDENT_OWNER' ? 'Imóvel Indep.' :
+                         user.role === 'PROPRIETARIO' ? 'Imóvel' :
                          user.role === 'INQUILINO' ? 'Inquilino' :
                          user.role === 'BUILDING_MANAGER' ? 'Síndico' :
                          user.role === 'LEGAL_AUDITOR' ? 'Auditor' :

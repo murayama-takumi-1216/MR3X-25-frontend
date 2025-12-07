@@ -273,14 +273,14 @@ export function Register() {
                     - INDEPENDENT_OWNER: Self-registers as "mini real estate agency"
                     - All other roles must be created by authorized users
                   */}
-                  <option value="INDEPENDENT_OWNER">Proprietário Independente - Gerenciar meus imóveis sem agência</option>
+                  <option value="INDEPENDENT_OWNER">Imóvel Independente - Gerenciar meus imóveis sem agência</option>
                   <option value="AGENCY_ADMIN">Diretor de Agência - Criar minha imobiliária</option>
                 </select>
                 <p className="text-xs text-muted-foreground mt-2">
                   {formData.role === 'INDEPENDENT_OWNER' &&
-                    'Como Proprietário Independente, você poderá gerenciar seus próprios imóveis, inquilinos e contratos.'}
+                    'Como Imóvel Independente, você poderá gerenciar seus próprios imóveis, inquilinos e contratos.'}
                   {formData.role === 'AGENCY_ADMIN' &&
-                    'Como Diretor de Agência, você poderá criar sua imobiliária e gerenciar corretores, proprietários e imóveis.'}
+                    'Como Diretor de Agência, você poderá criar sua imobiliária e gerenciar corretores, imóveis e inquilinos.'}
                 </p>
               </div>
             )}

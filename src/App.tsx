@@ -5,6 +5,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import { Login } from './pages/auth/Login';
 import { Register } from './pages/auth/Register';
 import { DashboardLayout } from './layouts/DashboardLayout';
+import { ContractVerification } from './pages/public/ContractVerification';
+import { ExternalSigning } from './pages/public/ExternalSigning';
 import { DashboardHome } from './pages/dashboard/DashboardHome';
 import { Properties } from './pages/dashboard/Properties';
 import { Contracts } from './pages/dashboard/Contracts';
@@ -118,13 +120,18 @@ function App() {
             <Route path="/reset-password" element={<PlaceholderPage title="Redefinir Senha" />} />
             <Route path="/terms" element={<PlaceholderPage title="Termos de Uso" />} />
 
+            {/* Public Contract Verification and Signing */}
+            <Route path="/verify" element={<ContractVerification />} />
+            <Route path="/verify/:token" element={<ContractVerification />} />
+            <Route path="/sign/:linkToken" element={<ExternalSigning />} />
+
             {/* Protected routes with Dashboard Layout */}
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<DashboardHome />} />
               <Route path="properties" element={<Properties />} />
-              <Route path="properties/new" element={<PlaceholderPage title="Nova Propriedade" />} />
-              <Route path="properties/:id" element={<PlaceholderPage title="Detalhes da Propriedade" />} />
-              <Route path="properties/:id/edit" element={<PlaceholderPage title="Editar Propriedade" />} />
+              <Route path="properties/new" element={<PlaceholderPage title="Novo Imóvel" />} />
+              <Route path="properties/:id" element={<PlaceholderPage title="Detalhes do Imóvel" />} />
+              <Route path="properties/:id/edit" element={<PlaceholderPage title="Editar Imóvel" />} />
 
               <Route path="contracts" element={<Contracts />} />
               <Route path="contracts/new" element={<PlaceholderPage title="Novo Contrato" />} />
@@ -167,9 +174,9 @@ function App() {
               <Route path="brokers/:id/edit" element={<PlaceholderPage title="Editar Corretor" />} />
 
               <Route path="owners" element={<Owners />} />
-              <Route path="owners/new" element={<PlaceholderPage title="Novo Proprietario" />} />
-              <Route path="owners/:id" element={<PlaceholderPage title="Detalhes do Proprietario" />} />
-              <Route path="owners/:id/edit" element={<PlaceholderPage title="Editar Proprietario" />} />
+              <Route path="owners/new" element={<PlaceholderPage title="Novo Imóvel" />} />
+              <Route path="owners/:id" element={<PlaceholderPage title="Detalhes do Imóvel" />} />
+              <Route path="owners/:id/edit" element={<PlaceholderPage title="Editar Imóvel" />} />
 
               <Route path="managers" element={<Managers />} />
               <Route path="agency-admin" element={<AgencyAdmin />} />

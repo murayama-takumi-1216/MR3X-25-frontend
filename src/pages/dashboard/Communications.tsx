@@ -203,7 +203,7 @@ export default function CommunicationsPage() {
                 <SelectContent>
                   <SelectItem value="all">Todos os Usuários</SelectItem>
                   <SelectItem value="agencies">Todas as Agências</SelectItem>
-                  <SelectItem value="owners">Todos os Proprietários</SelectItem>
+                  <SelectItem value="owners">Todos os Imóveis</SelectItem>
                   <SelectItem value="tenants">Todos os Inquilinos</SelectItem>
                   <SelectItem value="custom">Personalizado</SelectItem>
                 </SelectContent>
@@ -260,7 +260,7 @@ export default function CommunicationsPage() {
                 <SelectContent>
                   <SelectItem value="all">Todos os Usuários</SelectItem>
                   <SelectItem value="agencies">Todas as Agências</SelectItem>
-                  <SelectItem value="owners">Todos os Proprietários</SelectItem>
+                  <SelectItem value="owners">Todos os Imóveis</SelectItem>
                   <SelectItem value="tenants">Todos os Inquilinos</SelectItem>
                   <SelectItem value="custom">Personalizado</SelectItem>
                 </SelectContent>

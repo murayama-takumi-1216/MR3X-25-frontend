@@ -394,7 +394,7 @@ export function TenantDashboard() {
               {/* Property Owner Info */}
               {property.owner && (
                 <div className="pt-4 border-t">
-                  <p className="text-sm text-muted-foreground mb-2">Proprietário / Administrador</p>
+                  <p className="text-sm text-muted-foreground mb-2">Imóvel / Administrador</p>
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                       <User className="w-5 h-5 text-gray-500" />

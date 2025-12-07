@@ -131,7 +131,7 @@ export function Owners() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-muted-foreground">Acesso Negado</h2>
-          <p className="text-muted-foreground">Voce nao tem permissao para visualizar proprietarios.</p>
+          <p className="text-muted-foreground">Você não tem permissão para visualizar imóveis.</p>
         </div>
       </div>
     )
@@ -172,10 +172,10 @@ export function Owners() {
         document: '', name: '', phone: '', email: '', password: '', birthDate: '',
         cep: '', address: '', neighborhood: '', city: '', state: ''
       })
-      toast.success('Proprietario criado com sucesso')
+      toast.success('Imóvel criado com sucesso')
     },
     onError: (error: any) => {
-      let errorMessage = 'Erro ao criar proprietario'
+      let errorMessage = 'Erro ao criar imóvel'
       if (error.message) {
         const message = error.message.toLowerCase()
         if (message.includes('already exists')) {
@@ -194,10 +194,10 @@ export function Owners() {
       queryClient.invalidateQueries({ queryKey: ['owners'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       closeAllModals()
-      toast.success('Proprietario atualizado com sucesso')
+      toast.success('Imóvel atualizado com sucesso')
     },
     onError: (error: any) => {
-      const errorMessage = error.message || 'Erro ao atualizar proprietario'
+      const errorMessage = error.message || 'Erro ao atualizar imóvel'
       toast.error(errorMessage)
     },
   })
@@ -208,10 +208,10 @@ export function Owners() {
       queryClient.invalidateQueries({ queryKey: ['owners'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       closeAllModals()
-      toast.success('Proprietario excluido com sucesso')
+      toast.success('Imóvel excluído com sucesso')
     },
     onError: (error: any) => {
-      const errorMessage = error.message || 'Erro ao excluir proprietario'
+      const errorMessage = error.message || 'Erro ao excluir imóvel'
       toast.error(errorMessage)
     },
   })
@@ -295,7 +295,7 @@ export function Owners() {
       setOwnerDetail(fullOwnerDetails)
       setShowDetailModal(true)
     } catch {
-      toast.error('Erro ao carregar detalhes do proprietario')
+      toast.error('Erro ao carregar detalhes do imóvel')
     } finally {
       setLoadingDetails(false)
     }
@@ -323,7 +323,7 @@ export function Owners() {
       })
       setShowEditModal(true)
     } catch {
-      toast.error('Erro ao carregar detalhes do proprietario')
+      toast.error('Erro ao carregar detalhes do imóvel')
     } finally {
       setLoadingDetails(false)
     }
@@ -363,9 +363,9 @@ export function Owners() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Proprietarios</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Proprietários</h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-1">
-              Gerencie todos os proprietarios independentes
+              Gerencie todos os proprietários cadastrados
             </p>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -408,7 +408,7 @@ export function Owners() {
                 }}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Cadastrar Proprietario</span>
+                <span className="hidden sm:inline">Cadastrar Proprietário</span>
                 <span className="sm:hidden">Adicionar</span>
               </Button>
             )}
@@ -483,7 +483,7 @@ export function Owners() {
                         <h3 className="font-semibold text-lg truncate">{owner.name || 'Sem nome'}</h3>
                         <p className="text-sm text-muted-foreground truncate">{owner.email || '-'}</p>
                       </div>
-                      <Badge className="bg-purple-500 text-white text-xs flex-shrink-0">Proprietario</Badge>
+                      <Badge className="bg-purple-500 text-white text-xs flex-shrink-0">Imóvel</Badge>
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline" onClick={() => handleViewOwner(owner)} className="text-orange-600 border-orange-600 hover:bg-orange-50 flex-1">
@@ -551,14 +551,14 @@ export function Owners() {
         ) : (
           <div className="text-center py-12 sm:py-16 bg-card border border-border rounded-lg px-4">
             <Home className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-base sm:text-lg font-semibold mb-2">Nenhum proprietario cadastrado</h3>
+            <h3 className="text-base sm:text-lg font-semibold mb-2">Nenhum proprietário cadastrado</h3>
             <p className="text-sm sm:text-base text-muted-foreground mb-4">
-              Comece adicionando seu primeiro proprietario
+              Comece adicionando seu primeiro proprietário
             </p>
             {canCreateUsers && (
               <Button onClick={() => { setEmailError(''); setShowCreateModal(true) }} className="bg-orange-600 hover:bg-orange-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
-                Cadastrar Proprietario
+                Cadastrar Proprietário
               </Button>
             )}
           </div>
@@ -568,7 +568,7 @@ export function Owners() {
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Cadastrar Proprietario</DialogTitle>
+              <DialogTitle>Cadastrar Proprietário</DialogTitle>
             </DialogHeader>
             <form className="space-y-6" onSubmit={handleCreateOwner}>
               <div className="space-y-4">
@@ -679,7 +679,7 @@ export function Owners() {
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
             <DialogHeader>
-              <DialogTitle>Editar Proprietario</DialogTitle>
+              <DialogTitle>Editar Imóvel</DialogTitle>
             </DialogHeader>
             <form className="space-y-6" onSubmit={handleUpdateOwner}>
               {/* Personal Information Section */}
@@ -791,7 +791,7 @@ export function Owners() {
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Detalhes do Proprietario</DialogTitle>
+              <DialogTitle>Detalhes do Imóvel</DialogTitle>
             </DialogHeader>
             {ownerDetail ? (
               <div className="space-y-6">
@@ -850,7 +850,7 @@ export function Owners() {
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                Nao foi possivel carregar os detalhes do proprietario.
+                Não foi possível carregar os detalhes do imóvel.
               </div>
             )}
           </DialogContent>
@@ -860,9 +860,9 @@ export function Owners() {
         <AlertDialog open={!!ownerToDelete} onOpenChange={() => setOwnerToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Excluir proprietario</AlertDialogTitle>
+              <AlertDialogTitle>Excluir imóvel</AlertDialogTitle>
               <AlertDialogDescription>
-                Tem certeza que deseja excluir o proprietario <b>{ownerToDelete?.name}</b>? Esta acao nao podera ser desfeita.
+                Tem certeza que deseja excluir o imóvel <b>{ownerToDelete?.name}</b>? Esta ação não poderá ser desfeita.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

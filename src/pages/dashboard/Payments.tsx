@@ -3,6 +3,7 @@ import { paymentsAPI, propertiesAPI, contractsAPI } from '../../api';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
+import { useOwnerPermissions } from '../../hooks/useOwnerPermissions';
 import {
   DollarSign,
   Plus,
@@ -17,6 +18,7 @@ import {
   Clock
 } from 'lucide-react';
 import { formatCurrency, formatDate } from '../../lib/utils';
+import { ReadOnlyBadge } from '../../components/ui/read-only-badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -49,14 +51,17 @@ import {
 export function Payments() {
   const { hasPermission, user } = useAuth();
   const queryClient = useQueryClient();
+  const ownerPermissions = useOwnerPermissions('payments');
 
   // Check permissions
   // CEO can VIEW but cannot CREATE/EDIT/DELETE payments
+  // PROPRIETARIO (agency-managed owner) can only VIEW
   const isCEO = user?.role === 'CEO';
+  const isReadOnlyOwner = ownerPermissions.isReadOnly;
   const canViewPayments = hasPermission('payments:read');
-  const canCreatePayments = hasPermission('payments:create') && !isCEO;
-  const canUpdatePayments = hasPermission('payments:update') && !isCEO;
-  const canDeletePayments = hasPermission('payments:delete') && !isCEO;
+  const canCreatePayments = hasPermission('payments:create') && !isCEO && !isReadOnlyOwner;
+  const canUpdatePayments = hasPermission('payments:update') && !isCEO && !isReadOnlyOwner;
+  const canDeletePayments = hasPermission('payments:delete') && !isCEO && !isReadOnlyOwner;
 
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -296,9 +301,22 @@ export function Payments() {
   return (
     <TooltipProvider>
       <div className="space-y-6">
+        {/* Read-only banner for PROPRIETARIO */}
+        {isReadOnlyOwner && (
+          <ReadOnlyBadge
+            variant="banner"
+            message={ownerPermissions.restrictionMessage}
+          />
+        )}
+
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Pagamentos</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">
+              Pagamentos
+              {isReadOnlyOwner && (
+                <ReadOnlyBadge className="ml-3 align-middle" />
+              )}
+            </h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Acompanhe todos os seus pagamentos
             </p>

@@ -142,7 +142,7 @@ export function AgencySplitConfig() {
           <ul className="text-sm mt-2 space-y-1 list-disc list-inside">
             <li><strong>Plataforma MR3X ({platformFee}%)</strong> - Taxa fixa do sistema</li>
             <li><strong>Agência</strong> - Sua comissão configurável</li>
-            <li><strong>Proprietário</strong> - Valor restante (automático)</li>
+            <li><strong>Imóvel</strong> - Valor restante (automático)</li>
           </ul>
         </AlertDescription>
       </Alert>
@@ -221,7 +221,7 @@ export function AgencySplitConfig() {
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <User className="w-4 h-4 text-green-600" />
-                Valor do Proprietário
+                Valor do Imóvel
               </Label>
               <div className="relative">
                 <Input
@@ -295,7 +295,7 @@ export function AgencySplitConfig() {
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-green-500" />
-                    <span className="text-sm">Proprietário ({ownerFee.toFixed(2)}%)</span>
+                    <span className="text-sm">Imóvel ({ownerFee.toFixed(2)}%)</span>
                   </div>
                   <span className="font-medium">
                     R$ {((rentValue * ownerFee) / 100).toFixed(2)}
@@ -344,7 +344,7 @@ export function AgencySplitConfig() {
               </span>
               <span className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-green-500" />
-                Proprietário
+                Imóvel
               </span>
             </div>
           </div>
