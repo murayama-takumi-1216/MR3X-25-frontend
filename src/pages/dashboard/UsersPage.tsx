@@ -45,13 +45,9 @@ export function UsersPage() {
 
     setLoading(true);
     try {
-      const res = await usersAPI.listUsers({ search, role, status, plan, page, pageSize });
-      // Filter out current logged-in user from the list
-      const filteredItems = (res.items || []).filter((item: UserItem) => item.id !== user?.id);
-      setItems(filteredItems);
-      // Adjust total count if current user was in the results
-      const currentUserInResults = (res.items || []).some((item: UserItem) => item.id === user?.id);
-      setTotal(currentUserInResults ? (res.total || 1) - 1 : (res.total || 0));
+      const res = await usersAPI.listUsers({ search, role, status, plan, page, pageSize, excludeCurrentUser: true });
+      setItems(res.items || []);
+      setTotal(res.total || 0);
     } catch (error: any) {
       toast.error(error.message || 'Falha ao carregar usuários');
     } finally {
