@@ -210,11 +210,10 @@ export function Tenants() {
         if (approvedRecommendations.includes(latestAnalysis.recommendation)) {
           setAnalysisResult(latestAnalysis)
         } else {
-          setAnalysisError(`Este inquilino não foi aprovado na análise. Recomendação: ${
-            latestAnalysis.recommendation === 'REJECTED' ? 'REJEITADO' :
-            latestAnalysis.recommendation === 'REQUIRES_GUARANTOR' ? 'REQUER FIADOR' :
-            latestAnalysis.recommendation
-          }`)
+          setAnalysisError(`Este inquilino não foi aprovado na análise. Recomendação: ${latestAnalysis.recommendation === 'REJECTED' ? 'REJEITADO' :
+              latestAnalysis.recommendation === 'REQUIRES_GUARANTOR' ? 'REQUER FIADOR' :
+                latestAnalysis.recommendation
+            }`)
         }
       } else {
         setAnalysisError('Nenhuma análise encontrada para este documento. Realize uma análise no módulo "Análise de Inquilinos" primeiro.')
@@ -1275,42 +1274,76 @@ export function Tenants() {
 
         {/* Analysis Search Modal - Required before tenant registration */}
         <Dialog open={showAnalysisSearchModal} onOpenChange={setShowAnalysisSearchModal}>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-orange-600" />
-                Verificar Análise do Inquilino
-              </DialogTitle>
+          <DialogContent className="max-w-md sm:max-w-lg p-0 overflow-hidden">
+            {/* Visually hidden title for accessibility */}
+            <DialogHeader className="sr-only">
+              <DialogTitle>Verificar Análise do Inquilino</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Para cadastrar um inquilino, é necessário que ele tenha sido aprovado na Análise de Inquilinos.
-                Digite o CPF ou CNPJ para verificar.
-              </p>
 
+            {/* Header with gradient background */}
+            <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-white">Verificar Análise do Inquilino</h2>
+                  <p className="text-orange-100 text-sm">Busque por CPF ou CNPJ aprovado</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Info box */}
+              <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-4 h-4 text-blue-600" />
+                </div>
+                <p className="text-sm text-blue-800">
+                  Para cadastrar um inquilino, é necessário que ele tenha sido <strong>aprovado</strong> na Análise de Inquilinos. Digite o documento para verificar.
+                </p>
+              </div>
+
+              {/* Search input */}
               <div className="space-y-2">
-                <Label htmlFor="search-document">CPF ou CNPJ</Label>
-                <div className="flex gap-2">
-                  <DocumentInput
-                    value={searchDocument}
-                    onChange={(value) => {
-                      setSearchDocument(value)
-                      setAnalysisError('')
-                      setAnalysisResult(null)
-                    }}
-                    placeholder="000.000.000-00"
-                    showValidation={false}
-                  />
+                <Label className="text-sm font-medium">
+                  Documento (CPF ou CNPJ)
+                </Label>
+                <div className="flex items-center gap-3 mt-2">
+                  <div className="flex-1">
+                    <Input
+                      value={searchDocument}
+                      onChange={(e) => {
+                        const inputValue = e.target.value
+                        const cleanValue = inputValue.replace(/\D/g, '')
+                        if (cleanValue.length > 14) return
+                        let formatted = inputValue
+                        if (cleanValue.length <= 11) {
+                          formatted = cleanValue.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+                        } else {
+                          formatted = cleanValue.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
+                        }
+                        setSearchDocument(formatted)
+                        setAnalysisError('')
+                        setAnalysisResult(null)
+                      }}
+                      placeholder="000.000.000-00"
+                      className="h-10"
+                    />
+                  </div>
                   <Button
                     type="button"
                     onClick={handleSearchAnalysis}
-                    disabled={searchingAnalysis}
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                    disabled={searchingAnalysis || !searchDocument}
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-5 h-10"
                   >
                     {searchingAnalysis ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                     ) : (
-                      <Search className="w-4 h-4" />
+                      <>
+                        <Search className="w-4 h-4 mr-2" />
+                        Buscar
+                      </>
                     )}
                   </Button>
                 </div>
@@ -1318,99 +1351,128 @@ export function Tenants() {
 
               {/* Error Message */}
               {analysisError && (
-                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-red-800">{analysisError}</p>
-                    <a
-                      href="/dashboard/tenant-analysis"
-                      className="text-sm text-red-600 hover:text-red-800 underline mt-1 inline-block"
-                    >
-                      Ir para Análise de Inquilinos
-                    </a>
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <XCircle className="w-4 h-4 text-red-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-red-800 mb-1">Não foi possível prosseguir</p>
+                      <p className="text-sm text-red-700">{analysisError}</p>
+                      <Button
+                        variant="link"
+                        asChild
+                        className="text-red-600 hover:text-red-800 p-0 h-auto mt-2 text-sm"
+                      >
+                        <a href="/dashboard/tenant-analysis">
+                          Ir para Análise de Inquilinos →
+                        </a>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Approved Analysis Result */}
               {analysisResult && (
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-green-800">Inquilino Aprovado!</p>
-                      <p className="text-sm text-green-700">Este inquilino pode ser cadastrado.</p>
+                <div className="space-y-4">
+                  {/* Success header */}
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-green-800">Inquilino Aprovado!</p>
+                        <p className="text-sm text-green-700">Este inquilino pode ser cadastrado no sistema.</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="p-4 bg-muted/50 rounded-lg space-y-2">
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Nome:</span>
-                        <p className="font-medium">{analysisResult.name || '-'}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Documento:</span>
-                        <p className="font-medium">{analysisResult.document || '-'}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Nível de Risco:</span>
-                        <Badge className={`mt-1 ${
-                          analysisResult.riskLevel === 'LOW' ? 'bg-green-500' :
-                          analysisResult.riskLevel === 'MEDIUM' ? 'bg-yellow-500' :
-                          'bg-orange-500'
-                        } text-white`}>
-                          {analysisResult.riskLevel === 'LOW' ? 'Baixo' :
-                           analysisResult.riskLevel === 'MEDIUM' ? 'Médio' : analysisResult.riskLevel}
-                        </Badge>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Recomendação:</span>
-                        <Badge className={`mt-1 ${
-                          analysisResult.recommendation === 'APPROVED' ? 'bg-green-500' :
-                          'bg-yellow-500'
-                        } text-white`}>
-                          {analysisResult.recommendation === 'APPROVED' ? 'Aprovado' :
-                           analysisResult.recommendation === 'APPROVED_WITH_CAUTION' ? 'Aprovado com Ressalvas' :
-                           analysisResult.recommendation}
-                        </Badge>
-                      </div>
-                      {analysisResult.creditScore && (
+                  {/* Analysis details card */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                      <h4 className="font-medium text-gray-800">Dados da Análise</h4>
+                    </div>
+                    <div className="p-4 space-y-4">
+                      {/* Name and Document row */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <span className="text-muted-foreground">Score de Crédito:</span>
-                          <p className="font-medium">{analysisResult.creditScore}</p>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Nome</p>
+                          <p className="font-medium text-gray-900">{analysisResult.name || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Documento</p>
+                          <p className="font-medium text-gray-900 font-mono">{analysisResult.document || '-'}</p>
+                        </div>
+                      </div>
+
+                      {/* Risk and Recommendation row */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Nível de Risco</p>
+                          <Badge className={`${analysisResult.riskLevel === 'LOW' ? 'bg-green-500 hover:bg-green-600' :
+                              analysisResult.riskLevel === 'MEDIUM' ? 'bg-yellow-500 hover:bg-yellow-600' :
+                                'bg-orange-500 hover:bg-orange-600'
+                            } text-white`}>
+                            {analysisResult.riskLevel === 'LOW' ? 'Baixo' :
+                              analysisResult.riskLevel === 'MEDIUM' ? 'Médio' : analysisResult.riskLevel}
+                          </Badge>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Recomendação</p>
+                          <Badge className={`${analysisResult.recommendation === 'APPROVED' ? 'bg-green-500 hover:bg-green-600' :
+                              'bg-yellow-500 hover:bg-yellow-600'
+                            } text-white`}>
+                            {analysisResult.recommendation === 'APPROVED' ? 'Aprovado' :
+                              analysisResult.recommendation === 'APPROVED_WITH_CAUTION' ? 'Aprovado com Ressalvas' :
+                                analysisResult.recommendation}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* Score and Date row */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {analysisResult.riskScore !== undefined && (
+                          <div>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Score de Risco</p>
+                            <p className="font-medium text-gray-900">{analysisResult.riskScore}/1000</p>
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Data da Análise</p>
+                          <p className="font-medium text-gray-900">
+                            {analysisResult.analyzedAt ? new Date(analysisResult.analyzedAt).toLocaleDateString('pt-BR') : '-'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Caution note */}
+                      {analysisResult.recommendation === 'APPROVED_WITH_CAUTION' && analysisResult.recommendationNotes && (
+                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <div className="flex items-start gap-2">
+                            <AlertTriangle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-yellow-800">{analysisResult.recommendationNotes}</p>
+                          </div>
                         </div>
                       )}
-                      <div>
-                        <span className="text-muted-foreground">Data da Análise:</span>
-                        <p className="font-medium">
-                          {analysisResult.analyzedAt ? new Date(analysisResult.analyzedAt).toLocaleDateString('pt-BR') : '-'}
-                        </p>
-                      </div>
                     </div>
-
-                    {analysisResult.recommendation === 'APPROVED_WITH_CAUTION' && analysisResult.recommendationNotes && (
-                      <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
-                        <div className="flex items-start gap-2">
-                          <AlertTriangle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
-                          <p className="text-xs text-yellow-800">{analysisResult.recommendationNotes}</p>
-                        </div>
-                      </div>
-                    )}
                   </div>
 
-                  <div className="flex justify-end gap-2 pt-2">
+                  {/* Action buttons */}
+                  <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setShowAnalysisSearchModal(false)}
+                      className="w-full sm:w-auto"
                     >
                       Cancelar
                     </Button>
                     <Button
                       type="button"
                       onClick={handleProceedToRegistration}
-                      className="bg-orange-600 hover:bg-orange-700 text-white"
+                      className="bg-orange-600 hover:bg-orange-700 text-white w-full sm:w-auto"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Prosseguir com Cadastro
@@ -1421,9 +1483,21 @@ export function Tenants() {
 
               {/* Initial state - no search yet */}
               {!analysisResult && !analysisError && !searchingAnalysis && (
-                <div className="text-center py-4 text-muted-foreground">
-                  <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">Digite o documento e clique em buscar</p>
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-muted-foreground">Digite o documento e clique em buscar</p>
+                </div>
+              )}
+
+              {/* Loading state */}
+              {searchingAnalysis && (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-3 border-orange-600 border-t-transparent" />
+                  </div>
+                  <p className="text-muted-foreground">Buscando análise...</p>
                 </div>
               )}
             </div>
