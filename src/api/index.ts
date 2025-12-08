@@ -331,6 +331,11 @@ export const usersAPI = {
     return response.data;
   },
 
+  getBrokers: async () => {
+    const response = await apiClient.get('/users?role=BROKER');
+    return response.data?.data || [];
+  },
+
   createUser: async (payload: any) => {
     const response = await apiClient.post('/users', payload);
     return response.data;

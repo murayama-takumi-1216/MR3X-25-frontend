@@ -85,6 +85,7 @@ export function Tenants() {
     city: '',
     state: '',
     agencyId: '',
+    brokerId: '',
   })
 
   const [editForm, setEditForm] = useState({
@@ -99,6 +100,7 @@ export function Tenants() {
     neighborhood: '',
     city: '',
     state: '',
+    brokerId: '',
   })
 
   const [selectedTenant, setSelectedTenant] = useState<any>(null)
@@ -170,6 +172,14 @@ export function Tenants() {
     queryKey: ['agencies'],
     queryFn: () => agenciesAPI.getAgencies(),
     enabled: isAdminOrCeo,
+  })
+
+  // Fetch brokers for Manager/Admin users to link tenants to brokers
+  const canLinkBrokers = user?.role === 'AGENCY_MANAGER' || user?.role === 'AGENCY_ADMIN'
+  const { data: brokers } = useQuery({
+    queryKey: ['brokers'],
+    queryFn: () => usersAPI.getBrokers(),
+    enabled: canLinkBrokers,
   })
 
   const closeAllModals = () => {
