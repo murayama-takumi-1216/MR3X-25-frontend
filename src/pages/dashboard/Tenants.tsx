@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { usersAPI, agenciesAPI } from '@/api'
+import { usersAPI, agenciesAPI, tenantAnalysisAPI } from '@/api'
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { useAuth } from '@/contexts/AuthContext'
@@ -15,7 +15,12 @@ import {
   MapPin,
   Grid3X3,
   List,
-  FileText
+  FileText,
+  Search,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Shield
 } from 'lucide-react'
 import { DocumentInput } from '@/components/ui/document-input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -108,6 +113,13 @@ export function Tenants() {
   const [showEditPassword, setShowEditPassword] = useState(false)
   const [emailError, setEmailError] = useState('')
 
+  // Analysis search states
+  const [showAnalysisSearchModal, setShowAnalysisSearchModal] = useState(false)
+  const [searchDocument, setSearchDocument] = useState('')
+  const [searchingAnalysis, setSearchingAnalysis] = useState(false)
+  const [analysisResult, setAnalysisResult] = useState<any>(null)
+  const [analysisError, setAnalysisError] = useState('')
+
   // Email validation
   const checkEmailExists = useCallback(async (email: string, currentEmail?: string) => {
     if (!email || email === currentEmail) {
@@ -166,8 +178,77 @@ export function Tenants() {
     setShowDetailModal(false)
     setShowWhatsAppModal(false)
     setShowContractsModal(false)
+    setShowAnalysisSearchModal(false)
     setSelectedTenant(null)
     setTenantToDelete(null)
+    setAnalysisResult(null)
+    setAnalysisError('')
+    setSearchDocument('')
+  }
+
+  // Search for approved analysis by document
+  const handleSearchAnalysis = async () => {
+    if (!searchDocument || searchDocument.replace(/\D/g, '').length < 11) {
+      setAnalysisError('Digite um CPF ou CNPJ válido')
+      return
+    }
+
+    setSearchingAnalysis(true)
+    setAnalysisError('')
+    setAnalysisResult(null)
+
+    try {
+      const cleanDocument = searchDocument.replace(/\D/g, '')
+      const history = await tenantAnalysisAPI.getHistory({ document: cleanDocument, status: 'COMPLETED' })
+
+      if (history.data && history.data.length > 0) {
+        // Get the most recent completed analysis
+        const latestAnalysis = history.data[0]
+
+        // Check if recommendation is approved
+        const approvedRecommendations = ['APPROVED', 'APPROVED_WITH_CAUTION']
+        if (approvedRecommendations.includes(latestAnalysis.recommendation)) {
+          setAnalysisResult(latestAnalysis)
+        } else {
+          setAnalysisError(`Este inquilino não foi aprovado na análise. Recomendação: ${
+            latestAnalysis.recommendation === 'REJECTED' ? 'REJEITADO' :
+            latestAnalysis.recommendation === 'REQUIRES_GUARANTOR' ? 'REQUER FIADOR' :
+            latestAnalysis.recommendation
+          }`)
+        }
+      } else {
+        setAnalysisError('Nenhuma análise encontrada para este documento. Realize uma análise no módulo "Análise de Inquilinos" primeiro.')
+      }
+    } catch (error: any) {
+      console.error('Error searching analysis:', error)
+      setAnalysisError('Erro ao buscar análise. Tente novamente.')
+    } finally {
+      setSearchingAnalysis(false)
+    }
+  }
+
+  // Proceed to registration form with approved analysis data
+  const handleProceedToRegistration = () => {
+    if (!analysisResult) return
+
+    // Pre-fill the form with analysis data
+    setNewTenant({
+      document: analysisResult.document || '',
+      name: analysisResult.name || '',
+      phone: '',
+      email: '',
+      password: '',
+      birthDate: '',
+      cep: '',
+      address: '',
+      neighborhood: '',
+      city: '',
+      state: '',
+      agencyId: '',
+    })
+
+    setShowAnalysisSearchModal(false)
+    setShowCreateModal(true)
   }
 
   const handleViewContracts = (tenant: any) => {
@@ -417,7 +498,7 @@ export function Tenants() {
                 onClick={() => {
                   closeAllModals()
                   setEmailError('')
-                  setShowCreateModal(true)
+                  setShowAnalysisSearchModal(true)
                 }}
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -643,7 +724,7 @@ export function Tenants() {
               <Button
                 onClick={() => {
                   setEmailError('')
-                  setShowCreateModal(true)
+                  setShowAnalysisSearchModal(true)
                 }}
                 className="bg-orange-600 hover:bg-orange-700 text-white"
               >
@@ -1189,6 +1270,163 @@ export function Tenants() {
                 </div>
               </div>
             ) : null}
+          </DialogContent>
+        </Dialog>
+
+        {/* Analysis Search Modal - Required before tenant registration */}
+        <Dialog open={showAnalysisSearchModal} onOpenChange={setShowAnalysisSearchModal}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-orange-600" />
+                Verificar Análise do Inquilino
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Para cadastrar um inquilino, é necessário que ele tenha sido aprovado na Análise de Inquilinos.
+                Digite o CPF ou CNPJ para verificar.
+              </p>
+
+              <div className="space-y-2">
+                <Label htmlFor="search-document">CPF ou CNPJ</Label>
+                <div className="flex gap-2">
+                  <DocumentInput
+                    value={searchDocument}
+                    onChange={(value) => {
+                      setSearchDocument(value)
+                      setAnalysisError('')
+                      setAnalysisResult(null)
+                    }}
+                    placeholder="000.000.000-00"
+                    showValidation={false}
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleSearchAnalysis}
+                    disabled={searchingAnalysis}
+                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    {searchingAnalysis ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    ) : (
+                      <Search className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Error Message */}
+              {analysisError && (
+                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-red-800">{analysisError}</p>
+                    <a
+                      href="/dashboard/tenant-analysis"
+                      className="text-sm text-red-600 hover:text-red-800 underline mt-1 inline-block"
+                    >
+                      Ir para Análise de Inquilinos
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Approved Analysis Result */}
+              {analysisResult && (
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-green-800">Inquilino Aprovado!</p>
+                      <p className="text-sm text-green-700">Este inquilino pode ser cadastrado.</p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Nome:</span>
+                        <p className="font-medium">{analysisResult.name || '-'}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Documento:</span>
+                        <p className="font-medium">{analysisResult.document || '-'}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Nível de Risco:</span>
+                        <Badge className={`mt-1 ${
+                          analysisResult.riskLevel === 'LOW' ? 'bg-green-500' :
+                          analysisResult.riskLevel === 'MEDIUM' ? 'bg-yellow-500' :
+                          'bg-orange-500'
+                        } text-white`}>
+                          {analysisResult.riskLevel === 'LOW' ? 'Baixo' :
+                           analysisResult.riskLevel === 'MEDIUM' ? 'Médio' : analysisResult.riskLevel}
+                        </Badge>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Recomendação:</span>
+                        <Badge className={`mt-1 ${
+                          analysisResult.recommendation === 'APPROVED' ? 'bg-green-500' :
+                          'bg-yellow-500'
+                        } text-white`}>
+                          {analysisResult.recommendation === 'APPROVED' ? 'Aprovado' :
+                           analysisResult.recommendation === 'APPROVED_WITH_CAUTION' ? 'Aprovado com Ressalvas' :
+                           analysisResult.recommendation}
+                        </Badge>
+                      </div>
+                      {analysisResult.creditScore && (
+                        <div>
+                          <span className="text-muted-foreground">Score de Crédito:</span>
+                          <p className="font-medium">{analysisResult.creditScore}</p>
+                        </div>
+                      )}
+                      <div>
+                        <span className="text-muted-foreground">Data da Análise:</span>
+                        <p className="font-medium">
+                          {analysisResult.analyzedAt ? new Date(analysisResult.analyzedAt).toLocaleDateString('pt-BR') : '-'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {analysisResult.recommendation === 'APPROVED_WITH_CAUTION' && analysisResult.recommendationNotes && (
+                      <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
+                        <div className="flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+                          <p className="text-xs text-yellow-800">{analysisResult.recommendationNotes}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowAnalysisSearchModal(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleProceedToRegistration}
+                      className="bg-orange-600 hover:bg-orange-700 text-white"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Prosseguir com Cadastro
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Initial state - no search yet */}
+              {!analysisResult && !analysisError && !searchingAnalysis && (
+                <div className="text-center py-4 text-muted-foreground">
+                  <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Digite o documento e clique em buscar</p>
+                </div>
+              )}
+            </div>
           </DialogContent>
         </Dialog>
 
