@@ -280,8 +280,14 @@ export const paymentsAPI = {
 // Users API
 export const usersAPI = {
   listUsers: async (params: { search?: string; role?: string; status?: string; plan?: string; page?: number; pageSize?: number } = {}) => {
+    const { page = 1, pageSize = 10, ...otherParams } = params;
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+
     const qs = new URLSearchParams();
-    Object.entries(params).forEach(([k, v]) => {
+    qs.append('skip', String(skip));
+    qs.append('take', String(take));
+    Object.entries(otherParams).forEach(([k, v]) => {
       if (v !== undefined && v !== null && v !== '') qs.append(k, String(v));
     });
     const query = qs.toString();
