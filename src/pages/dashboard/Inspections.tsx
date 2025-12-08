@@ -158,7 +158,7 @@ export function Inspections() {
 
   const [inspectionItems, setInspectionItems] = useState<InspectionItem[]>([]);
   const [itemFilePreviews, setItemFilePreviews] = useState<Map<number, FilePreview[]>>(new Map());
-  const [uploadingItems, setUploadingItems] = useState<Set<number>>(new Set());
+  const [_uploadingItems, _setUploadingItems] = useState<Set<number>>(new Set());
 
   // Other states
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
@@ -246,7 +246,7 @@ export function Inspections() {
       files.forEach(f => URL.revokeObjectURL(f.preview));
     });
     setItemFilePreviews(new Map());
-    setUploadingItems(new Set());
+    _setUploadingItems(new Set());
   };
 
   // Mutations

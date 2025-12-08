@@ -176,7 +176,7 @@ export function Tenants() {
 
   // Fetch brokers for Manager/Admin users to link tenants to brokers
   const canLinkBrokers = user?.role === 'AGENCY_MANAGER' || user?.role === 'AGENCY_ADMIN'
-  const { data: brokers } = useQuery({
+  const { data: _brokers } = useQuery({
     queryKey: ['brokers'],
     queryFn: () => usersAPI.getBrokers(),
     enabled: canLinkBrokers,
@@ -254,6 +254,7 @@ export function Tenants() {
       city: '',
       state: '',
       agencyId: '',
+      brokerId: '',
     })
 
     setShowAnalysisSearchModal(false)
@@ -274,7 +275,7 @@ export function Tenants() {
       closeAllModals()
       setNewTenant({
         document: '', name: '', phone: '', email: '', password: '', birthDate: '',
-        cep: '', address: '', neighborhood: '', city: '', state: '', agencyId: ''
+        cep: '', address: '', neighborhood: '', city: '', state: '', agencyId: '', brokerId: ''
       })
       toast.success('Inquilino criado com sucesso')
     },
@@ -416,6 +417,7 @@ export function Tenants() {
         neighborhood: fullTenantDetails.neighborhood || '',
         city: fullTenantDetails.city || '',
         state: fullTenantDetails.state || '',
+        brokerId: fullTenantDetails.brokerId || '',
       })
       setShowEditModal(true)
     } catch (error) {
