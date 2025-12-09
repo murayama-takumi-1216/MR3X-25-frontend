@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -57,7 +57,6 @@ import {
   Building2,
   User,
   Calendar,
-  Image,
   Hash,
 } from 'lucide-react';
 import { tenantAnalysisAPI } from '../../api';
@@ -299,27 +298,12 @@ const AnalysisDetailModal = ({
   analysis,
   open,
   onClose,
-  onPhotoUpload
 }: {
   analysis: AnalysisResult | null;
   open: boolean;
   onClose: () => void;
-  onPhotoUpload?: (id: string, file: File) => void;
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   if (!analysis) return null;
-
-  const handlePhotoClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && onPhotoUpload) {
-      onPhotoUpload(analysis.id, file);
-    }
-  };
 
   const renderBasicData = () => {
     if (!analysis.basicData) return null;
@@ -364,7 +348,7 @@ const AnalysisDetailModal = ({
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
                   <Calendar className="w-4 h-4" /> Data de Nascimento
                 </p>
-                <p className="font-medium">{data.birthDate || '-'}</p>
+                <p className="font-medium">{data.birthDate ? data.birthDate.split('T')[0] : '-'}</p>
               </div>
             </div>
           </CardContent>
@@ -410,7 +394,7 @@ const AnalysisDetailModal = ({
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
                   <Calendar className="w-4 h-4" /> Data de Abertura
                 </p>
-                <p className="font-medium">{data.openingDate || '-'}</p>
+                <p className="font-medium">{data.openingDate ? data.openingDate.split('T')[0] : '-'}</p>
               </div>
             </div>
           </CardContent>
@@ -436,38 +420,6 @@ const AnalysisDetailModal = ({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Photo Section */}
-          <div className="flex items-center gap-4">
-            <div
-              className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-blue-500 transition-colors"
-              onClick={handlePhotoClick}
-            >
-              {analysis.photo ? (
-                <img
-                  src={`${import.meta.env.VITE_API_URL || 'http://localhost:8081'}/uploads/tenant-analysis/${analysis.photo.filename}`}
-                  alt="Foto"
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              ) : (
-                <div className="text-center">
-                  <Image className="w-8 h-8 mx-auto text-gray-400" />
-                  <span className="text-xs text-gray-500">Adicionar foto</span>
-                </div>
-              )}
-            </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground">Foto de Identificação</p>
-              <p className="text-xs text-muted-foreground">Clique para adicionar ou alterar a foto</p>
-            </div>
-          </div>
-
           {/* Basic Data Card */}
           {renderBasicData()}
 
@@ -891,23 +843,6 @@ export function TenantAnalysis() {
     },
   });
 
-  const photoUploadMutation = useMutation({
-    mutationFn: ({ id, file }: { id: string; file: File }) =>
-      tenantAnalysisAPI.uploadPhoto(id, file),
-    onSuccess: (data) => {
-      toast.success('Foto enviada com sucesso!');
-      setSelectedAnalysis(data);
-      queryClient.invalidateQueries({ queryKey: ['tenant-analysis-history'] });
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Erro ao enviar foto');
-    },
-  });
-
-  const handlePhotoUpload = (id: string, file: File) => {
-    photoUploadMutation.mutate({ id, file });
-  };
-
   const handleAnalyzeClick = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanDocument = document.replace(/\D/g, '');
@@ -1188,7 +1123,6 @@ export function TenantAnalysis() {
         analysis={selectedAnalysis}
         open={showDetail}
         onClose={() => setShowDetail(false)}
-        onPhotoUpload={handlePhotoUpload}
       />
 
       {/* LGPD Disclaimer Modal */}
