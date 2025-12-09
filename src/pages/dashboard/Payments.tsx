@@ -53,9 +53,6 @@ export function Payments() {
   const queryClient = useQueryClient();
   const ownerPermissions = useOwnerPermissions('payments');
 
-  // Check permissions
-  // CEO can VIEW but cannot CREATE/EDIT/DELETE payments
-  // PROPRIETARIO (agency-managed owner) can only VIEW
   const isCEO = user?.role === 'CEO';
   const isReadOnlyOwner = ownerPermissions.isReadOnly;
   const canViewPayments = hasPermission('payments:read');
@@ -63,12 +60,10 @@ export function Payments() {
   const canUpdatePayments = hasPermission('payments:update') && !isCEO && !isReadOnlyOwner;
   const canDeletePayments = hasPermission('payments:delete') && !isCEO && !isReadOnlyOwner;
 
-  // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // Form states
   const [newPayment, setNewPayment] = useState({
     propertyId: '',
     contratoId: '',
@@ -85,7 +80,6 @@ export function Payments() {
     tipo: 'ALUGUEL',
   });
 
-  // Other states
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [paymentToDelete, setPaymentToDelete] = useState<any>(null);
   const [paymentDetail, setPaymentDetail] = useState<any>(null);
@@ -97,7 +91,6 @@ export function Payments() {
   const [updating, setUpdating] = useState(false);
   const [deleting] = useState(false);
 
-  // Don't render if no permission
   if (!canViewPayments) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -120,7 +113,6 @@ export function Payments() {
     queryFn: () => paymentsAPI.getAnnualReport(selectedYear),
   });
 
-  // Load properties and contracts
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -137,7 +129,6 @@ export function Payments() {
     loadData();
   }, []);
 
-  // Helper function to close all modals
   const closeAllModals = () => {
     setShowCreateModal(false);
     setShowEditModal(false);
@@ -146,7 +137,6 @@ export function Payments() {
     setPaymentToDelete(null);
   };
 
-  // Create payment
   const createPaymentMutation = useMutation({
     mutationFn: (data: any) => paymentsAPI.createPayment(data),
     onSuccess: () => {
@@ -165,7 +155,6 @@ export function Payments() {
     },
   });
 
-  // Update payment
   const updatePaymentMutation = useMutation({
     mutationFn: ({ id, data }: { id: string, data: any }) => paymentsAPI.updatePayment(id, data),
     onSuccess: () => {
@@ -180,7 +169,6 @@ export function Payments() {
     },
   });
 
-  // Delete payment
   const deletePaymentMutation = useMutation({
     mutationFn: (id: string) => paymentsAPI.deletePayment(id),
     onSuccess: () => {
@@ -195,7 +183,6 @@ export function Payments() {
     },
   });
 
-  // Handle form submissions
   const handleCreatePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
@@ -231,7 +218,6 @@ export function Payments() {
     }
   };
 
-  // Handle payment actions
   const handleViewPayment = async (payment: any) => {
     closeAllModals();
     setSelectedPayment(payment);
@@ -263,7 +249,6 @@ export function Payments() {
     }
   };
 
-  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setNewPayment(prev => ({ ...prev, [name]: value }));
@@ -274,7 +259,6 @@ export function Payments() {
     setEditForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // Payment type badge component
   const getPaymentTypeBadge = (type: string) => {
     switch (type) {
       case 'PIX':
@@ -301,7 +285,7 @@ export function Payments() {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Read-only banner for PROPRIETARIO */}
+        {}
         {isReadOnlyOwner && (
           <ReadOnlyBadge
             variant="banner"
@@ -339,7 +323,7 @@ export function Payments() {
           )}
         </div>
 
-        {/* Annual Summary */}
+        {}
         {annualReport && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
@@ -389,11 +373,11 @@ export function Payments() {
                 <Card key={payment.id} className="transition-all hover:shadow-md flex flex-col w-[400px] mx-auto overflow-hidden">
                   <CardContent className="p-0 h-full flex flex-col overflow-hidden">
                     <div className="flex h-full">
-                      {/* Payment Icon */}
+                      {}
                       <div className="w-28 min-w-28 h-36 bg-primary/10 flex items-center justify-center rounded-l-md">
                         <DollarSign className="w-12 h-12 text-primary" />
                       </div>
-                      {/* Payment Content */}
+                      {}
                       <div className="flex-1 flex flex-col justify-between p-4">
                         <div>
                           <h3 className="text-lg font-bold break-words">
@@ -479,7 +463,7 @@ export function Payments() {
           </div>
         </div>
 
-        {/* Create Payment Modal */}
+        {}
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -584,7 +568,7 @@ export function Payments() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Payment Modal */}
+        {}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -689,7 +673,7 @@ export function Payments() {
           </DialogContent>
         </Dialog>
 
-        {/* Payment Detail Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent>
             <DialogHeader>
@@ -716,7 +700,7 @@ export function Payments() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
+        {}
         <AlertDialog open={!!paymentToDelete} onOpenChange={() => setPaymentToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>

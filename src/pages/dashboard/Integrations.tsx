@@ -40,7 +40,6 @@ export default function IntegrationsPage() {
     description: '',
   })
 
-  // Mock data - will be replaced with real API calls
   const apiKeys = [
     {
       id: '1',
@@ -292,7 +291,7 @@ export default function IntegrationsPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Create API Key Modal */}
+      {}
       <Dialog open={showApiKeyModal} onOpenChange={setShowApiKeyModal}>
         <DialogContent>
           <DialogHeader>
@@ -332,7 +331,7 @@ export default function IntegrationsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Integration Modal */}
+      {}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
         <DialogContent>
           <DialogHeader>

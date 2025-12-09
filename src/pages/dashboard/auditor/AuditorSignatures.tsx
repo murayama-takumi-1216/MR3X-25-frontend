@@ -13,7 +13,7 @@ interface SignatureActivity {
 }
 
 export function AuditorSignatures() {
-  // Fetch signature activity from API
+  
   const { data: signatureData, isLoading } = useQuery<SignatureActivity>({
     queryKey: ['auditor-signature-activity'],
     queryFn: () => auditorAPI.getSignatureActivity(),
@@ -21,7 +21,7 @@ export function AuditorSignatures() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-purple-100 rounded-lg">
           <FileSignature className="w-6 h-6 text-purple-700" />
@@ -32,7 +32,7 @@ export function AuditorSignatures() {
         </div>
       </div>
 
-      {/* Loading State */}
+      {}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -40,7 +40,7 @@ export function AuditorSignatures() {
         </div>
       ) : (
         <>
-          {/* Stats */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardContent className="p-4 flex items-center gap-3">
@@ -88,7 +88,7 @@ export function AuditorSignatures() {
             </Card>
           </div>
 
-          {/* Signature Overview */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">

@@ -32,7 +32,6 @@ export function ApiSettings() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
 
-  // Form state
   const [clientName, setClientName] = useState('');
   const [clientDescription, setClientDescription] = useState('');
   const [ipWhitelist, setIpWhitelist] = useState<string[]>([]);
@@ -47,7 +46,7 @@ export function ApiSettings() {
         const response = await apiClient.get('/api-client/settings');
         return response.data;
       } catch {
-        // Return mock data for development
+        
         return {
           clientId: 'mr3x_live_cl_7f8g9h0i1j2k3l4m',
           clientName: 'My Application',
@@ -69,7 +68,6 @@ export function ApiSettings() {
     },
   });
 
-  // Initialize form state when data loads
   useEffect(() => {
     if (settings && !isEditing) {
       setClientName(settings.clientName || '');
@@ -117,7 +115,7 @@ export function ApiSettings() {
     },
     onSuccess: () => {
       toast.success('Integration deleted successfully');
-      // Redirect to login or home
+      
       window.location.href = '/auth/login';
     },
     onError: () => {
@@ -149,7 +147,6 @@ export function ApiSettings() {
   const addIpToWhitelist = () => {
     if (!newIp.trim()) return;
 
-    // Basic IP/CIDR validation
     const ipRegex = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/;
     if (!ipRegex.test(newIp.trim())) {
       toast.error('Please enter a valid IP address or CIDR range');
@@ -189,7 +186,7 @@ export function ApiSettings() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Account Settings</h1>
@@ -224,7 +221,7 @@ export function ApiSettings() {
         )}
       </div>
 
-      {/* Status Card */}
+      {}
       <Card className={settings?.status === 'active' ? 'border-green-200 bg-green-50' : 'border-yellow-200 bg-yellow-50'}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
@@ -250,7 +247,7 @@ export function ApiSettings() {
         </CardContent>
       </Card>
 
-      {/* Client Info */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -302,7 +299,7 @@ export function ApiSettings() {
         </CardContent>
       </Card>
 
-      {/* IP Whitelisting */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -376,7 +373,7 @@ export function ApiSettings() {
         </CardContent>
       </Card>
 
-      {/* Feature Toggles */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle>Features</CardTitle>
@@ -413,7 +410,7 @@ export function ApiSettings() {
         </CardContent>
       </Card>
 
-      {/* Usage Stats */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle>Usage Statistics</CardTitle>
@@ -443,7 +440,7 @@ export function ApiSettings() {
         </CardContent>
       </Card>
 
-      {/* Danger Zone */}
+      {}
       <Card className="border-red-200">
         <CardHeader>
           <CardTitle className="text-red-600">Danger Zone</CardTitle>
@@ -484,7 +481,7 @@ export function ApiSettings() {
         </CardContent>
       </Card>
 
-      {/* Reset Credentials Dialog */}
+      {}
       <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -507,7 +504,7 @@ export function ApiSettings() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Delete Integration Dialog */}
+      {}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

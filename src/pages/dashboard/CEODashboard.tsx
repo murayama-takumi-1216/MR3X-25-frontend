@@ -25,7 +25,6 @@ const COLORS = {
   gray: '#64748b',
 };
 
-// Chart wrapper to prevent -1 dimension errors
 function ChartContainer({ children, height = 280 }: { children: React.ReactNode; height?: number }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -68,14 +67,12 @@ export function CEODashboard() {
 
   const overview = dashboard?.overview || {};
 
-  // Revenue distribution data
   const revenueDistributionData = [
     { name: 'Recebido', value: overview.receivedRevenue ?? 0, color: COLORS.success },
     { name: 'Pendente', value: Math.max(0, (overview.monthlyRevenue ?? 0) - (overview.receivedRevenue ?? 0) - (overview.overdueRevenue ?? 0)), color: COLORS.warning },
     { name: 'Vencido', value: overview.overdueRevenue ?? 0, color: COLORS.danger },
   ];
 
-  // Property status data
   const propertyStatusData = dashboard?.propertyStatus
     ? [
         { name: 'Disponíveis', value: dashboard.propertyStatus.available ?? 0, color: COLORS.success },
@@ -85,7 +82,6 @@ export function CEODashboard() {
       ]
     : [];
 
-  // Top agencies chart data
   const topAgenciesData = dashboard?.topAgencies?.map((agency: any) => ({
     name: agency.name?.substring(0, 15) + (agency.name?.length > 15 ? '...' : ''),
     imoveis: agency.propertyCount || 0,
@@ -93,7 +89,6 @@ export function CEODashboard() {
     contratos: agency.contractCount || 0,
   })) || [];
 
-  // Agency plan distribution
   const planDistribution = dashboard?.topAgencies?.reduce((acc: any, agency: any) => {
     const plan = agency.plan || 'starter';
     acc[plan] = (acc[plan] || 0) + 1;
@@ -106,7 +101,6 @@ export function CEODashboard() {
     color: name === 'enterprise' ? COLORS.purple : name === 'professional' ? COLORS.primary : COLORS.gray,
   }));
 
-  // Calculate metrics
   const totalProperties = overview.totalProperties ?? 0;
   const occupiedProperties = overview.occupiedProperties ?? 0;
   const occupancyRate = totalProperties > 0 ? Math.round((occupiedProperties / totalProperties) * 100) : 0;
@@ -130,13 +124,13 @@ export function CEODashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold">Dashboard Executivo</h1>
         <p className="text-muted-foreground">Visão geral da plataforma MR3X</p>
       </div>
 
-      {/* Platform Overview KPI Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Agências Ativas"
@@ -164,7 +158,7 @@ export function CEODashboard() {
         />
       </div>
 
-      {/* Financial KPI Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Receita Mensal Total"
@@ -196,7 +190,7 @@ export function CEODashboard() {
         />
       </div>
 
-      {/* Occupancy & Performance */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Imóveis Ocupados"
@@ -227,9 +221,9 @@ export function CEODashboard() {
         />
       </div>
 
-      {/* Charts Row 1: Revenue & Property Status */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Distribution */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -271,7 +265,7 @@ export function CEODashboard() {
           </CardContent>
         </Card>
 
-        {/* Property Status */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -315,9 +309,9 @@ export function CEODashboard() {
         </Card>
       </div>
 
-      {/* Charts Row 2: Top Agencies & Plan Distribution */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Agencies Performance */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -348,7 +342,7 @@ export function CEODashboard() {
           </CardContent>
         </Card>
 
-        {/* Plan Distribution */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -388,7 +382,7 @@ export function CEODashboard() {
         </Card>
       </div>
 
-      {/* Due Dates Table */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -436,7 +430,7 @@ export function CEODashboard() {
         </CardContent>
       </Card>
 
-      {/* Top Agencies List */}
+      {}
       {dashboard?.topAgencies && dashboard.topAgencies.length > 0 && (
         <Card>
           <CardHeader>
@@ -480,7 +474,7 @@ export function CEODashboard() {
         </Card>
       )}
 
-      {/* Pending Payments Section */}
+      {}
       {dashboard?.pendingPayments && dashboard.pendingPayments.length > 0 && (
         <Card>
           <CardHeader>
@@ -528,7 +522,7 @@ export function CEODashboard() {
         </Card>
       )}
 
-      {/* Recent Payments Section */}
+      {}
       {dashboard?.recentPayments && dashboard.recentPayments.length > 0 && (
         <Card>
           <CardHeader>
@@ -570,7 +564,6 @@ export function CEODashboard() {
   );
 }
 
-// KPI Card Component
 function KPICard({
   title,
   value,

@@ -38,7 +38,6 @@ export function DocumentInput({
       const result = validateDocument(raw);
       setValidation(result);
 
-      // Auto-format if valid
       if (result.isValid && result.formatted) {
         if (result.formatted !== localValue) {
           setLocalValue(result.formatted);
@@ -54,16 +53,14 @@ export function DocumentInput({
     const inputValue = e.target.value;
     const cleanValue = inputValue.replace(/\D/g, '');
 
-    // Limit input length
     if (cleanValue.length > 14) return;
 
-    // Format based on length
     let formatted = inputValue;
     if (cleanValue.length <= 11) {
-      // CPF formatting
+      
       formatted = cleanValue.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
     } else {
-      // CNPJ formatting
+      
       formatted = cleanValue.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
     }
 

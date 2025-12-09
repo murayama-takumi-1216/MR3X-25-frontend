@@ -48,7 +48,6 @@ import {
 import { tenantAnalysisAPI } from '../../api';
 import { toast } from 'sonner';
 
-// Types
 interface AnalysisResult {
   id: string;
   document: string;
@@ -118,7 +117,6 @@ interface HistoryItem {
   };
 }
 
-// Helper functions
 const formatCPFCNPJ = (value: string) => {
   const numbers = value.replace(/\D/g, '');
   if (numbers.length <= 11) {
@@ -194,21 +192,20 @@ const formatDate = (date: string) => {
   });
 };
 
-// Risk Score Gauge Component
 const RiskGauge = ({ score, level }: { score: number; level: string }) => {
   const percentage = score / 10;
   const rotation = (percentage / 100) * 180 - 90;
 
   return (
     <div className="relative w-48 h-24 mx-auto">
-      {/* Background arc */}
+      {}
       <div className="absolute inset-0 overflow-hidden">
         <div
           className="w-48 h-48 rounded-full border-[16px] border-gray-200"
           style={{ clipPath: 'polygon(0 50%, 100% 50%, 100% 0, 0 0)' }}
         />
       </div>
-      {/* Colored arc */}
+      {}
       <div className="absolute inset-0 overflow-hidden">
         <div
           className={`w-48 h-48 rounded-full border-[16px] ${getRiskColor(level)}`}
@@ -219,7 +216,7 @@ const RiskGauge = ({ score, level }: { score: number; level: string }) => {
           }}
         />
       </div>
-      {/* Score display */}
+      {}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
         <span className="text-3xl font-bold">{score}</span>
         <span className="text-sm text-muted-foreground">/1000</span>
@@ -229,7 +226,6 @@ const RiskGauge = ({ score, level }: { score: number; level: string }) => {
   );
 };
 
-// Analysis Detail Modal
 const AnalysisDetailModal = ({ analysis, open, onClose }: { analysis: AnalysisResult | null; open: boolean; onClose: () => void }) => {
   if (!analysis) return null;
 
@@ -244,7 +240,7 @@ const AnalysisDetailModal = ({ analysis, open, onClose }: { analysis: AnalysisRe
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Risk Score Section */}
+          {}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Score de Risco</CardTitle>
@@ -263,7 +259,7 @@ const AnalysisDetailModal = ({ analysis, open, onClose }: { analysis: AnalysisRe
             </CardContent>
           </Card>
 
-          {/* Summary Cards */}
+          {}
           <div className="grid grid-cols-5 gap-4">
             <Card className="p-4">
               <div className="flex items-center justify-between">
@@ -307,7 +303,7 @@ const AnalysisDetailModal = ({ analysis, open, onClose }: { analysis: AnalysisRe
             </Card>
           </div>
 
-          {/* Financial Details */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -356,7 +352,7 @@ const AnalysisDetailModal = ({ analysis, open, onClose }: { analysis: AnalysisRe
             </CardContent>
           </Card>
 
-          {/* Background Check */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -421,7 +417,7 @@ const AnalysisDetailModal = ({ analysis, open, onClose }: { analysis: AnalysisRe
             </CardContent>
           </Card>
 
-          {/* Document Validation */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -467,7 +463,7 @@ const AnalysisDetailModal = ({ analysis, open, onClose }: { analysis: AnalysisRe
             </CardContent>
           </Card>
 
-          {/* Metadata */}
+          {}
           <div className="text-sm text-muted-foreground flex justify-between">
             <span>Análise realizada em: {formatDate(analysis.analyzedAt)}</span>
             {analysis.validUntil && (
@@ -480,7 +476,6 @@ const AnalysisDetailModal = ({ analysis, open, onClose }: { analysis: AnalysisRe
   );
 };
 
-// Main Component
 export function TenantAnalysis() {
   const queryClient = useQueryClient();
   const [document, setDocument] = useState('');
@@ -494,7 +489,6 @@ export function TenantAnalysis() {
     limit: 10,
   });
 
-  // Query for analysis history
   const { data: history, isLoading: isLoadingHistory } = useQuery({
     queryKey: ['tenant-analysis-history', filters],
     queryFn: () => tenantAnalysisAPI.getHistory({
@@ -505,13 +499,11 @@ export function TenantAnalysis() {
     }),
   });
 
-  // Query for stats
   const { data: stats } = useQuery({
     queryKey: ['tenant-analysis-stats'],
     queryFn: () => tenantAnalysisAPI.getStats(),
   });
 
-  // Mutation for new analysis
   const analyzeMutation = useMutation({
     mutationFn: (data: { document: string; name?: string }) =>
       tenantAnalysisAPI.analyze({ ...data, analysisType: 'FULL' }),
@@ -551,7 +543,7 @@ export function TenantAnalysis() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-blue-100 rounded-lg">
           <UserSearch className="w-6 h-6 text-blue-700" />
@@ -564,7 +556,7 @@ export function TenantAnalysis() {
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {}
       {stats && (
         <div className="grid grid-cols-4 gap-4">
           <Card>
@@ -614,7 +606,7 @@ export function TenantAnalysis() {
         </div>
       )}
 
-      {/* New Analysis Form */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle>Nova Análise</CardTitle>
@@ -656,7 +648,7 @@ export function TenantAnalysis() {
         </CardContent>
       </Card>
 
-      {/* History Table */}
+      {}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -753,7 +745,7 @@ export function TenantAnalysis() {
                 </TableBody>
               </Table>
 
-              {/* Pagination */}
+              {}
               {history && history.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4">
                   <p className="text-sm text-muted-foreground">
@@ -785,7 +777,7 @@ export function TenantAnalysis() {
         </CardContent>
       </Card>
 
-      {/* Detail Modal */}
+      {}
       <AnalysisDetailModal
         analysis={selectedAnalysis}
         open={showDetail}

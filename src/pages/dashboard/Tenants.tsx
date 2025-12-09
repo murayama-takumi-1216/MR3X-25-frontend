@@ -58,7 +58,6 @@ export function Tenants() {
   const { hasPermission, user } = useAuth()
   const queryClient = useQueryClient()
 
-  // CEO can VIEW but cannot CREATE/EDIT/DELETE tenants
   const isCEO = user?.role === 'CEO'
   const canViewUsers = hasPermission('users:read')
   const canCreateUsers = hasPermission('users:create') && !isCEO
@@ -115,20 +114,18 @@ export function Tenants() {
   const [showEditPassword, setShowEditPassword] = useState(false)
   const [emailError, setEmailError] = useState('')
 
-  // Analysis search states
   const [showAnalysisSearchModal, setShowAnalysisSearchModal] = useState(false)
   const [searchDocument, setSearchDocument] = useState('')
   const [searchingAnalysis, setSearchingAnalysis] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<any>(null)
   const [analysisError, setAnalysisError] = useState('')
 
-  // Email validation
   const checkEmailExists = useCallback(async (email: string, currentEmail?: string) => {
     if (!email || email === currentEmail) {
       setEmailError('')
       return
     }
-    // Basic email format validation
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       setEmailError('')
@@ -166,7 +163,6 @@ export function Tenants() {
     staleTime: 0,
   })
 
-  // Fetch agencies for CEO/ADMIN users
   const isAdminOrCeo = user?.role === 'CEO' || user?.role === 'ADMIN'
   const { data: agencies } = useQuery({
     queryKey: ['agencies'],
@@ -174,7 +170,6 @@ export function Tenants() {
     enabled: isAdminOrCeo,
   })
 
-  // Fetch brokers for Manager/Admin users to link tenants to brokers
   const canLinkBrokers = user?.role === 'AGENCY_MANAGER' || user?.role === 'AGENCY_ADMIN'
   const { data: _brokers } = useQuery({
     queryKey: ['brokers'],
@@ -196,7 +191,6 @@ export function Tenants() {
     setSearchDocument('')
   }
 
-  // Search for approved analysis by document
   const handleSearchAnalysis = async () => {
     if (!searchDocument || searchDocument.replace(/\D/g, '').length < 11) {
       setAnalysisError('Digite um CPF ou CNPJ válido')
@@ -212,10 +206,9 @@ export function Tenants() {
       const history = await tenantAnalysisAPI.getHistory({ document: cleanDocument, status: 'COMPLETED' })
 
       if (history.data && history.data.length > 0) {
-        // Get the most recent completed analysis
+        
         const latestAnalysis = history.data[0]
 
-        // Check if recommendation is approved
         const approvedRecommendations = ['APPROVED', 'APPROVED_WITH_CAUTION']
         if (approvedRecommendations.includes(latestAnalysis.recommendation)) {
           setAnalysisResult(latestAnalysis)
@@ -236,11 +229,9 @@ export function Tenants() {
     }
   }
 
-  // Proceed to registration form with approved analysis data
   const handleProceedToRegistration = () => {
     if (!analysisResult) return
 
-    // Pre-fill the form with analysis data
     setNewTenant({
       document: analysisResult.document || '',
       name: analysisResult.name || '',
@@ -363,7 +354,7 @@ export function Tenants() {
         return
       }
       const { password, ...restData } = editForm;
-      // Only send password if it's not empty
+      
       const updateData = password ? { ...restData, password } : restData;
       updateTenantMutation.mutate({ id: selectedTenant.id, data: updateData })
     } finally {
@@ -644,18 +635,18 @@ export function Tenants() {
               </div>
             </div>
           ) : (
-            /* Card View */
+            
             <div className="flex justify-center w-full">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-7xl px-2 items-stretch justify-center">
                 {tenants.map((tenant: any) => (
                   <Card key={tenant.id} className="transition-all hover:shadow-md flex flex-col w-full max-w-[400px] mx-auto overflow-hidden">
                     <CardContent className="p-0 h-full flex flex-col overflow-hidden min-w-0">
                       <div className="flex h-full min-w-0">
-                        {/* Tenant Avatar */}
+                        {}
                         <div className="w-28 min-w-28 h-36 bg-primary/10 flex items-center justify-center rounded-l-md flex-shrink-0">
                           <Users className="w-12 h-12 text-primary" />
                         </div>
-                        {/* Tenant Content */}
+                        {}
                         <div className="flex-1 flex flex-col justify-between p-4 min-w-0 overflow-hidden">
                           <div className="min-w-0 space-y-1">
                             <h3 className="text-lg font-bold truncate" title={tenant.name || 'Sem nome'}>{tenant.name || 'Sem nome'}</h3>
@@ -746,7 +737,7 @@ export function Tenants() {
           </div>
         )}
 
-        {/* Create Tenant Modal */}
+        {}
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -847,7 +838,7 @@ export function Tenants() {
                   </div>
                 </div>
 
-                {/* Agency selector for CEO/ADMIN */}
+                {}
                 {isAdminOrCeo && agencies && agencies.length > 0 && (
                   <div>
                     <Label htmlFor="agencyId">Imobiliaria</Label>
@@ -947,14 +938,14 @@ export function Tenants() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Tenant Modal */}
+        {}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
             <DialogHeader>
               <DialogTitle>Editar Locatario</DialogTitle>
             </DialogHeader>
             <form className="space-y-6" onSubmit={handleUpdateTenant}>
-              {/* Personal Information Section */}
+              {}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
@@ -1050,7 +1041,7 @@ export function Tenants() {
                 </div>
               </div>
 
-              {/* Address Section */}
+              {}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
@@ -1126,7 +1117,7 @@ export function Tenants() {
           </DialogContent>
         </Dialog>
 
-        {/* Tenant Detail Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-2xl mx-4 sm:mx-0">
             <DialogHeader>
@@ -1134,7 +1125,7 @@ export function Tenants() {
             </DialogHeader>
             {tenantDetail ? (
               <div className="space-y-6">
-                {/* Personal Information Section */}
+                {}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
@@ -1169,7 +1160,7 @@ export function Tenants() {
                   </div>
                 </div>
 
-                {/* Address Section */}
+                {}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
@@ -1210,7 +1201,7 @@ export function Tenants() {
           </DialogContent>
         </Dialog>
 
-        {/* WhatsApp Modal */}
+        {}
         <Dialog open={showWhatsAppModal} onOpenChange={setShowWhatsAppModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -1255,7 +1246,7 @@ export function Tenants() {
           </DialogContent>
         </Dialog>
 
-        {/* Contracts Modal */}
+        {}
         <Dialog open={showContractsModal} onOpenChange={setShowContractsModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -1284,15 +1275,15 @@ export function Tenants() {
           </DialogContent>
         </Dialog>
 
-        {/* Analysis Search Modal - Required before tenant registration */}
+        {}
         <Dialog open={showAnalysisSearchModal} onOpenChange={setShowAnalysisSearchModal}>
           <DialogContent className="max-w-md sm:max-w-lg p-0 overflow-hidden">
-            {/* Visually hidden title for accessibility */}
+            {}
             <DialogHeader className="sr-only">
               <DialogTitle>Verificar Análise do Inquilino</DialogTitle>
             </DialogHeader>
 
-            {/* Header with gradient background */}
+            {}
             <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -1306,7 +1297,7 @@ export function Tenants() {
             </div>
 
             <div className="p-6 space-y-5">
-              {/* Info box */}
+              {}
               <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-100 rounded-lg">
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <Shield className="w-4 h-4 text-blue-600" />
@@ -1316,7 +1307,7 @@ export function Tenants() {
                 </p>
               </div>
 
-              {/* Search input */}
+              {}
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
                   Documento (CPF ou CNPJ)
@@ -1361,7 +1352,7 @@ export function Tenants() {
                 </div>
               </div>
 
-              {/* Error Message */}
+              {}
               {analysisError && (
                 <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                   <div className="flex items-start gap-3">
@@ -1385,10 +1376,10 @@ export function Tenants() {
                 </div>
               )}
 
-              {/* Approved Analysis Result */}
+              {}
               {analysisResult && (
                 <div className="space-y-4">
-                  {/* Success header */}
+                  {}
                   <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -1401,13 +1392,13 @@ export function Tenants() {
                     </div>
                   </div>
 
-                  {/* Analysis details card */}
+                  {}
                   <div className="border border-gray-200 rounded-lg overflow-hidden">
                     <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
                       <h4 className="font-medium text-gray-800">Dados da Análise</h4>
                     </div>
                     <div className="p-4 space-y-4">
-                      {/* Name and Document row */}
+                      {}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Nome</p>
@@ -1419,7 +1410,7 @@ export function Tenants() {
                         </div>
                       </div>
 
-                      {/* Risk and Recommendation row */}
+                      {}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Nível de Risco</p>
@@ -1443,7 +1434,7 @@ export function Tenants() {
                         </div>
                       </div>
 
-                      {/* Score and Date row */}
+                      {}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {analysisResult.riskScore !== undefined && (
                           <div>
@@ -1459,7 +1450,7 @@ export function Tenants() {
                         </div>
                       </div>
 
-                      {/* Caution note */}
+                      {}
                       {analysisResult.recommendation === 'APPROVED_WITH_CAUTION' && analysisResult.recommendationNotes && (
                         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                           <div className="flex items-start gap-2">
@@ -1471,7 +1462,7 @@ export function Tenants() {
                     </div>
                   </div>
 
-                  {/* Action buttons */}
+                  {}
                   <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
                     <Button
                       type="button"
@@ -1493,7 +1484,7 @@ export function Tenants() {
                 </div>
               )}
 
-              {/* Initial state - no search yet */}
+              {}
               {!analysisResult && !analysisError && !searchingAnalysis && (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1503,7 +1494,7 @@ export function Tenants() {
                 </div>
               )}
 
-              {/* Loading state */}
+              {}
               {searchingAnalysis && (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1516,7 +1507,7 @@ export function Tenants() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
+        {}
         <AlertDialog open={!!tenantToDelete} onOpenChange={() => setTenantToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>

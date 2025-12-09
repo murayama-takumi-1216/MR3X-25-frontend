@@ -24,7 +24,6 @@ import {
 } from '../../../components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
 
-// Mock tickets data
 const tickets = [
   {
     id: 'TKT-001234',
@@ -169,7 +168,6 @@ export function ManagerSupportCenter() {
       ticket.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPriority = priorityFilter === 'all' || ticket.priority === priorityFilter;
 
-    // Tab filter
     if (activeTab === 'open') return matchesSearch && matchesPriority && ticket.status === 'open';
     if (activeTab === 'in_progress') return matchesSearch && matchesPriority && ticket.status === 'in_progress';
     if (activeTab === 'closed') return matchesSearch && matchesPriority && ticket.status === 'closed';
@@ -213,13 +211,13 @@ export function ManagerSupportCenter() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold">Central de Suporte</h1>
         <p className="text-muted-foreground">Gerencie tickets e atendimento ao cliente</p>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -275,7 +273,7 @@ export function ManagerSupportCenter() {
         </Card>
       </div>
 
-      {/* Tabs */}
+      {}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="open">
@@ -289,7 +287,7 @@ export function ManagerSupportCenter() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Filters */}
+        {}
         <Card className="mt-4">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4">
@@ -317,7 +315,7 @@ export function ManagerSupportCenter() {
           </CardContent>
         </Card>
 
-        {/* Tickets List */}
+        {}
         <TabsContent value={activeTab} className="mt-4">
           <Card>
             <CardHeader>
@@ -369,7 +367,7 @@ export function ManagerSupportCenter() {
         </TabsContent>
       </Tabs>
 
-      {/* Ticket Details Dialog */}
+      {}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -383,7 +381,7 @@ export function ManagerSupportCenter() {
 
           {selectedTicket && (
             <div className="space-y-6 mt-4">
-              {/* Ticket Info */}
+              {}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div>
                   <p className="text-sm text-muted-foreground">Agência</p>
@@ -403,7 +401,7 @@ export function ManagerSupportCenter() {
                 </div>
               </div>
 
-              {/* Assign to Team */}
+              {}
               {!selectedTicket.assignedTo && selectedTicket.status === 'open' && (
                 <Card>
                   <CardHeader>
@@ -428,7 +426,7 @@ export function ManagerSupportCenter() {
                 </Card>
               )}
 
-              {/* Conversation History */}
+              {}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Histórico de Conversas</CardTitle>
@@ -456,7 +454,7 @@ export function ManagerSupportCenter() {
                     ))}
                   </div>
 
-                  {/* Reply Box */}
+                  {}
                   {selectedTicket.status !== 'closed' && (
                     <div className="mt-6 space-y-3">
                       <Textarea

@@ -42,24 +42,20 @@ export function BrokerDashboard() {
     queryFn: () => dashboardAPI.getDueDates(),
   });
 
-  // Process data for charts
   const chartData = useMemo(() => {
     const recentPayments = dashboard?.recentPayments || [];
     const properties = dashboard?.properties || [];
     const overview = dashboard?.overview || {};
 
-    // Monthly revenue trend (last 6 months)
     const monthlyTrend: Record<string, number> = {};
     const now = new Date();
 
-    // Initialize last 6 months
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const key = date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
       monthlyTrend[key] = 0;
     }
 
-    // Fill with actual payments
     recentPayments.forEach((payment: any) => {
       if (payment.date) {
         const date = new Date(payment.date);
@@ -75,14 +71,12 @@ export function BrokerDashboard() {
       total,
     }));
 
-    // Property status distribution (pie chart)
     const propertyStatusData = [
       { name: 'Alugados', value: overview.occupiedProperties || properties.filter((p: any) => p.status === 'ALUGADO').length || 0, color: '#22c55e' },
       { name: 'Disponíveis', value: overview.availableProperties || properties.filter((p: any) => p.status === 'DISPONIVEL').length || 0, color: '#3b82f6' },
       { name: 'Manutenção', value: overview.maintenanceProperties || properties.filter((p: any) => p.status === 'MANUTENCAO').length || 0, color: '#f59e0b' },
     ].filter(item => item.value > 0);
 
-    // Payment status from due dates
     const dueData = dueDates || [];
     const paymentStatusData = [
       { name: 'Em dia', value: dueData.filter((d: any) => d.status === 'ok').length, color: '#22c55e' },
@@ -90,7 +84,6 @@ export function BrokerDashboard() {
       { name: 'Vencidos', value: dueData.filter((d: any) => d.status === 'overdue').length, color: '#ef4444' },
     ].filter(item => item.value > 0);
 
-    // Revenue by property (bar chart)
     const revenueByProperty: Record<string, { name: string; total: number }> = {};
     recentPayments.forEach((payment: any) => {
       const propName = payment.property?.name || payment.property?.address || 'Outros';
@@ -104,7 +97,6 @@ export function BrokerDashboard() {
       .sort((a, b) => b.total - a.total)
       .slice(0, 5);
 
-    // Calculate totals
     const totalRevenue = recentPayments.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0);
     const avgRent = properties.length > 0
       ? properties.reduce((sum: number, p: any) => sum + (Number(p.monthlyRent) || 0), 0) / properties.length
@@ -133,19 +125,17 @@ export function BrokerDashboard() {
   const pendingContracts = dashboard?.pendingPayments || [];
   const recentPayments = dashboard?.recentPayments || [];
 
-  // Calculate statistics
   const totalProperties = overview.totalProperties || properties.length || 0;
   const occupiedProperties = overview.occupiedProperties || properties.filter((p: any) => p.status === 'ALUGADO').length || 0;
   const activeContracts = overview.activeContracts || 0;
   const monthlyRevenue = overview.monthlyRevenue || 0;
   const occupancyRate = totalProperties > 0 ? ((occupiedProperties / totalProperties) * 100).toFixed(1) : 0;
 
-  // Get upcoming due dates count
   const upcomingDueDates = dueDates?.filter((d: any) => d.status === 'upcoming' || d.status === 'overdue') || [];
 
   return (
     <div className="space-y-6">
-      {/* Welcome Header */}
+      {}
       <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl p-6 text-white">
         <div className="flex items-center gap-3 mb-2">
           <Briefcase className="w-8 h-8" />
@@ -158,7 +148,7 @@ export function BrokerDashboard() {
         </p>
       </div>
 
-      {/* Summary Stats Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardContent className="p-4">
@@ -231,9 +221,9 @@ export function BrokerDashboard() {
         </Card>
       </div>
 
-      {/* Charts Row */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Revenue Trend */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -280,7 +270,7 @@ export function BrokerDashboard() {
           </CardContent>
         </Card>
 
-        {/* Property Status Pie Chart */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -324,9 +314,9 @@ export function BrokerDashboard() {
         </Card>
       </div>
 
-      {/* Second Charts Row */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Payment Status Pie Chart */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -366,7 +356,7 @@ export function BrokerDashboard() {
           </CardContent>
         </Card>
 
-        {/* Revenue by Property Bar Chart */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -398,7 +388,7 @@ export function BrokerDashboard() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">Ações Rápidas</CardTitle>
@@ -445,9 +435,9 @@ export function BrokerDashboard() {
         </CardContent>
       </Card>
 
-      {/* Main Content Grid */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* My Properties List */}
+        {}
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -502,7 +492,7 @@ export function BrokerDashboard() {
           </CardContent>
         </Card>
 
-        {/* Upcoming Due Dates */}
+        {}
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -576,7 +566,7 @@ export function BrokerDashboard() {
         </Card>
       </div>
 
-      {/* Recent Payments */}
+      {}
       <Card>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
@@ -631,7 +621,7 @@ export function BrokerDashboard() {
         </CardContent>
       </Card>
 
-      {/* Pending Contracts Alert */}
+      {}
       {pendingContracts.length > 0 && (
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-4">

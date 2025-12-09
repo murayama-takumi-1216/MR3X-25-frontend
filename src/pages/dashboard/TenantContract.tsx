@@ -17,7 +17,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Checkbox } from '../../components/ui/checkbox';
 import { Label } from '../../components/ui/label';
 
-// Simple Signature Pad Component
 function SignaturePad({
   onSave,
   onClear,
@@ -160,7 +159,6 @@ export function TenantContract() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // States for signature modal
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [signature, setSignature] = useState<string | null>(null);
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -171,7 +169,6 @@ export function TenantContract() {
     queryFn: () => dashboardAPI.getDashboard(),
   });
 
-  // Sign contract mutation
   const signContractMutation = useMutation({
     mutationFn: async (contractId: string) => {
       if (!signature) throw new Error('Assinatura necessaria');
@@ -250,11 +247,9 @@ export function TenantContract() {
   const property = dashboard?.property;
   const contract = dashboard?.contract;
 
-  // Check if contract is already signed by tenant
   const isSigned = contract?.tenantSignature || contract?.status === 'ATIVO';
   const canSign = contract?.status === 'PENDENTE' && !contract?.tenantSignature;
 
-  // Calculate contract duration
   const getContractDuration = () => {
     if (!contract?.startDate || !contract?.endDate) return null;
 
@@ -264,7 +259,6 @@ export function TenantContract() {
     return `${months} meses`;
   };
 
-  // Calculate remaining time
   const getRemainingTime = () => {
     if (!contract?.endDate) return null;
 
@@ -282,7 +276,7 @@ export function TenantContract() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
           <ArrowLeft className="w-5 h-5" />
@@ -295,7 +289,7 @@ export function TenantContract() {
 
       {contract ? (
         <>
-          {/* Pending Signature Alert */}
+          {}
           {canSign && (
             <Card className="border-orange-200 bg-orange-50">
               <CardContent className="p-4">
@@ -320,7 +314,7 @@ export function TenantContract() {
             </Card>
           )}
 
-          {/* Contract Status Card */}
+          {}
           <Card className="border-l-4 border-l-purple-500">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
@@ -376,7 +370,7 @@ export function TenantContract() {
                 </div>
               </div>
 
-              {/* Remaining Time Alert */}
+              {}
               {remainingTime && contract.status === 'ATIVO' && (
                 <div className={`mt-4 p-4 rounded-lg flex items-center gap-3 ${
                   remainingTime.status === 'expired' ? 'bg-red-50 text-red-700' :
@@ -400,7 +394,7 @@ export function TenantContract() {
                 </div>
               )}
 
-              {/* Signature Status */}
+              {}
               {isSigned && (
                 <div className="mt-4 p-4 rounded-lg bg-green-50 flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-green-600" />
@@ -417,7 +411,7 @@ export function TenantContract() {
             </CardContent>
           </Card>
 
-          {/* Property Details */}
+          {}
           {property && (
             <Card>
               <CardHeader className="pb-2">
@@ -452,7 +446,7 @@ export function TenantContract() {
             </Card>
           )}
 
-          {/* Contract Actions */}
+          {}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Acoes do Contrato</CardTitle>
@@ -490,7 +484,7 @@ export function TenantContract() {
             </CardContent>
           </Card>
 
-          {/* Contract Terms Summary */}
+          {}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Resumo das Condicoes</CardTitle>
@@ -553,7 +547,7 @@ export function TenantContract() {
         </Card>
       )}
 
-      {/* Signature Modal */}
+      {}
       <Dialog open={showSignatureModal} onOpenChange={setShowSignatureModal}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -567,7 +561,7 @@ export function TenantContract() {
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* Contract Summary */}
+            {}
             <div className="p-4 bg-gray-50 rounded-lg text-sm">
               <h4 className="font-semibold mb-2">Resumo do Contrato</h4>
               <div className="grid grid-cols-2 gap-2">
@@ -596,7 +590,7 @@ export function TenantContract() {
               </div>
             </div>
 
-            {/* Signature Pad */}
+            {}
             <div>
               <Label className="mb-2 block">Sua Assinatura</Label>
               <SignaturePad
@@ -607,7 +601,7 @@ export function TenantContract() {
               />
             </div>
 
-            {/* Signature Preview */}
+            {}
             {signature && (
               <div className="p-3 border rounded-lg bg-green-50">
                 <p className="text-sm text-green-700 font-medium mb-2">Assinatura capturada:</p>
@@ -615,7 +609,7 @@ export function TenantContract() {
               </div>
             )}
 
-            {/* Terms Acceptance */}
+            {}
             <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-lg">
               <Checkbox
                 id="accept-terms"
@@ -628,7 +622,7 @@ export function TenantContract() {
               </Label>
             </div>
 
-            {/* Action Buttons */}
+            {}
             <div className="flex gap-3 justify-end">
               <Button
                 variant="outline"

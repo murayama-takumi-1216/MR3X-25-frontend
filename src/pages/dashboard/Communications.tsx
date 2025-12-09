@@ -26,7 +26,6 @@ export default function CommunicationsPage() {
     recipientType: 'all',
   })
 
-  // Mock data - will be replaced with real API calls
   const sentMessages = [
     {
       id: '1',
@@ -184,7 +183,7 @@ export default function CommunicationsPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Send Email Modal */}
+      {}
       <Dialog open={showEmailModal} onOpenChange={setShowEmailModal}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -241,7 +240,7 @@ export default function CommunicationsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Send WhatsApp Modal */}
+      {}
       <Dialog open={showWhatsAppModal} onOpenChange={setShowWhatsAppModal}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>

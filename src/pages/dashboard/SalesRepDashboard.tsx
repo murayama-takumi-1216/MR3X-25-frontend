@@ -15,7 +15,6 @@ import {
 
 const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'];
 
-// Chart container to prevent -1 dimension errors
 function ChartContainer({ children, height = 256 }: { children: React.ReactNode; height?: number }) {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -99,7 +98,7 @@ export function SalesRepDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Header */}
+      {}
       <div className="bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl p-6 text-white">
         <h1 className="text-2xl font-bold">
           Olá, {user?.name || 'Representante'}! 👋
@@ -119,7 +118,7 @@ export function SalesRepDashboard() {
         </div>
       </div>
 
-      {/* Key Stats */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-6">
@@ -185,9 +184,9 @@ export function SalesRepDashboard() {
         </Card>
       </div>
 
-      {/* Charts Row */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Weekly Performance Chart */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -224,7 +223,7 @@ export function SalesRepDashboard() {
           </CardContent>
         </Card>
 
-        {/* Pipeline Distribution */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -256,9 +255,9 @@ export function SalesRepDashboard() {
         </Card>
       </div>
 
-      {/* Commission and Metrics */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Commission Summary */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -288,7 +287,7 @@ export function SalesRepDashboard() {
           </CardContent>
         </Card>
 
-        {/* Proposal Status */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -316,7 +315,7 @@ export function SalesRepDashboard() {
           </CardContent>
         </Card>
 
-        {/* Top Prospects */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -348,7 +347,7 @@ export function SalesRepDashboard() {
         </Card>
       </div>
 
-      {/* Recent Leads */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

@@ -23,14 +23,13 @@ interface Document {
   version: number;
 }
 
-// Map API response to component format
 const mapApiDocToDocument = (doc: any): Document => {
   return {
     id: doc.id,
     type: doc.type?.toLowerCase() === 'contract' ? 'contract' : 'contract',
     name: doc.name || `Documento #${doc.id}`,
     description: doc.tenant ? `Inquilino: ${doc.tenant}` : 'Documento do sistema',
-    agency: 'N/A', // Not returned by API
+    agency: 'N/A', 
     createdBy: 'sistema',
     createdAt: doc.createdAt ? new Date(doc.createdAt).toISOString().split('T')[0] : '',
     status: doc.status?.toLowerCase() === 'signed' ? 'signed' :
@@ -45,13 +44,11 @@ export function AuditorDocuments() {
   const [activeTab, setActiveTab] = useState<'documents' | 'uploads'>('documents');
   const [typeFilter, setTypeFilter] = useState<'all' | DocumentType>('all');
 
-  // Fetch documents from API
   const { data: apiDocs = [], isLoading } = useQuery({
     queryKey: ['auditor-documents'],
     queryFn: () => auditorAPI.getDocuments(),
   });
 
-  // Map API docs to component format
   const documents: Document[] = Array.isArray(apiDocs) ? apiDocs.map(mapApiDocToDocument) : [];
 
   const filteredDocuments = documents.filter(doc => {
@@ -107,7 +104,7 @@ export function AuditorDocuments() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-amber-100 rounded-lg">
           <FileText className="w-6 h-6 text-amber-700" />
@@ -118,7 +115,7 @@ export function AuditorDocuments() {
         </div>
       </div>
 
-      {/* Stats */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
@@ -166,7 +163,7 @@ export function AuditorDocuments() {
         </Card>
       </div>
 
-      {/* Tabs */}
+      {}
       <div className="flex gap-2">
         <button
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -188,7 +185,7 @@ export function AuditorDocuments() {
         </button>
       </div>
 
-      {/* Type Filter (for documents tab) */}
+      {}
       {activeTab === 'documents' && (
         <div className="flex flex-wrap gap-2">
           <Button
@@ -213,7 +210,7 @@ export function AuditorDocuments() {
         </div>
       )}
 
-      {/* Search */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="relative">
@@ -228,7 +225,7 @@ export function AuditorDocuments() {
         </CardContent>
       </Card>
 
-      {/* Documents Tab */}
+      {}
       {activeTab === 'documents' && (
         <Card>
           <CardHeader>
@@ -284,7 +281,7 @@ export function AuditorDocuments() {
         </Card>
       )}
 
-      {/* Uploads Tab */}
+      {}
       {activeTab === 'uploads' && (
         <Card>
           <CardHeader>

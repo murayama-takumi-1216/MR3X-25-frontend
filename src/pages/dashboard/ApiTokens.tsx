@@ -58,7 +58,6 @@ export function ApiTokens() {
   const [newTokenValue, setNewTokenValue] = useState('');
   const [visibleTokens, setVisibleTokens] = useState<Set<string>>(new Set());
 
-  // Form state
   const [tokenName, setTokenName] = useState('');
   const [tokenExpiry, setTokenExpiry] = useState('30');
   const [ipRestrictions, setIpRestrictions] = useState('');
@@ -71,7 +70,7 @@ export function ApiTokens() {
         const response = await apiClient.get('/api-client/tokens');
         return response.data;
       } catch {
-        // Return mock data for development
+        
         return [
           {
             id: '1',
@@ -236,7 +235,7 @@ export function ApiTokens() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Access Tokens</h1>
@@ -250,7 +249,7 @@ export function ApiTokens() {
         </Button>
       </div>
 
-      {/* Summary */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center justify-between">
@@ -281,7 +280,7 @@ export function ApiTokens() {
         </Card>
       </div>
 
-      {/* Tokens List */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle>Your Tokens</CardTitle>
@@ -392,7 +391,7 @@ export function ApiTokens() {
         </CardContent>
       </Card>
 
-      {/* Create Token Modal */}
+      {}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -495,7 +494,7 @@ export function ApiTokens() {
         </DialogContent>
       </Dialog>
 
-      {/* New Token Display Modal */}
+      {}
       <Dialog open={showNewToken} onOpenChange={setShowNewToken}>
         <DialogContent>
           <DialogHeader>
@@ -541,7 +540,7 @@ export function ApiTokens() {
         </DialogContent>
       </Dialog>
 
-      {/* Revoke Confirmation Dialog */}
+      {}
       <AlertDialog open={showRevokeDialog} onOpenChange={setShowRevokeDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

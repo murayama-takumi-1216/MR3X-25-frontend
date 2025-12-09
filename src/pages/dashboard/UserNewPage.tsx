@@ -12,9 +12,6 @@ import { validateDocument } from '../../lib/validation';
 import { usersAPI } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
 
-/**
- * Role labels for display in dropdown
- */
 const ROLE_LABELS: Record<string, string> = {
   'CEO': 'CEO - Administrador MR3X',
   'ADMIN': 'Admin - Administrador Sistema',
@@ -31,37 +28,14 @@ const ROLE_LABELS: Record<string, string> = {
   'API_CLIENT': 'Cliente API - Integração',
 };
 
-/**
- * Role Creation Hierarchy - Who can create which roles
- * Based on MR3X Complete Hierarchy Requirements:
- *
- * IMPORTANT: Two types of Managers exist:
- * 1. PLATFORM_MANAGER - MR3X Internal Manager (created by ADMIN)
- *    - Works for MR3X internally
- *    - Handles support, statistics, client assistance
- *    - Has ZERO access to agency operations
- *
- * 2. AGENCY_MANAGER - Agency Manager/Gestor (created by AGENCY_ADMIN)
- *    - Works inside a real estate agency
- *    - Controls agency team, creates brokers, owners, contracts, properties
- *    - Has legal representation permissions for the agency
- *
- * CEO -> ADMIN only
- * ADMIN -> PLATFORM_MANAGER, LEGAL_AUDITOR, REPRESENTATIVE, API_CLIENT (NOT AGENCY_MANAGER!)
- * PLATFORM_MANAGER -> NONE (support role only)
- * AGENCY_ADMIN -> AGENCY_MANAGER, BROKER, PROPRIETARIO
- * AGENCY_MANAGER -> BROKER, PROPRIETARIO
- * INDEPENDENT_OWNER -> INQUILINO, BUILDING_MANAGER
- * Others -> Cannot create users
- */
 const ROLE_CREATION_ALLOWED: Record<string, string[]> = {
   'CEO': ['ADMIN'],
   'ADMIN': ['PLATFORM_MANAGER', 'LEGAL_AUDITOR', 'REPRESENTATIVE', 'API_CLIENT'],
-  'PLATFORM_MANAGER': [], // MR3X Internal Manager - cannot create users
+  'PLATFORM_MANAGER': [], 
   'AGENCY_ADMIN': ['AGENCY_MANAGER', 'BROKER', 'PROPRIETARIO'],
   'AGENCY_MANAGER': ['BROKER', 'PROPRIETARIO'],
   'INDEPENDENT_OWNER': ['INQUILINO', 'BUILDING_MANAGER'],
-  // These roles cannot create users
+  
   'BROKER': [],
   'PROPRIETARIO': [],
   'INQUILINO': [],
@@ -71,9 +45,6 @@ const ROLE_CREATION_ALLOWED: Record<string, string[]> = {
   'API_CLIENT': [],
 };
 
-/**
- * Get roles that the current user can create based on hierarchy
- */
 const getAvailableRoles = (userRole: string | undefined) => {
   if (!userRole) return [];
   const allowedRoles = ROLE_CREATION_ALLOWED[userRole] || [];
@@ -112,7 +83,6 @@ export function UserNewPage() {
 
   const canCreateUsers = hasPermission('users:create');
 
-  // Redirect if no permission
   useEffect(() => {
     if (!canCreateUsers) {
       toast.error('Você não tem permissão para criar usuários');
@@ -139,7 +109,7 @@ export function UserNewPage() {
           return;
         }
       }
-      // Only send fields that the backend accepts
+      
       const createPayload = {
         email: formData.email,
         password: formData.password,
@@ -175,7 +145,6 @@ export function UserNewPage() {
     }));
   };
 
-  // Don't render if no permission
   if (!canCreateUsers) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -189,7 +158,7 @@ export function UserNewPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-4">
         <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-2">
           <ArrowLeft className="w-4 h-4" />
@@ -201,7 +170,7 @@ export function UserNewPage() {
         </div>
       </div>
 
-      {/* Form */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -212,7 +181,7 @@ export function UserNewPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo *</Label>
@@ -314,7 +283,7 @@ export function UserNewPage() {
               </div>
             </div>
 
-            {/* Notification Preferences */}
+            {}
             <div className="space-y-4">
               <Label className="text-base font-medium">Preferências de Notificação</Label>
               <div className="space-y-3">
@@ -345,7 +314,7 @@ export function UserNewPage() {
               </div>
             </div>
 
-            {/* Actions */}
+            {}
             <div className="flex justify-end gap-3 pt-6 border-t">
               <Button type="button" variant="outline" onClick={() => navigate(-1)} disabled={loading}>
                 Cancelar

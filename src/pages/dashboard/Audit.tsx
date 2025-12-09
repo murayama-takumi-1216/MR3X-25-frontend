@@ -114,7 +114,7 @@ export function Audit() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Logs de Auditoria</h1>
@@ -131,7 +131,7 @@ export function Audit() {
         </Button>
       </div>
 
-      {/* Filters */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -188,7 +188,7 @@ export function Audit() {
         </CardContent>
       </Card>
 
-      {/* Audit Logs List */}
+      {}
       {auditData?.items && auditData.items.length > 0 ? (
         <Card>
           <CardHeader>
@@ -269,7 +269,7 @@ export function Audit() {
               ))}
             </div>
 
-            {/* Pagination */}
+            {}
             <div className="flex justify-between items-center mt-6 pt-4 border-t">
               <p className="text-sm text-muted-foreground">
                 Pagina {auditData.page} de {Math.ceil(auditData.total / auditData.pageSize)}

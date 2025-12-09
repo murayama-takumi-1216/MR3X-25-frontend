@@ -32,7 +32,6 @@ export function ManagerAgencies() {
   const [selectedAgency, setSelectedAgency] = useState<any | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
-  // Fetch agencies
   const { data: agenciesData = { agencies: [], activityLogs: [] }, isLoading } = useQuery({
     queryKey: ['platform-manager', 'agencies', searchTerm, statusFilter, planFilter],
     queryFn: () => platformManagerAPI.getAgencies({
@@ -98,13 +97,13 @@ export function ManagerAgencies() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold">Agências</h1>
         <p className="text-muted-foreground">Visualize e gerencie as agências da plataforma</p>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -160,7 +159,7 @@ export function ManagerAgencies() {
         </Card>
       </div>
 
-      {/* Filters */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
@@ -201,7 +200,7 @@ export function ManagerAgencies() {
         </CardContent>
       </Card>
 
-      {/* Agencies Table */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Lista de Agências</CardTitle>
@@ -255,7 +254,7 @@ export function ManagerAgencies() {
         </CardContent>
       </Card>
 
-      {/* Agency Details Dialog */}
+      {}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>

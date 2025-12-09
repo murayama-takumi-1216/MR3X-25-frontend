@@ -189,7 +189,7 @@ export function SalesProspects() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Agências (Prospects)</h1>
@@ -201,7 +201,7 @@ export function SalesProspects() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {Object.entries(statusConfig).map(([key, config]) => {
           const count = prospects.filter((p: Prospect) => p.status === key).length;
@@ -224,7 +224,7 @@ export function SalesProspects() {
         })}
       </div>
 
-      {/* Filters */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -253,7 +253,7 @@ export function SalesProspects() {
         </CardContent>
       </Card>
 
-      {/* Prospects List */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -345,7 +345,7 @@ export function SalesProspects() {
         </CardContent>
       </Card>
 
-      {/* Add Prospect Modal */}
+      {}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -446,7 +446,7 @@ export function SalesProspects() {
         </div>
       )}
 
-      {/* Detail Modal */}
+      {}
       {showDetailModal && selectedProspect && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">

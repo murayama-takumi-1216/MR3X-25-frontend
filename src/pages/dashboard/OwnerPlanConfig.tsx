@@ -42,7 +42,6 @@ interface PlanChangePreview {
   isUpgrade: boolean;
 }
 
-// Helper functions to get plan display info
 const getPlanNameInPortuguese = (name: string) => {
   switch (name.toLowerCase()) {
     case 'free':
@@ -96,32 +95,27 @@ export function OwnerPlanConfig() {
   const [previewData, setPreviewData] = useState<PlanChangePreview | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
-  // Check permissions - only INDEPENDENT_OWNER can access
   const canViewPlan = user?.role === 'INDEPENDENT_OWNER';
   const userId = user?.id;
 
-  // Fetch user data to get current plan
   const { data: ownerData, isLoading: ownerLoading } = useQuery({
     queryKey: ['owner-details', userId],
     queryFn: () => usersAPI.getUserById(userId!),
     enabled: !!userId && canViewPlan,
   });
 
-  // Fetch plan usage for independent owner
   const { data: planUsage, isLoading: usageLoading } = useQuery({
     queryKey: ['owner-plan-usage', userId],
     queryFn: async () => {
-      // Get properties count
+      
       const properties = await propertiesAPI.getProperties();
       const activeProperties = properties.filter((p: any) => !p.isFrozen && !p.deleted);
       const frozenProperties = properties.filter((p: any) => p.isFrozen);
 
-      // Get tenants count
       const tenants = await usersAPI.getTenants();
       const activeTenants = Array.isArray(tenants) ? tenants.filter((t: any) => !t.isFrozen) : [];
       const frozenTenants = Array.isArray(tenants) ? tenants.filter((t: any) => t.isFrozen) : [];
 
-      // Get plan limits based on user's plan
       const userPlan = ownerData?.plan || 'FREE';
       const limits = getPlanLimits(userPlan);
 
@@ -142,7 +136,6 @@ export function OwnerPlanConfig() {
     enabled: !!userId && canViewPlan && !!ownerData,
   });
 
-  // Fetch available plans from API
   const { data: plans = [], isLoading: plansLoading } = useQuery({
     queryKey: ['plans'],
     queryFn: async () => {
@@ -155,7 +148,6 @@ export function OwnerPlanConfig() {
     enabled: canViewPlan,
   });
 
-  // Helper to get plan limits
   function getPlanLimits(planName: string) {
     switch (planName.toUpperCase()) {
       case 'FREE':
@@ -171,7 +163,6 @@ export function OwnerPlanConfig() {
     }
   }
 
-  // Don't render if no permission
   if (!canViewPlan) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -211,7 +202,6 @@ export function OwnerPlanConfig() {
         users: planUsage?.users?.active || 0,
       };
 
-      // Calculate what will be frozen or unfrozen
       const willFreeze = {
         properties: Math.max(0, currentUsage.properties - newLimits.properties),
         users: Math.max(0, currentUsage.users - newLimits.users),
@@ -244,7 +234,7 @@ export function OwnerPlanConfig() {
     if (!selectedPlan) return;
 
     try {
-      // For now, just show a message that the request was sent
+      
       toast.success('Solicitação de mudança de plano enviada! Nossa equipe entrará em contato.');
       setShowUpgradeModal(false);
       setSelectedPlan(null);
@@ -264,7 +254,7 @@ export function OwnerPlanConfig() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold">Meu Plano</h1>
         <p className="text-sm sm:text-base text-muted-foreground mt-1">
@@ -272,7 +262,7 @@ export function OwnerPlanConfig() {
         </p>
       </div>
 
-      {/* Current Plan Card */}
+      {}
       <Card className="relative overflow-visible">
         <div className={`absolute top-0 left-0 right-0 h-2 rounded-t-lg ${currentPlanColor}`} />
         <CardHeader>
@@ -328,9 +318,9 @@ export function OwnerPlanConfig() {
         </CardContent>
       </Card>
 
-      {/* Usage Statistics */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Properties Usage */}
+        {}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -359,7 +349,7 @@ export function OwnerPlanConfig() {
           </CardContent>
         </Card>
 
-        {/* Tenants Usage */}
+        {}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -389,7 +379,7 @@ export function OwnerPlanConfig() {
         </Card>
       </div>
 
-      {/* Frozen Entities Warning */}
+      {}
       {planUsage?.upgradeRequired && (
         <Alert className="border-amber-300 bg-amber-50">
           <AlertTriangle className="h-5 w-5 text-amber-600" />
@@ -402,7 +392,7 @@ export function OwnerPlanConfig() {
         </Alert>
       )}
 
-      {/* Available Plans */}
+      {}
       {plans.length === 0 ? (
         <div className="flex items-center justify-center h-32">
           <p className="text-muted-foreground">Nenhum plano encontrado</p>
@@ -497,7 +487,7 @@ export function OwnerPlanConfig() {
         </div>
       )}
 
-      {/* Plan Change Preview Modal */}
+      {}
       <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>

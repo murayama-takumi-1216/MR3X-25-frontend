@@ -181,7 +181,7 @@ export function Chat() {
       try {
         await markAsReadMutation.mutateAsync(chat.id)
       } catch (error) {
-        // Silencia erro
+        
       }
     }
   }
@@ -478,7 +478,7 @@ export function Chat() {
         </CardContent>
       </Card>
 
-      {/* Modal de novo chat */}
+      {}
       <Dialog open={showNewChat} onOpenChange={setShowNewChat}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -522,7 +522,7 @@ export function Chat() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal de confirmação de exclusão */}
+      {}
       <AlertDialog open={chatToDelete !== null} onOpenChange={(open) => !open && setChatToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>

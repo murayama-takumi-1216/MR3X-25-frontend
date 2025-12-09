@@ -58,7 +58,6 @@ import {
   TooltipTrigger,
 } from '../../components/ui/tooltip';
 
-// Types
 interface Invoice {
   id: string;
   contractId: string;
@@ -106,24 +105,20 @@ export function Invoices() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Check permissions
   const isCEO = user?.role === 'CEO';
   const canViewInvoices = ['CEO', 'AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER', 'PROPRIETARIO'].includes(user?.role || '');
   const canManageInvoices = ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'INDEPENDENT_OWNER'].includes(user?.role || '') && !isCEO;
 
-  // Modal states
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showResendModal, setShowResendModal] = useState(false);
   const [showMarkPaidModal, setShowMarkPaidModal] = useState(false);
 
-  // Filter states
   const [filterType, setFilterType] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [filterProperty, setFilterProperty] = useState<string>('');
   const [filterMonth, setFilterMonth] = useState<string>('');
 
-  // Other states
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [invoiceDetail, setInvoiceDetail] = useState<Invoice | null>(null);
   const [properties, setProperties] = useState<any[]>([]);
@@ -138,7 +133,6 @@ export function Invoices() {
     notes: '',
   });
 
-  // Don't render if no permission
   if (!canViewInvoices) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -150,7 +144,6 @@ export function Invoices() {
     );
   }
 
-  // Query invoices
   const { data: invoices = [], isLoading } = useQuery({
     queryKey: ['invoices', user?.id, filterType, filterStatus, filterProperty, filterMonth],
     queryFn: () => invoicesAPI.getInvoices({
@@ -162,14 +155,12 @@ export function Invoices() {
     enabled: canViewInvoices,
   });
 
-  // Query statistics
   const { data: statistics } = useQuery({
     queryKey: ['invoices-statistics', user?.id],
     queryFn: () => invoicesAPI.getStatistics(),
     enabled: canViewInvoices,
   });
 
-  // Load properties for filter
   useEffect(() => {
     const loadProperties = async () => {
       try {
@@ -182,7 +173,6 @@ export function Invoices() {
     loadProperties();
   }, []);
 
-  // Helper function to close all modals
   const closeAllModals = () => {
     setShowDetailModal(false);
     setShowCancelModal(false);
@@ -200,7 +190,6 @@ export function Invoices() {
     });
   };
 
-  // Mutations
   const markAsPaidMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => invoicesAPI.markAsPaid(id, data),
     onSuccess: () => {
@@ -239,7 +228,6 @@ export function Invoices() {
     },
   });
 
-  // Handlers
   const handleViewInvoice = async (invoice: Invoice) => {
     closeAllModals();
     setActionLoading(true);
@@ -329,7 +317,6 @@ export function Invoices() {
     }
   };
 
-  // Status badge
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
       'PENDING': { label: 'Pendente', className: 'bg-yellow-500', icon: <Clock className="w-3 h-3" /> },
@@ -347,7 +334,6 @@ export function Invoices() {
     );
   };
 
-  // Type badge
   const getTypeBadge = (type: string) => {
     const typeMap: Record<string, { label: string; className: string }> = {
       'RENT': { label: 'Aluguel', className: 'bg-blue-100 text-blue-800' },
@@ -361,7 +347,6 @@ export function Invoices() {
     return <Badge className={t.className}>{t.label}</Badge>;
   };
 
-  // Check if invoice is overdue
   const isOverdue = (invoice: Invoice) => {
     if (invoice.status === 'PAID' || invoice.status === 'CANCELED') return false;
     const dueDate = new Date(invoice.dueDate);
@@ -381,7 +366,7 @@ export function Invoices() {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Header */}
+        {}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Faturas</h1>
@@ -390,7 +375,7 @@ export function Invoices() {
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            {/* View Toggle Buttons */}
+            {}
             <div className="flex border border-border rounded-lg p-1">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -422,7 +407,7 @@ export function Invoices() {
           </div>
         </div>
 
-        {/* Statistics Cards */}
+        {}
         {statistics && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card>
@@ -483,7 +468,7 @@ export function Invoices() {
           </div>
         )}
 
-        {/* Filters */}
+        {}
         <div className="flex flex-wrap gap-4 p-4 bg-card border border-border rounded-lg">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-muted-foreground" />
@@ -551,10 +536,10 @@ export function Invoices() {
           )}
         </div>
 
-        {/* Invoices Display */}
+        {}
         {invoices && invoices.length > 0 ? (
           viewMode === 'table' ? (
-            /* Table View */
+            
             <div className="bg-card border border-border rounded-lg overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -666,7 +651,7 @@ export function Invoices() {
               </div>
             </div>
           ) : (
-            /* Card View */
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {invoices.map((invoice: Invoice) => (
                 <Card key={invoice.id} className={`hover:shadow-md transition-shadow ${isOverdue(invoice) ? 'border-red-300' : ''}`}>
@@ -753,7 +738,7 @@ export function Invoices() {
             </div>
           )
         ) : (
-          /* Empty State */
+          
           <div className="text-center py-12 bg-card border border-border rounded-lg">
             <Receipt className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Nenhuma fatura encontrada</h3>
@@ -763,7 +748,7 @@ export function Invoices() {
           </div>
         )}
 
-        {/* Detail Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -771,7 +756,7 @@ export function Invoices() {
             </DialogHeader>
             {invoiceDetail && (
               <div className="space-y-6">
-                {/* Header Info */}
+                {}
                 <div className="flex items-start justify-between">
                   <div>
                     <h2 className="text-2xl font-bold">{invoiceDetail.invoiceNumber || `#${invoiceDetail.id}`}</h2>
@@ -785,7 +770,7 @@ export function Invoices() {
                   </div>
                 </div>
 
-                {/* Tenant & Property Info */}
+                {}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 border rounded-lg">
                     <Label className="text-muted-foreground">Inquilino</Label>
@@ -814,7 +799,7 @@ export function Invoices() {
                   </div>
                 </div>
 
-                {/* Financial Details */}
+                {}
                 <div className="p-4 border rounded-lg">
                   <Label className="text-muted-foreground mb-3 block">Valores</Label>
                   <div className="space-y-2">
@@ -853,7 +838,7 @@ export function Invoices() {
                   </div>
                 </div>
 
-                {/* Split Information */}
+                {}
                 {(invoiceDetail.ownerAmount || invoiceDetail.agencyAmount) && (
                   <div className="p-4 border rounded-lg">
                     <Label className="text-muted-foreground mb-3 block">Divisao (Split)</Label>
@@ -886,7 +871,7 @@ export function Invoices() {
                   </div>
                 )}
 
-                {/* Payment Info */}
+                {}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 border rounded-lg">
                     <Label className="text-muted-foreground">Vencimento</Label>
@@ -906,7 +891,7 @@ export function Invoices() {
                   )}
                 </div>
 
-                {/* Payment Links */}
+                {}
                 {invoiceDetail.status !== 'PAID' && invoiceDetail.status !== 'CANCELED' && (
                   <div className="p-4 border rounded-lg">
                     <Label className="text-muted-foreground mb-3 block">Links de Pagamento</Label>
@@ -936,7 +921,7 @@ export function Invoices() {
                   </div>
                 )}
 
-                {/* Notes */}
+                {}
                 {invoiceDetail.notes && (
                   <div className="p-4 border rounded-lg">
                     <Label className="text-muted-foreground">Observacoes</Label>
@@ -948,7 +933,7 @@ export function Invoices() {
           </DialogContent>
         </Dialog>
 
-        {/* Mark as Paid Modal */}
+        {}
         <Dialog open={showMarkPaidModal} onOpenChange={setShowMarkPaidModal}>
           <DialogContent>
             <DialogHeader>
@@ -1017,7 +1002,7 @@ export function Invoices() {
           </DialogContent>
         </Dialog>
 
-        {/* Cancel Modal */}
+        {}
         <AlertDialog open={showCancelModal} onOpenChange={setShowCancelModal}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -1047,7 +1032,7 @@ export function Invoices() {
           </AlertDialogContent>
         </AlertDialog>
 
-        {/* Resend Modal */}
+        {}
         <Dialog open={showResendModal} onOpenChange={setShowResendModal}>
           <DialogContent>
             <DialogHeader>

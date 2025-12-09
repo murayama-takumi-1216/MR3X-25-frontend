@@ -37,12 +37,11 @@ export function SignatureCapture({
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [canvasSize, setCanvasSize] = useState({ width: 300, height: 150 });
 
-  // Resize canvas to fit container
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
         const width = containerRef.current.offsetWidth;
-        // Height is proportional, smaller on mobile
+        
         const height = window.innerWidth < 640 ? 150 : 200;
         setCanvasSize({ width, height });
       }
@@ -80,7 +79,7 @@ export function SignatureCapture({
       const isCanvasEmpty = fullscreenSignatureRef.current.isEmpty();
       if (!isCanvasEmpty) {
         const dataUrl = fullscreenSignatureRef.current.getTrimmedCanvas().toDataURL('image/png');
-        // Copy to main canvas
+        
         if (signatureRef.current) {
           signatureRef.current.fromDataURL(dataUrl);
         }
@@ -111,7 +110,7 @@ export function SignatureCapture({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label>{label}</Label>
-          {/* Show fullscreen button on mobile */}
+          {}
           <Button
             type="button"
             variant="outline"
@@ -145,13 +144,13 @@ export function SignatureCapture({
             backgroundColor="white"
           />
 
-          {/* Guide lines */}
+          {}
           <div
             className="absolute left-4 right-4 border-b border-dashed border-gray-300 pointer-events-none"
             style={{ bottom: '30px' }}
           />
 
-          {/* Placeholder text */}
+          {}
           {isEmpty && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-muted-foreground text-xs sm:text-sm text-center px-4">
@@ -218,7 +217,7 @@ export function SignatureCapture({
         </div>
       )}
 
-      {/* Fullscreen signature dialog for mobile */}
+      {}
       <Dialog open={showFullscreen} onOpenChange={setShowFullscreen}>
         <DialogContent className="max-w-full w-full h-[100dvh] max-h-[100dvh] p-0 m-0 rounded-none">
           <DialogHeader className="p-4 border-b">
@@ -235,7 +234,7 @@ export function SignatureCapture({
                 }}
                 backgroundColor="white"
               />
-              {/* Guide line */}
+              {}
               <div className="absolute bottom-16 left-8 right-8 border-b border-dashed border-gray-300 pointer-events-none" />
             </div>
             <div className="flex gap-3 mt-4">

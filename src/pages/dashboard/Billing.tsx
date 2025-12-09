@@ -18,7 +18,6 @@ export default function BillingPage() {
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Mock data - will be replaced with real API calls
   const invoices = [
     {
       id: 'INV-001',
@@ -94,7 +93,7 @@ export default function BillingPage() {
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="pb-2">

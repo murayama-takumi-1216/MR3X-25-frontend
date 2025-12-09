@@ -15,7 +15,7 @@ export function Register() {
     password: '',
     confirmPassword: '',
     name: '',
-    role: 'INDEPENDENT_OWNER', // Default to INDEPENDENT_OWNER (self-registration allowed)
+    role: 'INDEPENDENT_OWNER', 
     plan: 'FREE',
     phone: '',
     document: '',
@@ -37,7 +37,6 @@ export function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Countdown for resend cooldown on code step
   useEffect(() => {
     if (step !== 'code') return;
     const timer = setInterval(() => {
@@ -72,7 +71,7 @@ export function Register() {
         setRequestId(result.requestId);
         setCooldown(result.cooldownSeconds || 60);
         setStep('code');
-        // DEV: Show code in console for testing
+        
         if ((result as any).debugCode) {
           console.log(`🔑 Verification code: ${(result as any).debugCode}`);
         }
@@ -92,7 +91,7 @@ export function Register() {
           toast.error('A senha deve ter pelo menos 6 caracteres');
           return;
         }
-        // Client-side document and CEP validation before submit
+        
         const docResult = validateDocument(formData.document);
         if (!docResult.isValid) {
           toast.error(docResult.error || 'Documento inválido (CPF/CNPJ)');
@@ -102,13 +101,13 @@ export function Register() {
           toast.error('CEP inválido');
           return;
         }
-        // If AGENCY_ADMIN, validate agency fields
+        
         if (formData.role === 'AGENCY_ADMIN') {
           if (!formData.agencyName || !formData.agencyCnpj) {
             toast.error('Nome da agência e CNPJ são obrigatórios para proprietários de agência');
             return;
           }
-          // Validate agency CNPJ
+          
           const agencyCnpjResult = validateDocument(formData.agencyCnpj);
           if (!agencyCnpjResult.isValid) {
             toast.error(agencyCnpjResult.error || 'CNPJ da agência inválido');
@@ -151,7 +150,7 @@ export function Register() {
       const result = await authApi.requestEmailCode(formData.email);
       setRequestId(result.requestId);
       setCooldown(result.cooldownSeconds || 60);
-      // DEV: Show code in console for testing
+      
       if ((result as any).debugCode) {
         console.log(`🔑 Verification code: ${(result as any).debugCode}`);
       }
@@ -266,13 +265,7 @@ export function Register() {
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
                 >
-                  {/*
-                    Only AGENCY_ADMIN and INDEPENDENT_OWNER can self-register
-                    Per MR3X Hierarchy Requirements:
-                    - AGENCY_ADMIN: Self-registers and creates their own agency
-                    - INDEPENDENT_OWNER: Self-registers as "mini real estate agency"
-                    - All other roles must be created by authorized users
-                  */}
+                  {}
                   <option value="INDEPENDENT_OWNER">Imóvel Independente - Gerenciar meus imóveis sem agência</option>
                   <option value="AGENCY_ADMIN">Diretor de Agência - Criar minha imobiliária</option>
                 </select>
@@ -468,7 +461,7 @@ export function Register() {
               </div>
             )}
 
-            {/* Agency Information - Only show for AGENCY_ADMIN */}
+            {}
             {step === 'details' && formData.role === 'AGENCY_ADMIN' && (
               <>
                 <div className="mt-6 pt-6 border-t border-border">

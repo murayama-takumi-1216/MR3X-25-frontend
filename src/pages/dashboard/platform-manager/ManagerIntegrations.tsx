@@ -14,7 +14,6 @@ import {
 } from 'recharts';
 import { platformManagerAPI } from '../../../api';
 
-// Chart wrapper to prevent -1 dimension errors
 function ChartContainer({ children, height = 250 }: { children: React.ReactNode; height?: number }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -39,13 +38,11 @@ function ChartContainer({ children, height = 250 }: { children: React.ReactNode;
 export function ManagerIntegrations() {
   const [activeTab, setActiveTab] = useState('webhooks');
 
-  // Fetch webhook logs
   const { data: webhookData, isLoading: webhooksLoading } = useQuery({
     queryKey: ['platform-manager', 'integrations', 'webhooks'],
     queryFn: () => platformManagerAPI.getWebhookLogs(),
   });
 
-  // Fetch API request logs
   const { data: apiData, isLoading: apiLoading } = useQuery({
     queryKey: ['platform-manager', 'integrations', 'api-requests'],
     queryFn: () => platformManagerAPI.getApiRequestLogs(),
@@ -116,7 +113,7 @@ export function ManagerIntegrations() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Monitoramento de Integrações</h1>
@@ -128,7 +125,7 @@ export function ManagerIntegrations() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -184,7 +181,7 @@ export function ManagerIntegrations() {
         </Card>
       </div>
 
-      {/* Tabs */}
+      {}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="webhooks">Webhooks Asaas</TabsTrigger>
@@ -193,9 +190,9 @@ export function ManagerIntegrations() {
           <TabsTrigger value="errors">Logs de Erro</TabsTrigger>
         </TabsList>
 
-        {/* Webhooks Tab */}
+        {}
         <TabsContent value="webhooks" className="space-y-4 mt-4">
-          {/* Chart */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Tendência de Webhooks</CardTitle>
@@ -216,7 +213,7 @@ export function ManagerIntegrations() {
             </CardContent>
           </Card>
 
-          {/* Webhooks List */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Webhooks Recentes</CardTitle>
@@ -261,9 +258,9 @@ export function ManagerIntegrations() {
           </Card>
         </TabsContent>
 
-        {/* API Requests Tab */}
+        {}
         <TabsContent value="api" className="space-y-4 mt-4">
-          {/* Chart */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Requisições API</CardTitle>
@@ -285,7 +282,7 @@ export function ManagerIntegrations() {
             </CardContent>
           </Card>
 
-          {/* API Requests List */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Requisições Recentes</CardTitle>
@@ -327,7 +324,7 @@ export function ManagerIntegrations() {
           </Card>
         </TabsContent>
 
-        {/* Token Activity Tab */}
+        {}
         <TabsContent value="tokens" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -374,7 +371,7 @@ export function ManagerIntegrations() {
           </Card>
         </TabsContent>
 
-        {/* Error Logs Tab */}
+        {}
         <TabsContent value="errors" className="space-y-4 mt-4">
           <Card>
             <CardHeader>

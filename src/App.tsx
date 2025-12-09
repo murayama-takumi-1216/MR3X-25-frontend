@@ -94,7 +94,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Placeholder components for routes not yet fully implemented
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <div className="flex items-center justify-center min-h-[400px]">
@@ -113,19 +112,19 @@ function App() {
         <Toaster position="top-right" richColors />
         <BrowserRouter>
           <Routes>
-            {/* Public routes */}
+            {}
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/register" element={<Register />} />
             <Route path="/forgot-password" element={<PlaceholderPage title="Recuperar Senha" />} />
             <Route path="/reset-password" element={<PlaceholderPage title="Redefinir Senha" />} />
             <Route path="/terms" element={<PlaceholderPage title="Termos de Uso" />} />
 
-            {/* Public Contract Verification and Signing */}
+            {}
             <Route path="/verify" element={<ContractVerification />} />
             <Route path="/verify/:token" element={<ContractVerification />} />
             <Route path="/sign/:linkToken" element={<ExternalSigning />} />
 
-            {/* Protected routes with Dashboard Layout */}
+            {}
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<DashboardHome />} />
               <Route path="properties" element={<Properties />} />
@@ -202,16 +201,16 @@ function App() {
               <Route path="notifications" element={<Notifications />} />
               <Route path="change-password" element={<ChangePassword />} />
 
-              {/* Tenant-specific routes */}
+              {}
               <Route path="tenant-dashboard" element={<TenantDashboard />} />
               <Route path="tenant-contract" element={<TenantContract />} />
               <Route path="tenant-payments" element={<TenantPayments />} />
               <Route path="tenant-profile" element={<TenantProfile />} />
 
-              {/* Broker-specific routes */}
+              {}
               <Route path="broker-dashboard" element={<BrokerDashboard />} />
 
-              {/* API Client routes */}
+              {}
               <Route path="api-dashboard" element={<ApiClientDashboard />} />
               <Route path="api-credentials" element={<ApiCredentials />} />
               <Route path="api-tokens" element={<ApiTokens />} />
@@ -220,7 +219,7 @@ function App() {
               <Route path="api-docs" element={<ApiDocs />} />
               <Route path="api-settings" element={<ApiSettings />} />
 
-              {/* Sales Representative routes */}
+              {}
               <Route path="sales-dashboard" element={<SalesRepDashboard />} />
               <Route path="sales-prospects" element={<SalesProspects />} />
               <Route path="sales-proposals" element={<SalesProposals />} />
@@ -229,7 +228,7 @@ function App() {
               <Route path="sales-commissions" element={<SalesCommissions />} />
               <Route path="sales-inbox" element={<SalesInbox />} />
 
-              {/* Legal Auditor routes (Read-only) */}
+              {}
               <Route path="auditor" element={<AuditorDashboard />} />
               <Route path="auditor-logs" element={<AuditorLogs />} />
               <Route path="auditor-signatures" element={<AuditorSignatures />} />
@@ -242,7 +241,7 @@ function App() {
               <Route path="auditor-tools" element={<AuditorTools />} />
               <Route path="auditor-settings" element={<AuditorSettings />} />
 
-              {/* Platform Manager routes (MR3X Internal Manager) */}
+              {}
               <Route path="manager-dashboard" element={<ManagerDashboard />} />
               <Route path="manager-agencies" element={<ManagerAgencies />} />
               <Route path="manager-support" element={<ManagerSupportCenter />} />
@@ -255,10 +254,10 @@ function App() {
               <Route path="manager-settings" element={<ManagerSettings />} />
             </Route>
 
-            {/* Redirect root to dashboard or login */}
+            {}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-            {/* Catch all - redirect to dashboard */}
+            {}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </BrowserRouter>

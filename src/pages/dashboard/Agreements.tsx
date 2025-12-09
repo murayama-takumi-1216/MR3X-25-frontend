@@ -63,7 +63,6 @@ import {
   TooltipTrigger,
 } from '../../components/ui/tooltip';
 
-// Types
 interface Agreement {
   id: string;
   contractId?: string;
@@ -124,7 +123,6 @@ const agreementStatuses = [
   { value: 'CANCELADO', label: 'Cancelado' },
 ];
 
-// Convert API agreement to AgreementContext for permission checks
 function toAgreementContext(agreement: Agreement): AgreementContext {
   return {
     id: agreement.id,
@@ -147,7 +145,6 @@ function toAgreementContext(agreement: Agreement): AgreementContext {
   };
 }
 
-// Agreement Actions Component - Shows available actions based on permissions
 function AgreementActionsDropdown({
   agreement,
   onView,
@@ -201,7 +198,7 @@ function AgreementActionsDropdown({
           </DropdownMenuItem>
         )}
 
-        {/* Signature options */}
+        {}
         {actions.canSignAsAgency && !agreement.agencySignedAt && (
           <DropdownMenuItem onClick={() => onSign('agency')}>
             <PenTool className="w-4 h-4 mr-2" />
@@ -223,7 +220,7 @@ function AgreementActionsDropdown({
           </DropdownMenuItem>
         )}
 
-        {/* Approval options */}
+        {}
         {actions.canApprove && agreement.status === 'ASSINADO' && (
           <>
             <DropdownMenuSeparator />
@@ -238,7 +235,7 @@ function AgreementActionsDropdown({
           </>
         )}
 
-        {/* Cancel option */}
+        {}
         {actions.canCancel && !['CONCLUIDO', 'REJEITADO', 'CANCELADO'].includes(agreement.status) && (
           <>
             <DropdownMenuSeparator />
@@ -249,7 +246,7 @@ function AgreementActionsDropdown({
           </>
         )}
 
-        {/* Delete option */}
+        {}
         {actions.canDelete && (
           <DropdownMenuItem onClick={onDelete} className="text-red-600">
             <Trash2 className="w-4 h-4 mr-2" />
@@ -261,7 +258,6 @@ function AgreementActionsDropdown({
   );
 }
 
-// Table row action buttons
 function TableRowActions({
   agreement,
   onView,
@@ -354,24 +350,20 @@ export function Agreements() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Use the permission hook
   const {
     permissions,
     isMR3XRole,
   } = useAgreementPermissions();
 
-  // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
 
-  // Filter states
   const [filterType, setFilterType] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [filterProperty, setFilterProperty] = useState<string>('');
 
-  // Form states
   const [newAgreement, setNewAgreement] = useState({
     propertyId: '',
     contractId: '',
@@ -416,7 +408,6 @@ export function Agreements() {
     status: '',
   });
 
-  // Other states
   const [selectedAgreement, setSelectedAgreement] = useState<Agreement | null>(null);
   const [agreementToDelete, setAgreementToDelete] = useState<Agreement | null>(null);
   const [agreementDetail, setAgreementDetail] = useState<Agreement | null>(null);
@@ -429,7 +420,6 @@ export function Agreements() {
   const [updating, setUpdating] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
-  // Don't render if no permission to view
   if (!permissions.canView) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -442,7 +432,6 @@ export function Agreements() {
     );
   }
 
-  // Query agreements
   const { data: agreementsResponse, isLoading } = useQuery({
     queryKey: ['agreements', user?.id, filterType, filterStatus, filterProperty],
     queryFn: () => agreementsAPI.getAgreements({
@@ -453,21 +442,19 @@ export function Agreements() {
     enabled: permissions.canView,
   });
 
-  // Handle different response formats
   const agreements = useMemo(() => {
     if (!agreementsResponse) return [];
-    // If response has .data property (paginated), use it
+    
     if (agreementsResponse.data && Array.isArray(agreementsResponse.data)) {
       return agreementsResponse.data;
     }
-    // If response is already an array
+    
     if (Array.isArray(agreementsResponse)) {
       return agreementsResponse;
     }
     return [];
   }, [agreementsResponse]);
 
-  // Load properties for filters
   useEffect(() => {
     const loadProperties = async () => {
       try {
@@ -483,7 +470,6 @@ export function Agreements() {
     }
   }, [permissions.canView]);
 
-  // Load contracts and tenants for forms (only users who can create/update)
   useEffect(() => {
     const loadFormData = async () => {
       try {
@@ -503,7 +489,6 @@ export function Agreements() {
     }
   }, [permissions.canCreate, permissions.canEdit]);
 
-  // Helper function to close all modals
   const closeAllModals = () => {
     setShowCreateModal(false);
     setShowEditModal(false);
@@ -515,7 +500,6 @@ export function Agreements() {
     setRejectionReason('');
   };
 
-  // Mutations
   const createAgreementMutation = useMutation({
     mutationFn: (data: any) => agreementsAPI.createAgreement(data),
     onSuccess: () => {
@@ -629,7 +613,6 @@ export function Agreements() {
     },
   });
 
-  // Handlers
   const handleCreateAgreement = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
@@ -787,7 +770,6 @@ export function Agreements() {
     });
   };
 
-  // Status badge
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
       'RASCUNHO': { label: 'Rascunho', className: 'bg-gray-500', icon: <FileText className="w-3 h-3" /> },
@@ -806,7 +788,6 @@ export function Agreements() {
     );
   };
 
-  // Type badge
   const getTypeBadge = (type: string) => {
     const typeMap: Record<string, { label: string; className: string }> = {
       'PAYMENT_SETTLEMENT': { label: 'Acordo de Pagamento', className: 'bg-blue-100 text-blue-800' },
@@ -831,7 +812,7 @@ export function Agreements() {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Header */}
+        {}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Acordos</h1>
@@ -846,7 +827,7 @@ export function Agreements() {
             )}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            {/* View Toggle Buttons */}
+            {}
             <div className="flex border border-border rounded-lg p-1">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -897,7 +878,7 @@ export function Agreements() {
           </div>
         </div>
 
-        {/* Filters */}
+        {}
         <div className="flex flex-wrap gap-4 p-4 bg-card border border-border rounded-lg">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-muted-foreground" />
@@ -953,10 +934,10 @@ export function Agreements() {
           )}
         </div>
 
-        {/* Agreements Display */}
+        {}
         {agreements && agreements.length > 0 ? (
           viewMode === 'table' ? (
-            /* Table View */
+            
             <div className="bg-card border border-border rounded-lg overflow-hidden">
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
@@ -1012,7 +993,7 @@ export function Agreements() {
                 </table>
               </div>
 
-              {/* Mobile Card View */}
+              {}
               <div className="md:hidden">
                 {agreements.map((agreement: Agreement) => (
                   <div key={agreement.id} className="border-b border-border last:border-b-0 p-4">
@@ -1064,7 +1045,7 @@ export function Agreements() {
               </div>
             </div>
           ) : (
-            /* Card View */
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {agreements.map((agreement: Agreement) => (
                 <Card key={agreement.id} className="hover:shadow-md transition-shadow">
@@ -1127,7 +1108,7 @@ export function Agreements() {
             </div>
           )
         ) : (
-          /* Empty State */
+          
           <div className="text-center py-12 bg-card border border-border rounded-lg">
             <FileSignature className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Nenhum acordo encontrado</h3>
@@ -1151,7 +1132,7 @@ export function Agreements() {
           </div>
         )}
 
-        {/* Create Modal */}
+        {}
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1270,7 +1251,7 @@ export function Agreements() {
                 />
               </div>
 
-              {/* Financial Fields */}
+              {}
               <div className="border-t pt-4">
                 <h4 className="font-medium mb-3">Valores Financeiros (Opcional)</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1344,7 +1325,7 @@ export function Agreements() {
                 </div>
               </div>
 
-              {/* Date Fields */}
+              {}
               <div className="border-t pt-4">
                 <h4 className="font-medium mb-3">Datas (Opcional)</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1410,7 +1391,7 @@ export function Agreements() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Modal */}
+        {}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1484,7 +1465,7 @@ export function Agreements() {
                   />
                 </div>
 
-                {/* Financial Fields */}
+                {}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <Label>Valor Original</Label>
@@ -1546,7 +1527,7 @@ export function Agreements() {
           </DialogContent>
         </Dialog>
 
-        {/* Detail Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1554,7 +1535,7 @@ export function Agreements() {
             </DialogHeader>
             {agreementDetail && (
               <div className="space-y-6">
-                {/* Header Info */}
+                {}
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-lg font-semibold">{agreementDetail.title}</h3>
@@ -1566,7 +1547,7 @@ export function Agreements() {
                   </div>
                 </div>
 
-                {/* General Info */}
+                {}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-muted-foreground">Imóvel</Label>
@@ -1596,7 +1577,7 @@ export function Agreements() {
                   )}
                 </div>
 
-                {/* Description */}
+                {}
                 {agreementDetail.description && (
                   <div>
                     <Label className="text-muted-foreground">Descricao</Label>
@@ -1604,7 +1585,7 @@ export function Agreements() {
                   </div>
                 )}
 
-                {/* Content */}
+                {}
                 {agreementDetail.content && (
                   <div>
                     <Label className="text-muted-foreground">Termos do Acordo</Label>
@@ -1612,7 +1593,7 @@ export function Agreements() {
                   </div>
                 )}
 
-                {/* Financial Info */}
+                {}
                 {(agreementDetail.originalAmount || agreementDetail.negotiatedAmount) && (
                   <div className="border-t pt-4">
                     <h4 className="font-medium mb-3">Informacoes Financeiras</h4>
@@ -1653,7 +1634,7 @@ export function Agreements() {
                   </div>
                 )}
 
-                {/* Signatures */}
+                {}
                 <div className="border-t pt-4">
                   <h4 className="font-medium mb-3">Assinaturas</h4>
                   <div className="grid grid-cols-3 gap-4">
@@ -1687,7 +1668,7 @@ export function Agreements() {
                   </div>
                 </div>
 
-                {/* Payment Link */}
+                {}
                 {agreementDetail.asaasPaymentLink && (
                   <div className="border-t pt-4">
                     <h4 className="font-medium mb-2">Link de Pagamento</h4>
@@ -1705,7 +1686,7 @@ export function Agreements() {
                   </div>
                 )}
 
-                {/* Metadata */}
+                {}
                 <div className="border-t pt-4 text-sm text-muted-foreground">
                   <p>Criado por: {agreementDetail.createdByUser?.name || agreementDetail.createdByUser?.email}</p>
                   <p>Data de criacao: {formatDate(agreementDetail.createdAt || '')}</p>
@@ -1718,7 +1699,7 @@ export function Agreements() {
           </DialogContent>
         </Dialog>
 
-        {/* Reject Modal */}
+        {}
         <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
           <DialogContent>
             <DialogHeader>
@@ -1748,7 +1729,7 @@ export function Agreements() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation */}
+        {}
         <AlertDialog open={!!agreementToDelete} onOpenChange={() => setAgreementToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>

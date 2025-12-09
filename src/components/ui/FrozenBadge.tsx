@@ -41,7 +41,6 @@ export function FrozenBadge({ reason, className = '' }: FrozenBadgeProps) {
   return badge;
 }
 
-// Export a frozen user badge variant
 export function FrozenUserBadge({ reason, className = '' }: FrozenBadgeProps) {
   const badge = (
     <Badge

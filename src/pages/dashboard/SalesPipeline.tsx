@@ -199,7 +199,7 @@ export function SalesPipeline() {
   const _getWeightedValue = (stage: string) => {
     return getStageItems(stage).reduce((sum: number, item: PipelineItem) => sum + (item.value * item.probability / 100), 0);
   };
-  void _getWeightedValue; // Marked as intentionally unused
+  void _getWeightedValue; 
 
   const handleDragStart = (e: React.DragEvent, item: PipelineItem) => {
     setDraggedItem(item);
@@ -219,7 +219,6 @@ export function SalesPipeline() {
     setDraggedItem(null);
   };
 
-  // Calculate totals
   const totalValue = pipelineItems.reduce((sum: number, item: PipelineItem) => sum + item.value, 0);
   const totalWeightedValue = pipelineItems.reduce((sum: number, item: PipelineItem) => sum + (item.value * item.probability / 100), 0);
   const activeDeals = pipelineItems.filter((item: PipelineItem) => !['closed_won', 'closed_lost'].includes(item.stage)).length;
@@ -235,13 +234,13 @@ export function SalesPipeline() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold">Pipeline de Vendas</h1>
         <p className="text-muted-foreground">Visualização Kanban do funil de vendas</p>
       </div>
 
-      {/* Summary Stats */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -281,7 +280,7 @@ export function SalesPipeline() {
         </Card>
       </div>
 
-      {/* Kanban Board */}
+      {}
       <div className="overflow-x-auto pb-4">
         <div className="flex gap-4 min-w-max">
           {stages.map((stage) => {
@@ -296,7 +295,7 @@ export function SalesPipeline() {
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, stage)}
               >
-                {/* Stage Header */}
+                {}
                 <div className={`rounded-t-lg p-3 ${config.bgLight}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -312,7 +311,7 @@ export function SalesPipeline() {
                   </div>
                 </div>
 
-                {/* Cards Container */}
+                {}
                 <div className="bg-gray-100 rounded-b-lg p-2 min-h-[400px] space-y-2">
                   {items.map((item: PipelineItem) => (
                     <div
@@ -387,7 +386,7 @@ export function SalesPipeline() {
         </div>
       </div>
 
-      {/* Detail Modal */}
+      {}
       {showDetailModal && selectedItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">

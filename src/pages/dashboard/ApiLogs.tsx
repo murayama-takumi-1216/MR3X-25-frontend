@@ -23,7 +23,6 @@ export function ApiLogs() {
   const { user } = useAuth();
   const [expandedLog, setExpandedLog] = useState<string | null>(null);
 
-  // Filters
   const [searchEndpoint, setSearchEndpoint] = useState('');
   const [filterMethod, setFilterMethod] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -44,7 +43,7 @@ export function ApiLogs() {
         });
         return response.data;
       } catch {
-        // Return mock data for development
+        
         return {
           logs: [
             {
@@ -222,7 +221,7 @@ export function ApiLogs() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">API Logs</h1>
@@ -236,7 +235,7 @@ export function ApiLogs() {
         </Button>
       </div>
 
-      {/* Summary Cards */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
@@ -270,7 +269,7 @@ export function ApiLogs() {
         </Card>
       </div>
 
-      {/* Filters */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -353,7 +352,7 @@ export function ApiLogs() {
         </CardContent>
       </Card>
 
-      {/* Logs List */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

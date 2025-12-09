@@ -239,7 +239,6 @@ export function SalesProposals() {
     );
   }
 
-  // Calculate stats
   const stats = {
     total: proposals.length,
     draft: proposals.filter((p: Proposal) => p.status === 'draft').length,
@@ -254,7 +253,7 @@ export function SalesProposals() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Propostas</h1>
@@ -266,7 +265,7 @@ export function SalesProposals() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -312,7 +311,7 @@ export function SalesProposals() {
         </Card>
       </div>
 
-      {/* Filters */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -341,7 +340,7 @@ export function SalesProposals() {
         </CardContent>
       </Card>
 
-      {/* Proposals List */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -441,7 +440,7 @@ export function SalesProposals() {
         </CardContent>
       </Card>
 
-      {/* Add Proposal Modal */}
+      {}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -509,7 +508,7 @@ export function SalesProposals() {
         </div>
       )}
 
-      {/* Detail Modal */}
+      {}
       {showDetailModal && selectedProposal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">

@@ -186,7 +186,6 @@ export function SalesInbox() {
     },
   });
 
-  // Sync fetched data to local state
   useEffect(() => {
     setLocalMessages(fetchedMessages);
   }, [fetchedMessages]);
@@ -196,39 +195,39 @@ export function SalesInbox() {
   }, [fetchedNotifications]);
 
   const handleMarkAsRead = async (id: string) => {
-    // Update local state immediately
+    
     setLocalMessages(prev => prev.map(msg =>
       msg.id === id ? { ...msg, isRead: true, readAt: new Date().toISOString() } : msg
     ));
-    // Update selected message if it's the one being marked
+    
     if (selectedMessage?.id === id) {
       setSelectedMessage(prev => prev ? { ...prev, isRead: true, readAt: new Date().toISOString() } : null);
     }
-    // Try API call
+    
     try {
       await apiClient.patch(`/sales-rep/messages/${id}/read`);
       queryClient.invalidateQueries({ queryKey: ['sales-messages'] });
     } catch {
-      // API failed but local state already updated
+      
     }
   };
 
   const handleToggleStar = async (id: string) => {
-    // Update local state immediately
+    
     setLocalMessages(prev => prev.map(msg =>
       msg.id === id ? { ...msg, isStarred: !msg.isStarred } : msg
     ));
-    // Update selected message if it's the one being starred
+    
     if (selectedMessage?.id === id) {
       setSelectedMessage(prev => prev ? { ...prev, isStarred: !prev.isStarred } : null);
     }
     toast.success('Mensagem atualizada');
-    // Try API call
+    
     try {
       await apiClient.patch(`/sales-rep/messages/${id}/star`);
       queryClient.invalidateQueries({ queryKey: ['sales-messages'] });
     } catch {
-      // API failed but local state already updated
+      
     }
   };
 
@@ -245,20 +244,19 @@ export function SalesInbox() {
   const confirmDeleteMessage = async () => {
     if (!messageToDelete) return;
 
-    // Update local state immediately
     setLocalMessages(prev => prev.filter(msg => msg.id !== messageToDelete));
-    // Clear selected message if it's the one being deleted
+    
     if (selectedMessage?.id === messageToDelete) {
       setSelectedMessage(null);
     }
     toast.success('Mensagem excluída com sucesso');
     closeDeleteModal();
-    // Try API call
+    
     try {
       await apiClient.delete(`/sales-rep/messages/${messageToDelete}`);
       queryClient.invalidateQueries({ queryKey: ['sales-messages'] });
     } catch {
-      // API failed but local state already updated
+      
     }
   };
 
@@ -268,7 +266,6 @@ export function SalesInbox() {
       return;
     }
 
-    // Create a new reply in the same conversation
     const newReply: Reply = {
       id: Date.now().toString(),
       senderId: user?.id || 'current-user',
@@ -278,14 +275,12 @@ export function SalesInbox() {
       createdAt: new Date().toISOString(),
     };
 
-    // Update local messages - add reply to the selected message
     setLocalMessages(prev => prev.map(msg =>
       msg.id === selectedMessage.id
         ? { ...msg, replies: [...(msg.replies || []), newReply] }
         : msg
     ));
 
-    // Update selected message to show the new reply immediately
     setSelectedMessage(prev => prev
       ? { ...prev, replies: [...(prev.replies || []), newReply] }
       : null
@@ -295,14 +290,13 @@ export function SalesInbox() {
     setReplyText('');
     toast.success('Resposta enviada com sucesso');
 
-    // Try API call
     try {
       await apiClient.post(`/sales-rep/messages/${selectedMessage.id}/reply`, {
         content: replyContent,
       });
       queryClient.invalidateQueries({ queryKey: ['sales-messages'] });
     } catch {
-      // API failed but local state already updated
+      
     }
   };
 
@@ -380,7 +374,7 @@ export function SalesInbox() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Caixa de Entrada</h1>
@@ -392,7 +386,7 @@ export function SalesInbox() {
         </Button>
       </div>
 
-      {/* Tabs and Stats */}
+      {}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex gap-2">
           <Button
@@ -451,7 +445,7 @@ export function SalesInbox() {
         </div>
       </div>
 
-      {/* Search */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="relative">
@@ -466,10 +460,10 @@ export function SalesInbox() {
         </CardContent>
       </Card>
 
-      {/* Messages Tab */}
+      {}
       {activeTab === 'messages' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Messages List */}
+          {}
           <Card className="lg:col-span-1">
             <CardHeader>
               <CardTitle className="text-sm">Mensagens ({filteredMessages.length})</CardTitle>
@@ -541,7 +535,7 @@ export function SalesInbox() {
             </CardContent>
           </Card>
 
-          {/* Message Detail */}
+          {}
           <Card className="lg:col-span-2">
             <CardContent className="p-6">
               {selectedMessage ? (
@@ -587,9 +581,9 @@ export function SalesInbox() {
                     <h2 className="text-xl font-semibold">{selectedMessage.subject}</h2>
                   </div>
 
-                  {/* Conversation Thread */}
+                  {}
                   <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                    {/* Original Message - Left aligned (received) */}
+                    {}
                     <div className="flex gap-3 justify-start">
                       <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                         <User className="w-5 h-5 text-primary" />
@@ -606,7 +600,7 @@ export function SalesInbox() {
                       </div>
                     </div>
 
-                    {/* Replies */}
+                    {}
                     {selectedMessage.replies?.map((reply) => {
                       const isMyReply = reply.senderRole === 'REPRESENTATIVE' || reply.senderRole === 'SALES_REP';
                       return (
@@ -614,7 +608,7 @@ export function SalesInbox() {
                           key={reply.id}
                           className={`flex gap-3 ${isMyReply ? 'justify-end' : 'justify-start'}`}
                         >
-                          {/* Avatar on left for received messages */}
+                          {}
                           {!isMyReply && (
                             <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                               <User className="w-5 h-5 text-primary" />
@@ -638,7 +632,7 @@ export function SalesInbox() {
                             <p className="whitespace-pre-wrap text-sm">{reply.content}</p>
                           </div>
 
-                          {/* Avatar on right for sent messages */}
+                          {}
                           {isMyReply && (
                             <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
                               <User className="w-5 h-5 text-orange-600" />
@@ -681,7 +675,7 @@ export function SalesInbox() {
         </div>
       )}
 
-      {/* Notifications Tab */}
+      {}
       {activeTab === 'notifications' && (
         <Card>
           <CardHeader>
@@ -733,7 +727,7 @@ export function SalesInbox() {
         </Card>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {}
       {deleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md">
@@ -766,7 +760,7 @@ export function SalesInbox() {
         </div>
       )}
 
-      {/* Compose Modal */}
+      {}
       {showComposeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">

@@ -7,9 +7,6 @@ interface ReadOnlyBadgeProps {
   variant?: 'inline' | 'banner';
 }
 
-/**
- * Badge/Banner to indicate read-only mode for PROPRIETARIO users
- */
 export function ReadOnlyBadge({
   message = 'Você está visualizando em modo somente leitura',
   className,
@@ -45,9 +42,6 @@ export function ReadOnlyBadge({
   );
 }
 
-/**
- * Alert message for when an action is not allowed
- */
 export function ReadOnlyAlert({
   message = 'Esta ação é realizada pela imobiliária em seu nome',
   className,

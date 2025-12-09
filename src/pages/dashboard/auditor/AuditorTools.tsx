@@ -9,7 +9,7 @@ export function AuditorTools() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-violet-100 rounded-lg">
           <Wrench className="w-6 h-6 text-violet-700" />
@@ -20,7 +20,7 @@ export function AuditorTools() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {}
       <div className="flex gap-2">
         <button
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -42,7 +42,7 @@ export function AuditorTools() {
         </button>
       </div>
 
-      {/* Compare Versions Tab */}
+      {}
       {activeTab === 'compare' && (
         <Card>
           <CardHeader>
@@ -64,7 +64,7 @@ export function AuditorTools() {
         </Card>
       )}
 
-      {/* Integrity Scanner Tab */}
+      {}
       {activeTab === 'integrity' && (
         <Card>
           <CardHeader>

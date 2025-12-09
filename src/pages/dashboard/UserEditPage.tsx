@@ -24,13 +24,12 @@ const ALL_ROLES = [
   { value: 'API_CLIENT', label: 'Cliente API - Integração' },
 ];
 
-// Filter roles based on current user's role
 const getAvailableRoles = (userRole: string | undefined) => {
-  // CEO can ONLY create ADMIN users
+  
   if (userRole === 'CEO') {
     return ALL_ROLES.filter(role => role.value === 'ADMIN');
   }
-  // ADMIN and other roles cannot create/edit CEO or ADMIN users
+  
   return ALL_ROLES.filter(role => role.value !== 'CEO' && role.value !== 'ADMIN');
 };
 
@@ -82,10 +81,8 @@ export function UserEditPage() {
     },
   });
 
-  // Check permissions
   const canEditUsers = hasPermission('users:update');
 
-  // Redirect if no permission
   useEffect(() => {
     if (!canEditUsers) {
       toast.error('Você não tem permissão para editar usuários');
@@ -139,14 +136,14 @@ export function UserEditPage() {
     setSaving(true);
 
     try {
-      // Only send fields that the backend accepts
+      
       const updatePayload: any = {
         name: formData.name,
         phone: formData.phone || undefined,
         role: formData.role,
         plan: formData.plan || undefined,
       };
-      // Only include password if it's provided
+      
       if (formData.password) {
         updatePayload.password = formData.password;
       }
@@ -177,7 +174,6 @@ export function UserEditPage() {
     }));
   };
 
-  // Don't render if no permission
   if (!canEditUsers) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -199,7 +195,7 @@ export function UserEditPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-4">
         <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-2">
           <ArrowLeft className="w-4 h-4" />
@@ -211,7 +207,7 @@ export function UserEditPage() {
         </div>
       </div>
 
-      {/* Form */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -222,7 +218,7 @@ export function UserEditPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo *</Label>
@@ -338,7 +334,7 @@ export function UserEditPage() {
               </div>
             </div>
 
-            {/* Notification Preferences */}
+            {}
             <div className="space-y-4">
               <Label className="text-base font-medium">Preferências de Notificação</Label>
               <div className="space-y-3">
@@ -369,7 +365,7 @@ export function UserEditPage() {
               </div>
             </div>
 
-            {/* Actions */}
+            {}
             <div className="flex justify-end gap-3 pt-6 border-t">
               <Button type="button" variant="outline" onClick={() => navigate(-1)} disabled={saving}>
                 Cancelar

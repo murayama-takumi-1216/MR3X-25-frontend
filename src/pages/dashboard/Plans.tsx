@@ -75,12 +75,11 @@ export default function PlansPage() {
     description: '',
   })
 
-  // Fetch plans from API
   const { data: plans = [], isLoading: plansLoading } = useQuery({
     queryKey: ['plans'],
     queryFn: async () => {
       const data = await plansAPI.getPlans();
-      // Ensure features are parsed if they come as a JSON string
+      
       return data.map((plan: any) => ({
         ...plan,
         features: typeof plan.features === 'string' ? JSON.parse(plan.features) : plan.features
@@ -88,14 +87,12 @@ export default function PlansPage() {
     },
   })
 
-  // Fetch pending modification requests (CEO only)
   const { data: pendingRequests = [] } = useQuery({
     queryKey: ['plan-modification-requests-pending'],
     queryFn: plansAPI.getPendingModificationRequests,
     enabled: isCEO,
   })
 
-  // Fetch all modification requests (CEO and ADMIN)
   const { data: allRequests = [] } = useQuery({
     queryKey: ['plan-modification-requests'],
     queryFn: plansAPI.getAllModificationRequests,
@@ -121,7 +118,6 @@ export default function PlansPage() {
       queryClient.invalidateQueries({ queryKey: ['plan-modification-requests'] })
       queryClient.invalidateQueries({ queryKey: ['plan-modification-requests-pending'] })
 
-      // Check if it's a modification request (ADMIN) or direct update (CEO)
       if (response.status === 'PENDING') {
         toast.success(response.message || 'Solicitação de modificação enviada para aprovação do CEO!')
       } else {
@@ -276,7 +272,7 @@ export default function PlansPage() {
         </div>
       </div>
 
-      {/* ADMIN Notice */}
+      {}
       {isAdmin && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
           <div className="flex items-start gap-3">
@@ -370,7 +366,7 @@ export default function PlansPage() {
         </div>
       )}
 
-      {/* Edit Plan Modal */}
+      {}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -454,7 +450,7 @@ export default function PlansPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modification Requests Modal */}
+      {}
       <Dialog open={showRequestsModal} onOpenChange={(open) => {
         setShowRequestsModal(open)
         if (!open) {
@@ -484,7 +480,7 @@ export default function PlansPage() {
                 const isExpanded = expandedRequests.has(request.id)
                 return (
                   <Card key={request.id} className={`${request.status === 'PENDING' ? 'border-yellow-500' : ''}`}>
-                    {/* Summary Header - Always Visible */}
+                    {}
                     <div
                       className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
                       onClick={() => toggleRequestExpanded(request.id)}
@@ -521,7 +517,7 @@ export default function PlansPage() {
                       </div>
                     </div>
 
-                    {/* Expanded Content */}
+                    {}
                     <div
                       className={`grid transition-all duration-300 ease-in-out ${
                         isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
@@ -602,7 +598,7 @@ export default function PlansPage() {
                 )
               })}
 
-                    {/* Pagination Controls */}
+                    {}
                     {totalPages > 1 && (
                       <div className="flex items-center justify-between pt-4 border-t mt-4">
                         <p className="text-sm text-muted-foreground">
@@ -639,7 +635,7 @@ export default function PlansPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Reject Request Modal */}
+      {}
       <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
         <DialogContent>
           <DialogHeader>

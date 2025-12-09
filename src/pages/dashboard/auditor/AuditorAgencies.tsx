@@ -85,7 +85,7 @@ export function AuditorAgencies() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-blue-100 rounded-lg">
           <Building2 className="w-6 h-6 text-blue-700" />
@@ -96,7 +96,7 @@ export function AuditorAgencies() {
         </div>
       </div>
 
-      {/* Stats */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
@@ -144,7 +144,7 @@ export function AuditorAgencies() {
         </Card>
       </div>
 
-      {/* Search */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="relative">
@@ -160,7 +160,7 @@ export function AuditorAgencies() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Agencies List */}
+        {}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">Lista de Agências ({filteredAgencies.length})</CardTitle>
@@ -203,7 +203,7 @@ export function AuditorAgencies() {
           </CardContent>
         </Card>
 
-        {/* Agency Details */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">

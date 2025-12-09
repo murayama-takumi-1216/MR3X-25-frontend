@@ -51,7 +51,6 @@ export function Brokers() {
   const { hasPermission, user } = useAuth()
   const queryClient = useQueryClient()
 
-  // CEO can VIEW but cannot CREATE/EDIT/DELETE brokers
   const isCEO = user?.role === 'CEO'
   const canViewUsers = hasPermission('users:read')
   const canCreateUsers = hasPermission('users:create') && !isCEO
@@ -101,7 +100,6 @@ export function Brokers() {
   const [showEditPassword, setShowEditPassword] = useState(false)
   const [emailError, setEmailError] = useState('')
 
-  // Email validation
   const checkEmailExists = useCallback(async (email: string, currentEmail?: string) => {
     if (!email || email === currentEmail) {
       setEmailError('')
@@ -255,7 +253,7 @@ export function Brokers() {
         return
       }
       const { password, ...restData } = editForm;
-      // Only send password if it's not empty
+      
       const brokerToSend = {
         ...restData,
         birthDate: editForm.birthDate || undefined,
@@ -565,7 +563,7 @@ export function Brokers() {
           </div>
         )}
 
-        {/* Create Modal */}
+        {}
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -676,7 +674,7 @@ export function Brokers() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Modal */}
+        {}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -770,7 +768,7 @@ export function Brokers() {
           </DialogContent>
         </Dialog>
 
-        {/* Detail Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -839,7 +837,7 @@ export function Brokers() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation */}
+        {}
         <AlertDialog open={!!brokerToDelete} onOpenChange={() => setBrokerToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>

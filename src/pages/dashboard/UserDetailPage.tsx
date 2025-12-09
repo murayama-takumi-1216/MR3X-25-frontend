@@ -43,10 +43,8 @@ export function UserDetailPage() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<UserDetails | null>(null);
 
-  // Check permissions
   const canViewUsers = hasPermission('users:read');
 
-  // Redirect if no permission
   useEffect(() => {
     if (!canViewUsers) {
       toast.error('Você não tem permissão para visualizar usuários');
@@ -129,7 +127,6 @@ export function UserDetailPage() {
     }
   };
 
-  // Don't render if no permission
   if (!canViewUsers) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -159,7 +156,7 @@ export function UserDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-2">
@@ -194,9 +191,9 @@ export function UserDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Info */}
+        {}
         <div className="lg:col-span-2 space-y-6">
-          {/* General Information */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -244,7 +241,7 @@ export function UserDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Linked Entities */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle>Entidades Vinculadas</CardTitle>
@@ -288,9 +285,9 @@ export function UserDetailPage() {
           </Card>
         </div>
 
-        {/* Sidebar */}
+        {}
         <div className="space-y-6">
-          {/* Account Info */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -310,7 +307,7 @@ export function UserDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Activity Log */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

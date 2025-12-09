@@ -15,7 +15,7 @@ import {
 const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
 const mockMetrics = {
-  // Key Performance Indicators
+  
   totalLeads: 45,
   leadsThisMonth: 15,
   leadsLastMonth: 12,
@@ -40,11 +40,10 @@ const mockMetrics = {
   avgTicketLastMonth: 15500,
   avgTicketGrowth: 2.1,
 
-  avgDealCycle: 18, // days
+  avgDealCycle: 18, 
   avgDealCycleLastMonth: 22,
   avgDealCycleGrowth: -18.2,
 
-  // Monthly Performance
   monthlyPerformance: [
     { month: 'Jul', leads: 10, conversions: 3, revenue: 45000 },
     { month: 'Ago', leads: 12, conversions: 4, revenue: 52000 },
@@ -54,7 +53,6 @@ const mockMetrics = {
     { month: 'Dez', leads: 15, conversions: 5, revenue: 75000 },
   ],
 
-  // Funnel Metrics
   funnelMetrics: [
     { stage: 'Prospecção', count: 45, conversion: 100 },
     { stage: 'Qualificação', count: 32, conversion: 71 },
@@ -63,7 +61,6 @@ const mockMetrics = {
     { stage: 'Fechamento', count: 18, conversion: 40 },
   ],
 
-  // Revenue by Source
   revenueBySource: [
     { name: 'Indicação', value: 95000, color: '#10B981' },
     { name: 'Site', value: 68000, color: '#3B82F6' },
@@ -72,7 +69,6 @@ const mockMetrics = {
     { name: 'Cold Call', value: 25000, color: '#EF4444' },
   ],
 
-  // Plan Distribution
   planDistribution: [
     { name: 'Starter', value: 4, revenue: 32000, color: '#94A3B8' },
     { name: 'Business', value: 8, revenue: 120000, color: '#3B82F6' },
@@ -80,7 +76,6 @@ const mockMetrics = {
     { name: 'Enterprise', value: 2, revenue: 100000, color: '#10B981' },
   ],
 
-  // Weekly Activity
   weeklyActivity: [
     { day: 'Seg', calls: 15, meetings: 3, proposals: 2 },
     { day: 'Ter', calls: 18, meetings: 4, proposals: 3 },
@@ -89,7 +84,6 @@ const mockMetrics = {
     { day: 'Sex', calls: 14, meetings: 3, proposals: 2 },
   ],
 
-  // Goals
   monthlyGoal: 80000,
   yearlyGoal: 800000,
   yearlyAchieved: 350000,
@@ -151,13 +145,13 @@ export function SalesMetrics() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold">Métricas de Vendas</h1>
         <p className="text-muted-foreground">Análise detalhada do seu desempenho</p>
       </div>
 
-      {/* KPIs Row 1 */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-6">
@@ -232,7 +226,7 @@ export function SalesMetrics() {
         </Card>
       </div>
 
-      {/* KPIs Row 2 */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-6">
@@ -286,7 +280,7 @@ export function SalesMetrics() {
         </Card>
       </div>
 
-      {/* Goals Progress */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -341,7 +335,7 @@ export function SalesMetrics() {
         </Card>
       </div>
 
-      {/* Charts Row 1 */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -413,7 +407,7 @@ export function SalesMetrics() {
         </Card>
       </div>
 
-      {/* Charts Row 2 */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -476,7 +470,7 @@ export function SalesMetrics() {
         </Card>
       </div>
 
-      {/* Weekly Activity */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle>Atividade Semanal</CardTitle>

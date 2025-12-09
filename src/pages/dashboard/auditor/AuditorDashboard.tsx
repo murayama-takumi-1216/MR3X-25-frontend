@@ -11,7 +11,6 @@ import {
 } from 'recharts';
 import { auditorAPI } from '../../../api';
 
-// Chart container to prevent -1 dimension errors
 function ChartContainer({ children, height = 220 }: { children: React.ReactNode; height?: number }) {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -43,7 +42,7 @@ const formatCurrency = (value: number) => {
 };
 
 export function AuditorDashboard() {
-  // Fetch all auditor dashboard data
+  
   const { data: metrics = [], isLoading: metricsLoading } = useQuery({
     queryKey: ['auditor', 'metrics'],
     queryFn: auditorAPI.getDashboardMetrics,
@@ -118,7 +117,7 @@ export function AuditorDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-gray-100 rounded-lg">
           <Eye className="w-6 h-6 text-gray-700" />
@@ -128,7 +127,7 @@ export function AuditorDashboard() {
         </div>
       </div>
 
-      {/* Read-Only Notice */}
+      {}
       <Card className="border-amber-200 bg-amber-50">
         <CardContent className="p-4 flex items-center gap-3">
           <Eye className="w-5 h-5 text-amber-600" />
@@ -138,7 +137,7 @@ export function AuditorDashboard() {
         </CardContent>
       </Card>
 
-      {/* Metrics Grid */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {metrics.map((metric: any) => {
           const IconComponent = iconMap[metric.icon] || Building2;
@@ -168,9 +167,9 @@ export function AuditorDashboard() {
         })}
       </div>
 
-      {/* Charts Row 1 - Distribution Charts */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Agency Plan Distribution */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -209,7 +208,7 @@ export function AuditorDashboard() {
           </CardContent>
         </Card>
 
-        {/* Contract Status Distribution */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -241,7 +240,7 @@ export function AuditorDashboard() {
           </CardContent>
         </Card>
 
-        {/* Payment Status Distribution */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -274,9 +273,9 @@ export function AuditorDashboard() {
         </Card>
       </div>
 
-      {/* Charts Row 2 - Trend Charts */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Transactions */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Transações Mensais</CardTitle>
@@ -303,7 +302,7 @@ export function AuditorDashboard() {
           </CardContent>
         </Card>
 
-        {/* Revenue Trend */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Tendência de Receita</CardTitle>
@@ -325,9 +324,9 @@ export function AuditorDashboard() {
         </Card>
       </div>
 
-      {/* Charts Row 3 */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Signature Activity */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -350,7 +349,7 @@ export function AuditorDashboard() {
           </CardContent>
         </Card>
 
-        {/* User Distribution */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -376,9 +375,9 @@ export function AuditorDashboard() {
         </Card>
       </div>
 
-      {/* Bottom Row - Activity & Status */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* System Logs Distribution */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Logs do Sistema (24h)</CardTitle>
@@ -396,7 +395,7 @@ export function AuditorDashboard() {
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Atividade Recente</CardTitle>
@@ -421,7 +420,7 @@ export function AuditorDashboard() {
           </CardContent>
         </Card>
 
-        {/* System Status */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Status dos Serviços</CardTitle>
@@ -446,7 +445,7 @@ export function AuditorDashboard() {
         </Card>
       </div>
 
-      {/* Summary Stats */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         <Card>
           <CardContent className="p-4 text-center">

@@ -103,7 +103,7 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
   useEffect(() => {
     if (autoFetch && supported) {
       getLocation().catch(() => {
-        // Error is already handled in setState
+        
       });
     }
   }, [autoFetch, supported, getLocation]);

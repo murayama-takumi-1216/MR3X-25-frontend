@@ -24,10 +24,8 @@ export function UsersPage() {
   const [isMobile, setIsMobile] = useState(false);
   const pageSize = 10;
 
-  // Check permissions
-  // CEO can VIEW all users but can only CREATE Admin users
   const canViewUsers = hasPermission('users:read');
-  const canCreateUsers = hasPermission('users:create'); // CEO can create (only ADMIN)
+  const canCreateUsers = hasPermission('users:create'); 
   const canEditUsers = hasPermission('users:update');
   const canDeleteUsers = hasPermission('users:delete');
   const isAllowedRole = user?.role === 'CEO' || user?.role === 'ADMIN';
@@ -129,7 +127,6 @@ export function UsersPage() {
     }
   };
 
-  // Don't render if no permission
   if (!allowAccess) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">

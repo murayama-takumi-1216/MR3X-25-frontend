@@ -31,82 +31,31 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Role hierarchy for permission checking (reserved for future use)
-// const ROLE_HIERARCHY = {
-//   CEO: 10,
-//   ADMIN: 9,
-//   AGENCY_ADMIN: 8,
-//   AGENCY_MANAGER: 7,
-//   BROKER: 6,
-//   INDEPENDENT_OWNER: 5.5,
-//   PROPRIETARIO: 5,
-//   INQUILINO: 4,
-//   BUILDING_MANAGER: 3,
-//   LEGAL_AUDITOR: 2,
-//   REPRESENTATIVE: 1,
-//   API_CLIENT: 0,
-// };
-
-/**
- * Permission Matrix for all roles
- * Based on MR3X Complete Hierarchy Requirements
- *
- * CEO: Root profile - manages platform, settings, security, admins only
- *      Does NOT participate in real estate operations
- *
- * ADMIN: SaaS administrator - manages agencies, auditors, representatives, integrations
- *        Does NOT manage properties, contracts, payments directly
- *
- * PLATFORM_MANAGER: MR3X Internal Manager (created by ADMIN)
- *        - Works for MR3X internally
- *        - Handles support, statistics, client assistance
- *        - Has ZERO access to agency operations (properties, contracts, payments)
- *
- * AGENCY_ADMIN: Agency director - full agency operations
- *
- * AGENCY_MANAGER: Agency Manager/Gestor (created by AGENCY_ADMIN)
- *        - Works inside a real estate agency
- *        - Controls agency team: creates brokers, owners, contracts, properties
- *        - Has legal representation permissions for the agency
- *
- * BROKER: Manages their own properties/contracts only
- * PROPRIETARIO: Linked to agency, limited operations
- * INDEPENDENT_OWNER: Self-managed "mini agency"
- * INQUILINO: Tenant - read-only + payments
- * BUILDING_MANAGER: Condominium manager - read-only for common areas
- * LEGAL_AUDITOR: Read-only audit access
- * REPRESENTATIVE: Sales representative
- * API_CLIENT: API access only
- */
 const ROLE_PERMISSIONS: Record<string, string[]> = {
-  // CEO: Root profile - Can VIEW all pages but only EDIT specific things
-  // Can ONLY create ADMIN users (enforced by backend)
-  // Cannot: create agencies, owners, operate properties/contracts
+  
   CEO: [
     'dashboard:read',
-    // View all
-    'users:read', 'users:create', 'users:update', 'users:delete', // Only ADMIN creation (backend enforced)
-    'agencies:read', // View agencies
-    'properties:read', // View properties
-    'contracts:read', // View contracts
-    'payments:read', // View payments
-    'reports:read', // View reports
-    'audit:read', // View audit logs
-    'documents:read', // View documents
-    'notifications:read', // View notifications
-    'chat:read', // View chats
-    // Edit only platform-level settings
-    'settings:read', 'settings:update', // Global settings
-    'billing:read', 'billing:update', // Platform billing
-    'integrations:read', 'integrations:create', 'integrations:update', 'integrations:delete', // Internal tokens
-    'plans:read', 'plans:update', // Manage subscription plans (direct update)
+    
+    'users:read', 'users:create', 'users:update', 'users:delete', 
+    'agencies:read', 
+    'properties:read', 
+    'contracts:read', 
+    'payments:read', 
+    'reports:read', 
+    'audit:read', 
+    'documents:read', 
+    'notifications:read', 
+    'chat:read', 
+    
+    'settings:read', 'settings:update', 
+    'billing:read', 'billing:update', 
+    'integrations:read', 'integrations:create', 'integrations:update', 'integrations:delete', 
+    'plans:read', 'plans:update', 
   ],
-  // ADMIN: SaaS administrator - manages agencies, internal users, integrations
-  // Does NOT manage properties, contracts, payments directly
-  // Creates: PLATFORM_MANAGER, LEGAL_AUDITOR, REPRESENTATIVE, API_CLIENT (NOT AGENCY_MANAGER!)
+  
   ADMIN: [
     'dashboard:read',
-    'users:read', 'users:create', 'users:update', 'users:delete', // PLATFORM_MANAGER, Auditor, Representative, API Client
+    'users:read', 'users:create', 'users:update', 'users:delete', 
     'agencies:read', 'agencies:create', 'agencies:update', 'agencies:delete',
     'reports:read', 'reports:export',
     'chat:read', 'chat:create', 'chat:update',
@@ -116,87 +65,74 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     'settings:read', 'settings:update',
     'billing:read', 'billing:update',
     'integrations:read', 'integrations:create', 'integrations:update', 'integrations:delete',
-    'plans:read', 'plans:update', // Manage subscription plans (needs CEO approval)
+    'plans:read', 'plans:update', 
   ],
-  // PLATFORM_MANAGER: MR3X Internal Manager (created by ADMIN)
-  // - Works for MR3X internally
-  // - Handles support, statistics, client assistance
-  // - Has ZERO access to agency operations (NO properties, contracts, payments, agency users)
+  
   PLATFORM_MANAGER: [
-    'dashboard:read', // View platform statistics
-    'agencies:read', // View agencies (read-only for assistance)
-    'reports:read', 'reports:export', // View platform-wide reports/statistics
-    'chat:read', 'chat:create', 'chat:update', // Support chat functionality
-    'notifications:read', 'notifications:create', // Notifications
-    'audit:read', // View audit logs (read-only)
-    'documents:read', // View documents (read-only)
-    'settings:read', // View settings (read-only)
-    'billing:read', // View billing info (read-only)
-    // NO: properties:*, contracts:*, payments:*, users:create/update/delete
-    // This role has ZERO access to agency operations
+    'dashboard:read', 
+    'agencies:read', 
+    'reports:read', 'reports:export', 
+    'chat:read', 'chat:create', 'chat:update', 
+    'notifications:read', 'notifications:create', 
+    'audit:read', 
+    'documents:read', 
+    'settings:read', 
+    'billing:read', 
+    
   ],
-  // AGENCY_ADMIN (Agency Director): Full agency management
-  // CAN: Manage staff (except Owner), clients, listings, leads, CRM pipelines,
-  // website, landing pages, forms, agency messages, maintenance, tasks,
-  // agency integrations (email, SMS), reporting, co-brokers, branding
-  // CANNOT: Change subscription plan, access billing/payment, edit Independent Owner or Agency Owner,
-  // approve new agencies, access system-wide settings, manage global configs, delete agency, view other agencies' data
+  
   AGENCY_ADMIN: [
     'dashboard:read',
-    // Manage agency staff (agents, managers) - except Owner
+    
     'users:read', 'users:create', 'users:update', 'users:delete',
-    // View own agency info, update branding/settings
+    
     'agencies:read', 'agencies:update',
-    // Full property management for agency
+    
     'properties:read', 'properties:create', 'properties:update', 'properties:delete',
-    // Full contract management
+    
     'contracts:read', 'contracts:create', 'contracts:update', 'contracts:delete', 'contracts:approve',
-    // Full payment management for agency properties
+    
     'payments:read', 'payments:create', 'payments:update', 'payments:delete', 'payments:approve',
-    // Full reporting and analytics for agency
+    
     'reports:read', 'reports:create', 'reports:export',
-    // Agency-wide messaging and communications
+    
     'chat:read', 'chat:create', 'chat:update', 'chat:delete',
-    // Notification management
+    
     'notifications:read', 'notifications:create', 'notifications:update', 'notifications:delete',
-    // View audit logs for agency
+    
     'audit:read',
-    // Document management
+    
     'documents:read', 'documents:create', 'documents:update',
-    // Agency settings (NOT system-wide)
+    
     'settings:read', 'settings:update',
-    // Billing: READ ONLY - cannot change subscription
+    
     'billing:read',
-    // Agency integrations (email, SMS)
+    
     'integrations:read', 'integrations:update',
   ],
-  // AGENCY_MANAGER (Agency Gestor): Full agency operational permissions
-  // Created ONLY by AGENCY_ADMIN (Director)
-  // Works inside a real estate agency
-  // Controls agency team: creates brokers, owners, contracts, properties
-  // Has legal representation permissions for the agency
+  
   AGENCY_MANAGER: [
     'dashboard:read',
-    // Can create and manage brokers and property owners within agency
+    
     'users:read', 'users:create', 'users:update',
-    // Agency info (read-only)
+    
     'agencies:read',
-    // Full property management for agency
+    
     'properties:read', 'properties:create', 'properties:update',
-    // Full contract management
+    
     'contracts:read', 'contracts:create', 'contracts:update',
-    // Payment management
+    
     'payments:read', 'payments:create', 'payments:update',
-    // Reports and analytics
+    
     'reports:read', 'reports:export',
-    // Communication
+    
     'chat:read', 'chat:create', 'chat:update',
     'notifications:read', 'notifications:create', 'notifications:update',
-    // Documents
+    
     'documents:read', 'documents:create', 'documents:update',
-    // Settings (read-only - cannot change agency settings)
+    
     'settings:read',
-    // Billing (read-only)
+    
     'billing:read',
   ],
   BROKER: [
@@ -210,59 +146,51 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     'notifications:read', 'notifications:create', 'notifications:update',
     'settings:read', 'settings:update',
   ],
-  // PROPRIETARIO: Owner linked to agency - cannot create users or contracts without agency
-  // Limited operations, must go through agency for most actions
+  
   PROPRIETARIO: [
     'dashboard:read',
-    'properties:read', // Can view their properties
-    'contracts:read', // Can view contracts
-    'payments:read', 'payments:create', // Can view and make payments
+    'properties:read', 
+    'contracts:read', 
+    'payments:read', 'payments:create', 
     'reports:read', 'reports:export',
     'chat:read', 'chat:create', 'chat:update',
     'notifications:read',
     'settings:read', 'settings:update',
   ],
-  // INDEPENDENT_OWNER: Private investor who owns properties and works directly with MR3X
-  // NOT part of any agency - manages their own properties personally
-  // CAN: Manage own properties, add tenants/contracts, receive maintenance requests,
-  // create work orders, manage payments/collections, view financial dashboard,
-  // send/receive messages with tenants, access own documents/reports
-  // CANNOT: Access agency tools, manage staff, branding, CRM pipelines, agency plans,
-  // agency website/landing pages, or any agency-specific features
+  
   INDEPENDENT_OWNER: [
     'dashboard:read',
-    // Manage tenants for their own properties
+    
     'users:read', 'users:create', 'users:update', 'users:delete',
-    // Manage their own properties
+    
     'properties:read', 'properties:create', 'properties:update', 'properties:delete',
-    // Manage contracts for their properties
+    
     'contracts:read', 'contracts:create', 'contracts:update', 'contracts:delete',
-    // Manage payments/collections for their tenants
+    
     'payments:read', 'payments:create', 'payments:update', 'payments:delete',
-    // View financial reports for their own units
+    
     'reports:read', 'reports:export',
-    // Send/receive messages with tenants
+    
     'chat:read', 'chat:create', 'chat:update',
-    // Notifications
+    
     'notifications:read', 'notifications:create', 'notifications:update',
-    // Access own documents
+    
     'documents:read', 'documents:create', 'documents:update',
-    // Personal settings
+    
     'settings:read', 'settings:update',
-    // View billing for their subscription with MR3X
+    
     'billing:read',
-    // Integrations for payment processing (Asaas)
+    
     'integrations:read', 'integrations:update',
   ],
-  // INQUILINO: Tenant - read-only access except for signing and payments
-  // Cannot create or edit any registration
+  
   INQUILINO: [
     'dashboard:read',
-    'properties:read', // View property info
-    'contracts:read', // View their contract
-    'payments:read', 'payments:create', // View and make payments
+    'properties:read', 
+    'contracts:read', 
+    'payments:read', 'payments:create', 
     'reports:read',
-    'chat:read', 'chat:create', // Can message but not delete
+    'chat:read', 'chat:create', 
     'notifications:read',
     'settings:read',
   ],
@@ -304,7 +232,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { user: storeUser, setAuth, clearAuth, isAuthenticated: storeIsAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(true);
 
-  // Map store user to context user format
   const user: User | null = storeUser ? {
     id: storeUser.id,
     email: storeUser.email,
@@ -316,36 +243,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = storeIsAuthenticated;
 
-  // Get user permissions
   const getUserPermissions = (role: string): string[] => {
     return ROLE_PERMISSIONS[role] || [];
   };
 
-  // Check if user has specific role
   const hasRole = (role: string): boolean => {
     return user?.role === role;
   };
 
-  // Check if user has any of the specified roles
   const hasAnyRole = (roles: string[]): boolean => {
     return user ? roles.includes(user.role) : false;
   };
 
-  // Check if user has specific permission
   const hasPermission = (permission: string): boolean => {
     if (!user) return false;
     const permissions = getUserPermissions(user.role);
     return permissions.includes(permission);
   };
 
-  // Initialize auth state
   useEffect(() => {
     const initAuth = async () => {
       try {
         const token = localStorage.getItem('accessToken');
         if (token && !storeUser) {
-          // Try to verify the token is still valid
-          // For now, we trust the stored state
+          
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
@@ -355,7 +276,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    // Small delay to allow store hydration
     const timeout = setTimeout(() => {
       initAuth();
     }, 100);

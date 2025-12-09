@@ -12,13 +12,11 @@ import { formatCurrency } from '../../lib/utils'
 export default function Reports() {
   const { hasPermission } = useAuth()
 
-  // Check permissions
   const canViewReports = hasPermission('reports:read')
   const canViewProperties = hasPermission('properties:read')
   const canViewUsers = hasPermission('users:read')
   const canViewPayments = hasPermission('payments:read')
 
-  // Don't render if no permission
   if (!canViewReports) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -39,7 +37,6 @@ export default function Reports() {
   const [tenants, setTenants] = useState<any[]>([])
   const [payments, setPayments] = useState<any[]>([])
 
-  // Helper function to ensure data is always an array
   const ensureArray = (data: any): any[] => {
     if (!data) return []
     if (Array.isArray(data)) return data
@@ -53,11 +50,10 @@ export default function Reports() {
     return Array.from({ length: 5 }).map((_, idx) => currentYear - idx)
   }, [currentYear])
 
-  // Load additional data only when needed (lazy loading)
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Only load properties and tenants when switching to those report types
+        
         if (reportType === 'property' && canViewProperties && properties.length === 0) {
           const propertiesData = await propertiesAPI.getProperties()
           setProperties(ensureArray(propertiesData))
@@ -68,7 +64,6 @@ export default function Reports() {
           setTenants(ensureArray(tenantsData))
         }
 
-        // Only load payments when needed for property/tenant performance
         if ((reportType === 'property' || reportType === 'tenant') && canViewPayments && payments.length === 0) {
           const paymentsData = await paymentsAPI.getPayments()
           setPayments(ensureArray(paymentsData))
@@ -157,7 +152,6 @@ export default function Reports() {
 
   const totalAno = useMemo(() => data.reduce((acc, cur) => acc + (Number(cur.total) || 0), 0), [data])
 
-  // Calculate additional metrics
   const currentMonth = new Date().getMonth() + 1
   const currentMonthData = data.find(d => {
     const monthIndex = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].indexOf(d.month) + 1
@@ -165,7 +159,6 @@ export default function Reports() {
   })
   const currentMonthTotal = currentMonthData?.total || 0
 
-  // Property performance data
   const propertyPerformance = useMemo(() => {
     if (!Array.isArray(properties)) return []
     return properties.map(property => {
@@ -179,7 +172,6 @@ export default function Reports() {
     }).sort((a, b) => b.revenue - a.revenue)
   }, [properties, payments])
 
-  // Tenant performance data
   const tenantPerformance = useMemo(() => {
     if (!Array.isArray(tenants)) return []
     return tenants.map(tenant => {
@@ -193,7 +185,6 @@ export default function Reports() {
     }).sort((a, b) => b.totalPaid - a.totalPaid)
   }, [tenants, payments])
 
-  // Payment type distribution
   const paymentTypeData = useMemo(() => {
     if (!Array.isArray(payments)) return []
     const types = payments.reduce((acc, payment) => {
@@ -216,7 +207,7 @@ export default function Reports() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Relatórios</h1>
@@ -252,7 +243,7 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* Main Report Chart */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl">
@@ -370,7 +361,7 @@ export default function Reports() {
         </CardContent>
       </Card>
 
-      {/* Summary Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <Card>
           <CardHeader className="pb-3">
@@ -453,9 +444,9 @@ export default function Reports() {
         </Card>
       </div>
 
-      {/* Additional Charts */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Payment Types Distribution */}
+        {}
         {paymentTypeData.length > 0 && (
           <Card>
             <CardHeader>
@@ -497,7 +488,7 @@ export default function Reports() {
           </Card>
         )}
 
-        {/* Top Properties */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Top Imóveis</CardTitle>

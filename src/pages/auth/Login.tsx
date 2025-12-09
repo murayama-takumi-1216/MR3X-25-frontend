@@ -17,7 +17,7 @@ export function Login() {
       await login(email, password);
       navigate('/dashboard');
     } catch (error) {
-      // Error is already handled by the AuthContext
+      
       console.error('Login error:', error);
     }
   };

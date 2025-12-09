@@ -39,22 +39,18 @@ export function TenantDashboard() {
     queryFn: () => dashboardAPI.getDashboard(),
   });
 
-  // Process payment history for charts
   const chartData = useMemo(() => {
     const paymentHistory = dashboard?.paymentHistory || [];
 
-    // Monthly payment trend (last 12 months)
     const monthlyTrend: Record<string, number> = {};
     const now = new Date();
 
-    // Initialize last 12 months
     for (let i = 11; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const key = date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
       monthlyTrend[key] = 0;
     }
 
-    // Fill with actual payments
     paymentHistory.forEach((payment: any) => {
       if (payment.date) {
         const date = new Date(payment.date);
@@ -70,7 +66,6 @@ export function TenantDashboard() {
       total,
     }));
 
-    // Payment by type (pie chart)
     const byType: Record<string, number> = {
       'Aluguel': 0,
       'Condomínio': 0,
@@ -90,14 +85,12 @@ export function TenantDashboard() {
       .filter(([_, value]) => value > 0)
       .map(([name, value]) => ({ name, value }));
 
-    // Payment status distribution
     const statusData = [
       { name: 'Pagos', value: paymentHistory.filter((p: any) => p.status === 'PAGO' || p.status === 'paid').length, color: '#10B981' },
       { name: 'Pendentes', value: paymentHistory.filter((p: any) => p.status === 'PENDENTE' || p.status === 'pending').length, color: '#F59E0B' },
       { name: 'Atrasados', value: paymentHistory.filter((p: any) => p.status === 'ATRASADO' || p.status === 'overdue').length, color: '#EF4444' },
     ].filter(item => item.value > 0);
 
-    // Calculate totals
     const totalPaid = paymentHistory.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0);
     const totalPayments = paymentHistory.length;
     const avgPayment = totalPayments > 0 ? totalPaid / totalPayments : 0;
@@ -124,7 +117,6 @@ export function TenantDashboard() {
   const contract = dashboard?.contract;
   const paymentHistory = dashboard?.paymentHistory || [];
 
-  // Calculate payment status
   const getPaymentStatus = () => {
     if (!property?.nextDueDate) return { status: 'unknown', label: 'Sem data', color: 'gray' };
 
@@ -142,7 +134,6 @@ export function TenantDashboard() {
 
   const paymentStatus = getPaymentStatus();
 
-  // Calculate contract progress
   const getContractProgress = () => {
     if (!contract?.startDate || !contract?.endDate) return { progress: 0, remaining: 0 };
 
@@ -162,7 +153,7 @@ export function TenantDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Header */}
+      {}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">
           Olá, {user?.name || 'Inquilino'}!
@@ -172,7 +163,7 @@ export function TenantDashboard() {
         </p>
       </div>
 
-      {/* Summary Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
           <CardContent className="p-4">
@@ -239,9 +230,9 @@ export function TenantDashboard() {
         </Card>
       </div>
 
-      {/* Charts Row */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Payment Trend */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -293,7 +284,7 @@ export function TenantDashboard() {
           </CardContent>
         </Card>
 
-        {/* Payment by Type Pie Chart */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -337,7 +328,7 @@ export function TenantDashboard() {
         </Card>
       </div>
 
-      {/* Property Info Card */}
+      {}
       {property ? (
         <Card className="border-l-4 border-l-blue-500">
           <CardHeader className="pb-2">
@@ -391,7 +382,7 @@ export function TenantDashboard() {
                 </div>
               </div>
 
-              {/* Property Owner Info */}
+              {}
               {property.owner && (
                 <div className="pt-4 border-t">
                   <p className="text-sm text-muted-foreground mb-2">Imóvel / Administrador</p>
@@ -434,10 +425,10 @@ export function TenantDashboard() {
         </Card>
       )}
 
-      {/* Contract Progress & Status */}
+      {}
       {contract && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Contract Progress */}
+          {}
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
@@ -482,7 +473,7 @@ export function TenantDashboard() {
             </CardContent>
           </Card>
 
-          {/* Payment Status Distribution */}
+          {}
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
@@ -520,7 +511,7 @@ export function TenantDashboard() {
         </div>
       )}
 
-      {/* Quick Actions */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
@@ -563,7 +554,7 @@ export function TenantDashboard() {
         </Card>
       </div>
 
-      {/* Payment History Bar Chart */}
+      {}
       <Card>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
@@ -618,7 +609,7 @@ export function TenantDashboard() {
         </CardContent>
       </Card>
 
-      {/* Recent Payments List */}
+      {}
       {paymentHistory.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
@@ -666,7 +657,7 @@ export function TenantDashboard() {
         </Card>
       )}
 
-      {/* Payment Alert */}
+      {}
       {paymentStatus.status === 'overdue' && (
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-4">

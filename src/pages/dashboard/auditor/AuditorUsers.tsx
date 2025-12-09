@@ -26,10 +26,8 @@ interface SystemUser {
   permissions: string[];
 }
 
-// Internal roles that belong to MR3X platform
 const INTERNAL_ROLES = ['CEO', 'ADMIN', 'PLATFORM_MANAGER', 'REPRESENTATIVE', 'LEGAL_AUDITOR', 'API_CLIENT'];
 
-// Map API response to component format
 const mapApiUserToSystemUser = (user: any): SystemUser => {
   const isInternal = INTERNAL_ROLES.includes(user.role);
   return {
@@ -42,7 +40,7 @@ const mapApiUserToSystemUser = (user: any): SystemUser => {
     status: user.status?.toLowerCase() === 'active' ? 'active' : 'inactive',
     createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : '',
     lastLogin: user.lastLogin ? new Date(user.lastLogin).toLocaleString('pt-BR') : 'Nunca',
-    permissions: [], // Permissions not returned by API
+    permissions: [], 
   };
 };
 
@@ -51,13 +49,11 @@ export function AuditorUsers() {
   const [categoryFilter, setCategoryFilter] = useState<'all' | UserCategory>('all');
   const [selectedUser, setSelectedUser] = useState<SystemUser | null>(null);
 
-  // Fetch users from API
   const { data: apiUsers = [], isLoading } = useQuery({
     queryKey: ['auditor-users'],
     queryFn: () => auditorAPI.getUsers(),
   });
 
-  // Map API users to component format
   const users: SystemUser[] = Array.isArray(apiUsers) ? apiUsers.map(mapApiUserToSystemUser) : [];
 
   const filteredUsers = users.filter(user => {
@@ -111,7 +107,7 @@ export function AuditorUsers() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-cyan-100 rounded-lg">
           <Users className="w-6 h-6 text-cyan-700" />
@@ -122,7 +118,7 @@ export function AuditorUsers() {
         </div>
       </div>
 
-      {/* Stats */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
@@ -170,7 +166,7 @@ export function AuditorUsers() {
         </Card>
       </div>
 
-      {/* Filter Tabs */}
+      {}
       <div className="flex gap-2">
         <Button
           variant={categoryFilter === 'all' ? 'default' : 'outline'}
@@ -197,7 +193,7 @@ export function AuditorUsers() {
         </Button>
       </div>
 
-      {/* Search */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="relative">
@@ -213,7 +209,7 @@ export function AuditorUsers() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Users List */}
+        {}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">Lista de Usuários ({filteredUsers.length})</CardTitle>
@@ -262,7 +258,7 @@ export function AuditorUsers() {
           </CardContent>
         </Card>
 
-        {/* User Details */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">

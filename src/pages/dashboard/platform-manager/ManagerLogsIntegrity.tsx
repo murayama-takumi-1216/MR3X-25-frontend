@@ -64,7 +64,6 @@ export function ManagerLogsIntegrity() {
   const [moduleFilter, setModuleFilter] = useState('all');
   const [activeTab, setActiveTab] = useState('logs');
 
-  // Fetch logs data
   const { data: logsData = { logs: [], suspiciousActivities: [], actionHistory: [], apiUsageStats: [], integrityScore: 0 }, isLoading } = useQuery({
     queryKey: ['platform-manager', 'logs', typeFilter, moduleFilter],
     queryFn: () => platformManagerAPI.getLogs({
@@ -138,7 +137,7 @@ export function ManagerLogsIntegrity() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Logs e Integridade</h1>
@@ -150,7 +149,7 @@ export function ManagerLogsIntegrity() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -206,7 +205,7 @@ export function ManagerLogsIntegrity() {
         </Card>
       </div>
 
-      {/* Tabs */}
+      {}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="logs">Logs da Plataforma</TabsTrigger>
@@ -215,7 +214,7 @@ export function ManagerLogsIntegrity() {
           <TabsTrigger value="api">Uso de API</TabsTrigger>
         </TabsList>
 
-        {/* Platform Logs */}
+        {}
         <TabsContent value="logs" className="space-y-4 mt-4">
           <Card>
             <CardContent className="p-4">
@@ -291,7 +290,7 @@ export function ManagerLogsIntegrity() {
           </Card>
         </TabsContent>
 
-        {/* Suspicious Activities */}
+        {}
         <TabsContent value="suspicious" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -325,7 +324,7 @@ export function ManagerLogsIntegrity() {
           </Card>
         </TabsContent>
 
-        {/* Action History */}
+        {}
         <TabsContent value="actions" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -377,7 +376,7 @@ export function ManagerLogsIntegrity() {
           </Card>
         </TabsContent>
 
-        {/* API Usage */}
+        {}
         <TabsContent value="api" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -440,7 +439,7 @@ export function ManagerLogsIntegrity() {
         </TabsContent>
       </Tabs>
 
-      {/* Read-only notice */}
+      {}
       <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
         <p className="text-sm text-yellow-700">
           <strong>Nota:</strong> Como Gerente de Plataforma, você tem acesso somente leitura aos logs e dados de integridade. Nenhuma edição é permitida.

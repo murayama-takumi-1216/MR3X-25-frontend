@@ -42,7 +42,6 @@ interface PlanChangePreview {
   isUpgrade: boolean;
 }
 
-// Helper functions to get plan display info
 const getPlanNameInPortuguese = (name: string) => {
   switch (name.toLowerCase()) {
     case 'free':
@@ -96,37 +95,32 @@ export function AgencyPlanConfig() {
   const [previewData, setPreviewData] = useState<PlanChangePreview | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
-  // Check permissions
   const canViewPlan = hasPermission('agencies:read') || user?.role === 'AGENCY_ADMIN';
   const agencyId = user?.agencyId;
 
-  // Fetch agency data
   const { data: agency, isLoading: agencyLoading } = useQuery({
     queryKey: ['agency', agencyId],
     queryFn: () => agenciesAPI.getAgencyById(agencyId!),
     enabled: !!agencyId && canViewPlan,
   });
 
-  // Fetch plan usage
   const { data: planUsage, isLoading: usageLoading } = useQuery({
     queryKey: ['agency-plan-usage', agencyId],
     queryFn: () => agenciesAPI.getPlanUsage(agencyId!),
     enabled: !!agencyId && canViewPlan,
   });
 
-  // Fetch frozen entities
   const { data: frozenEntities } = useQuery({
     queryKey: ['agency-frozen-entities', agencyId],
     queryFn: () => agenciesAPI.getFrozenEntities(agencyId!),
     enabled: !!agencyId && canViewPlan,
   });
 
-  // Fetch available plans from API
   const { data: plans = [], isLoading: plansLoading } = useQuery({
     queryKey: ['plans'],
     queryFn: async () => {
       const data = await plansAPI.getPlans();
-      // Ensure features are parsed if they come as a JSON string
+      
       return data.map((plan: any) => ({
         ...plan,
         features: typeof plan.features === 'string' ? JSON.parse(plan.features) : plan.features
@@ -135,7 +129,6 @@ export function AgencyPlanConfig() {
     enabled: canViewPlan,
   });
 
-  // Don't render if no permission or no agency
   if (!canViewPlan || !agencyId) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -156,7 +149,7 @@ export function AgencyPlanConfig() {
   }
 
   const currentPlanName = agency?.plan || 'FREE';
-  // Find current plan from API data
+  
   const currentPlanData = plans.find((p: any) => p.name.toUpperCase() === currentPlanName.toUpperCase());
   const currentPlanColor = getPlanColor(currentPlanName);
   const CurrentPlanIcon = getPlanIcon(currentPlanName);
@@ -182,8 +175,7 @@ export function AgencyPlanConfig() {
     if (!selectedPlan) return;
 
     try {
-      // For now, just show a message that the request was sent
-      // In a real implementation, this would create a plan modification request
+      
       toast.success('Solicitação de mudança de plano enviada! Nossa equipe entrará em contato.');
       setShowUpgradeModal(false);
       setSelectedPlan(null);
@@ -203,7 +195,7 @@ export function AgencyPlanConfig() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold">Plano da Agência</h1>
         <p className="text-sm sm:text-base text-muted-foreground mt-1">
@@ -211,7 +203,7 @@ export function AgencyPlanConfig() {
         </p>
       </div>
 
-      {/* Current Plan Card */}
+      {}
       <Card className="relative overflow-visible">
         <div className={`absolute top-0 left-0 right-0 h-2 rounded-t-lg ${currentPlanColor}`} />
         <CardHeader>
@@ -267,9 +259,9 @@ export function AgencyPlanConfig() {
         </CardContent>
       </Card>
 
-      {/* Usage Statistics */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Properties Usage */}
+        {}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -298,7 +290,7 @@ export function AgencyPlanConfig() {
           </CardContent>
         </Card>
 
-        {/* Users Usage */}
+        {}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -328,7 +320,7 @@ export function AgencyPlanConfig() {
         </Card>
       </div>
 
-      {/* Frozen Entities Warning */}
+      {}
       {planUsage?.upgradeRequired && (
         <Alert className="border-amber-300 bg-amber-50">
           <AlertTriangle className="h-5 w-5 text-amber-600" />
@@ -341,7 +333,7 @@ export function AgencyPlanConfig() {
         </Alert>
       )}
 
-      {/* Frozen Properties List */}
+      {}
       {frozenEntities?.properties?.length > 0 && (
         <Card>
           <CardHeader>
@@ -374,7 +366,7 @@ export function AgencyPlanConfig() {
         </Card>
       )}
 
-      {/* Frozen Users List */}
+      {}
       {frozenEntities?.users?.length > 0 && (
         <Card>
           <CardHeader>
@@ -405,7 +397,7 @@ export function AgencyPlanConfig() {
         </Card>
       )}
 
-      {/* Available Plans */}
+      {}
       {plans.length === 0 ? (
         <div className="flex items-center justify-center h-32">
           <p className="text-muted-foreground">Nenhum plano encontrado</p>
@@ -500,7 +492,7 @@ export function AgencyPlanConfig() {
         </div>
       )}
 
-      {/* Plan Change Preview Modal */}
+      {}
       <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>

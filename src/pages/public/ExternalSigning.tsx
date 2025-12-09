@@ -38,7 +38,6 @@ export function ExternalSigning() {
 
   const geolocation = useGeolocation({ enableHighAccuracy: true });
 
-  // Fetch contract data
   const { data, isLoading, error } = useQuery({
     queryKey: ['signing-data', linkToken],
     queryFn: async () => {
@@ -49,7 +48,6 @@ export function ExternalSigning() {
     retry: false,
   });
 
-  // Request geolocation when consent is given
   useEffect(() => {
     if (geoConsent && !geolocation.hasLocation && !geolocation.loading) {
       geolocation.getLocation().catch(() => {
@@ -58,7 +56,6 @@ export function ExternalSigning() {
     }
   }, [geoConsent, geolocation]);
 
-  // Submit signature mutation
   const submitMutation = useMutation({
     mutationFn: async () => {
       if (!signature) throw new Error('Assinatura é obrigatória');
@@ -86,7 +83,7 @@ export function ExternalSigning() {
     },
     onSuccess: (result) => {
       toast.success('Assinatura registrada com sucesso!');
-      // Redirect to verification page
+      
       setTimeout(() => {
         navigate(`/verify/${result.data.contractToken}`);
       }, 2000);
@@ -146,7 +143,7 @@ export function ExternalSigning() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-4 sm:py-8 px-3 sm:px-4">
       <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
-        {/* Header */}
+        {}
         <div className="text-center">
           <div className="flex justify-center mb-2 sm:mb-4">
             <FileText className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
@@ -159,7 +156,7 @@ export function ExternalSigning() {
           </p>
         </div>
 
-        {/* Signer Info */}
+        {}
         <Card>
           <CardContent className="py-3 sm:py-4 px-3 sm:px-6">
             <div className="flex items-center justify-between gap-2">
@@ -172,7 +169,7 @@ export function ExternalSigning() {
           </CardContent>
         </Card>
 
-        {/* Contract Details */}
+        {}
         <Card>
           <CardHeader className="px-3 sm:px-6 py-3 sm:py-6">
             <CardTitle className="text-base sm:text-lg">Detalhes do Contrato</CardTitle>
@@ -245,7 +242,7 @@ export function ExternalSigning() {
           </CardContent>
         </Card>
 
-        {/* Witness Fields */}
+        {}
         {data?.signerType === 'witness' && (
           <Card>
             <CardHeader className="px-3 sm:px-6 py-3 sm:py-6">
@@ -276,7 +273,7 @@ export function ExternalSigning() {
           </Card>
         )}
 
-        {/* Geolocation Status */}
+        {}
         <Card>
           <CardHeader className="px-3 sm:px-6 py-3 sm:py-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
@@ -320,7 +317,7 @@ export function ExternalSigning() {
           </CardContent>
         </Card>
 
-        {/* Signature */}
+        {}
         <Card>
           <CardHeader className="px-3 sm:px-6 py-3 sm:py-6">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
@@ -341,7 +338,7 @@ export function ExternalSigning() {
           </CardContent>
         </Card>
 
-        {/* Submit */}
+        {}
         <Card>
           <CardContent className="py-4 sm:py-6 px-3 sm:px-6">
             <div className="space-y-3 sm:space-y-4">
@@ -387,7 +384,7 @@ export function ExternalSigning() {
           </CardContent>
         </Card>
 
-        {/* Footer */}
+        {}
         <div className="text-center text-[10px] sm:text-sm text-muted-foreground py-2 sm:py-4">
           <p>Sistema de assinatura eletrônica MR3X</p>
           <p className="hidden sm:block">Sua assinatura será registrada com data, hora, IP e geolocalização.</p>

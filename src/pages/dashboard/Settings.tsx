@@ -24,11 +24,9 @@ import { Separator } from '../../components/ui/separator'
 export function Settings() {
   const { hasPermission } = useAuth()
 
-  // Check permissions
   const canViewSettings = hasPermission('settings:read')
   const canUpdateSettings = hasPermission('settings:update')
 
-  // Settings states
   const [emailSettings, setEmailSettings] = useState({
     smtpHost: '',
     smtpPort: '',
@@ -56,7 +54,6 @@ export function Settings() {
     webhookUrl: ''
   })
 
-  // Don't render if no permission
   if (!canViewSettings) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -70,7 +67,7 @@ export function Settings() {
 
   const handleSave = async (settingsType: string) => {
     try {
-      // TODO: Implement API call to save settings
+      
       toast.success(`Configurações de ${settingsType} salvas com sucesso`)
     } catch (error) {
       toast.error('Falha ao salvar configurações')
@@ -79,7 +76,7 @@ export function Settings() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Configurações</h1>
@@ -89,7 +86,7 @@ export function Settings() {
         </div>
       </div>
 
-      {/* Settings Tabs */}
+      {}
       <Tabs defaultValue="general" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="general">Geral</TabsTrigger>
@@ -99,7 +96,7 @@ export function Settings() {
           <TabsTrigger value="api">API</TabsTrigger>
         </TabsList>
 
-        {/* General Settings */}
+        {}
         <TabsContent value="general" className="space-y-6">
           <Card>
             <CardHeader>
@@ -213,12 +210,12 @@ export function Settings() {
           </Card>
         </TabsContent>
 
-        {/* Payment Configuration */}
+        {}
         <TabsContent value="payment" className="space-y-6">
           <PaymentConfigurationTab canUpdateSettings={canUpdateSettings} />
         </TabsContent>
 
-        {/* Email Settings */}
+        {}
         <TabsContent value="email" className="space-y-6">
           <Card>
             <CardHeader>
@@ -324,7 +321,7 @@ export function Settings() {
           </Card>
         </TabsContent>
 
-        {/* Security Settings */}
+        {}
         <TabsContent value="security" className="space-y-6">
           <Card>
             <CardHeader>
@@ -396,7 +393,7 @@ export function Settings() {
           </Card>
         </TabsContent>
 
-        {/* API Settings */}
+        {}
         <TabsContent value="api" className="space-y-6">
           <Card>
             <CardHeader>
@@ -469,21 +466,18 @@ export function Settings() {
   )
 }
 
-// Payment Configuration Component
 function PaymentConfigurationTab({ canUpdateSettings }: { canUpdateSettings: boolean }) {
   const queryClient = useQueryClient()
   const [platformFee, setPlatformFee] = useState<string>('2')
   const [agencyFee, setAgencyFee] = useState<string>('8')
   const [saving, setSaving] = useState(false)
 
-  // Fetch current payment configuration
   const { data: paymentConfig, isLoading } = useQuery({
     queryKey: ['paymentConfig'],
     queryFn: () => settingsAPI.getPaymentConfig(),
     enabled: canUpdateSettings,
   })
 
-  // Update local state when config is loaded
   useEffect(() => {
     if (paymentConfig) {
       setPlatformFee(paymentConfig.platformFee?.toString() || '2')
@@ -491,7 +485,6 @@ function PaymentConfigurationTab({ canUpdateSettings }: { canUpdateSettings: boo
     }
   }, [paymentConfig])
 
-  // Update mutation
   const updateMutation = useMutation({
     mutationFn: (config: { platformFee: number; agencyFee: number }) =>
       settingsAPI.updatePaymentConfig(config),
@@ -507,7 +500,6 @@ function PaymentConfigurationTab({ canUpdateSettings }: { canUpdateSettings: boo
   const handleSave = async () => {
     const platformFeeNum = parseFloat(platformFee)
 
-    // Validation
     if (isNaN(platformFeeNum) || platformFeeNum < 0 || platformFeeNum > 100) {
       toast.error('A taxa da plataforma deve estar entre 0 e 100')
       return
@@ -554,7 +546,7 @@ function PaymentConfigurationTab({ canUpdateSettings }: { canUpdateSettings: boo
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Platform Fee */}
+          {}
           <div className="space-y-2">
             <Label htmlFor="platformFee">Taxa da Plataforma (MR3X)</Label>
             <div className="relative">
@@ -576,7 +568,7 @@ function PaymentConfigurationTab({ canUpdateSettings }: { canUpdateSettings: boo
             </p>
           </div>
 
-          {/* Agency Fee - Read Only */}
+          {}
           <div className="space-y-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
             <Label htmlFor="agencyFee" className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-gray-500" />
@@ -600,7 +592,7 @@ function PaymentConfigurationTab({ canUpdateSettings }: { canUpdateSettings: boo
             </p>
           </div>
 
-          {/* Owner Amount (Read-only) */}
+          {}
           <div className="space-y-2">
             <Label htmlFor="ownerFee">Valor do Imóvel</Label>
             <div className="relative">
@@ -619,7 +611,7 @@ function PaymentConfigurationTab({ canUpdateSettings }: { canUpdateSettings: boo
           </div>
         </div>
 
-        {/* Example Calculation */}
+        {}
         <div className="p-4 bg-muted rounded-lg">
           <h4 className="font-semibold mb-2">Exemplo de Cálculo (Pagamento de R$ 1.000)</h4>
           <div className="space-y-1 text-sm">

@@ -42,11 +42,9 @@ import {
   TooltipProvider,
 } from '@/components/ui/tooltip'
 
-// This page shows INDEPENDENT_OWNER users - private investors who work directly with MR3X
 export function Agencies() {
   const { hasPermission, user } = useAuth()
 
-  // CEO can VIEW but cannot CREATE/EDIT/DELETE
   const isCEO = user?.role === 'CEO'
   const canView = hasPermission('agencies:read')
   const canUpdate = hasPermission('agencies:update') && !isCEO
@@ -74,7 +72,6 @@ export function Agencies() {
   const [updating, setUpdating] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  // Fetch INDEPENDENT_OWNER users
   const { data: ownersData, isLoading } = useQuery({
     queryKey: ['independent-owners'],
     queryFn: () => usersAPI.listUsers({ role: 'INDEPENDENT_OWNER' }),
@@ -359,7 +356,7 @@ export function Agencies() {
           </div>
         )}
 
-        {/* View Owner Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-xl">
             <DialogHeader>
@@ -411,7 +408,7 @@ export function Agencies() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Owner Modal */}
+        {}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -502,7 +499,7 @@ export function Agencies() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
+        {}
         <AlertDialog open={!!ownerToDelete} onOpenChange={() => setOwnerToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>

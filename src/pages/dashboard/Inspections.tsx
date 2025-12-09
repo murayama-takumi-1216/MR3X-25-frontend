@@ -57,7 +57,6 @@ import {
   TooltipTrigger,
 } from '../../components/ui/tooltip';
 
-// Types
 interface InspectionItem {
   id?: string;
   room: string;
@@ -112,8 +111,6 @@ export function Inspections() {
   const { user, hasPermission } = useAuth();
   const queryClient = useQueryClient();
 
-  // Check permissions
-  // PROPRIETARIO (agency-managed owner) can only VIEW inspections
   const isCEO = user?.role === 'CEO';
   const isProprietario = user?.role === 'PROPRIETARIO';
   const canViewInspections = hasPermission('inspections:read') || ['CEO', 'AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER', 'PROPRIETARIO'].includes(user?.role || '');
@@ -122,18 +119,15 @@ export function Inspections() {
   const canDeleteInspections = (hasPermission('inspections:delete') || ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'INDEPENDENT_OWNER'].includes(user?.role || '')) && !isCEO && !isProprietario;
   const canApproveInspections = ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'INDEPENDENT_OWNER'].includes(user?.role || '') && !isProprietario;
 
-  // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
 
-  // Filter states
   const [filterType, setFilterType] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [filterProperty, setFilterProperty] = useState<string>('');
 
-  // Form states
   const [newInspection, setNewInspection] = useState({
     propertyId: '',
     contractId: '',
@@ -160,7 +154,6 @@ export function Inspections() {
   const [itemFilePreviews, setItemFilePreviews] = useState<Map<number, FilePreview[]>>(new Map());
   const [_uploadingItems, _setUploadingItems] = useState<Set<number>>(new Set());
 
-  // Other states
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
   const [inspectionToDelete, setInspectionToDelete] = useState<Inspection | null>(null);
   const [inspectionDetail, setInspectionDetail] = useState<Inspection | null>(null);
@@ -173,7 +166,6 @@ export function Inspections() {
   const [updating, setUpdating] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
-  // Don't render if no permission
   if (!canViewInspections) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -185,7 +177,6 @@ export function Inspections() {
     );
   }
 
-  // Query inspections
   const { data: inspections = [], isLoading } = useQuery({
     queryKey: ['inspections', user?.id, filterType, filterStatus, filterProperty],
     queryFn: () => inspectionsAPI.getInspections({
@@ -196,7 +187,6 @@ export function Inspections() {
     enabled: canViewInspections,
   });
 
-  // Load properties, contracts, and potential inspectors
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -207,7 +197,6 @@ export function Inspections() {
         setProperties(propertiesData);
         setContracts(contractsData);
 
-        // Set current user as default inspector and add to list
         const currentUserAsInspector = {
           id: user?.id,
           name: user?.name || user?.email,
@@ -215,7 +204,6 @@ export function Inspections() {
         };
         setInspectors([currentUserAsInspector]);
 
-        // Auto-set inspector to current user
         setNewInspection(prev => ({
           ...prev,
           inspectorId: user?.id?.toString() || '',
@@ -230,7 +218,6 @@ export function Inspections() {
     }
   }, [canCreateInspections, canUpdateInspections, user]);
 
-  // Helper function to close all modals
   const closeAllModals = () => {
     setShowCreateModal(false);
     setShowEditModal(false);
@@ -241,7 +228,7 @@ export function Inspections() {
     setInspectionDetail(null);
     setInspectionItems([]);
     setRejectionReason('');
-    // Clear file previews and revoke URLs
+    
     itemFilePreviews.forEach(files => {
       files.forEach(f => URL.revokeObjectURL(f.preview));
     });
@@ -249,7 +236,6 @@ export function Inspections() {
     _setUploadingItems(new Set());
   };
 
-  // Mutations
   const createInspectionMutation = useMutation({
     mutationFn: (data: any) => inspectionsAPI.createInspection(data),
     onSuccess: () => {
@@ -320,7 +306,6 @@ export function Inspections() {
     },
   });
 
-  // Handlers
   const handleCreateInspection = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
@@ -418,7 +403,6 @@ export function Inspections() {
     }
   };
 
-  // Add/remove inspection items
   const addInspectionItem = () => {
     setInspectionItems([
       ...inspectionItems,
@@ -442,23 +426,20 @@ export function Inspections() {
     setInspectionItems(updated);
   };
 
-  // File upload handlers for inspection items
   const handleFileSelect = async (index: number, files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     const newPreviews: FilePreview[] = [];
-    const maxFileSize = 50 * 1024 * 1024; // 50MB max
+    const maxFileSize = 50 * 1024 * 1024; 
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      // Validate file size
       if (file.size > maxFileSize) {
         toast.error(`Arquivo ${file.name} excede o tamanho máximo de 50MB`);
         continue;
       }
 
-      // Determine file type
       const isImage = file.type.startsWith('image/');
       const isVideo = file.type.startsWith('video/');
 
@@ -467,7 +448,6 @@ export function Inspections() {
         continue;
       }
 
-      // Create preview URL
       const preview = URL.createObjectURL(file);
       newPreviews.push({
         file,
@@ -491,7 +471,6 @@ export function Inspections() {
       const newMap = new Map(prev);
       const files = newMap.get(itemIndex) || [];
 
-      // Revoke the object URL to free memory
       if (files[fileIndex]) {
         URL.revokeObjectURL(files[fileIndex].preview);
       }
@@ -510,7 +489,6 @@ export function Inspections() {
     return itemFilePreviews.get(index) || [];
   };
 
-  // Status badge
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
       'RASCUNHO': { label: 'Rascunho', className: 'bg-gray-500', icon: <FileText className="w-3 h-3" /> },
@@ -529,7 +507,6 @@ export function Inspections() {
     );
   };
 
-  // Type badge
   const getTypeBadge = (type: string) => {
     const typeMap: Record<string, { label: string; className: string }> = {
       'ENTRY': { label: 'Entrada', className: 'bg-blue-100 text-blue-800' },
@@ -540,7 +517,6 @@ export function Inspections() {
     return <Badge className={t.className}>{t.label}</Badge>;
   };
 
-  // Condition badge
   const getConditionBadge = (condition: string) => {
     const conditionMap: Record<string, { label: string; className: string }> = {
       'OK': { label: 'OK', className: 'bg-green-100 text-green-800' },
@@ -552,7 +528,6 @@ export function Inspections() {
     return <Badge className={c.className}>{c.label}</Badge>;
   };
 
-  // Default rooms for quick selection
   const defaultRooms = [
     'Sala de Estar',
     'Cozinha',
@@ -567,7 +542,6 @@ export function Inspections() {
     'Área Externa',
   ];
 
-  // Default items per room
   const defaultItems = [
     'Paredes',
     'Piso',
@@ -592,7 +566,7 @@ export function Inspections() {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Header */}
+        {}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Vistorias</h1>
@@ -601,7 +575,7 @@ export function Inspections() {
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            {/* View Toggle Buttons */}
+            {}
             <div className="flex border border-border rounded-lg p-1">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -652,7 +626,7 @@ export function Inspections() {
           </div>
         </div>
 
-        {/* Filters */}
+        {}
         <div className="flex flex-wrap gap-4 p-4 bg-card border border-border rounded-lg">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-muted-foreground" />
@@ -711,10 +685,10 @@ export function Inspections() {
           ) : null}
         </div>
 
-        {/* Inspections Display */}
+        {}
         {inspections && inspections.length > 0 ? (
           viewMode === 'table' ? (
-            /* Table View */
+            
             <div className="bg-card border border-border rounded-lg overflow-hidden">
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
@@ -806,7 +780,7 @@ export function Inspections() {
                 </table>
               </div>
 
-              {/* Mobile Card View */}
+              {}
               <div className="md:hidden">
                 {inspections.map((inspection: Inspection) => (
                   <div key={inspection.id} className="border-b border-border last:border-b-0 p-4">
@@ -850,7 +824,7 @@ export function Inspections() {
               </div>
             </div>
           ) : (
-            /* Card View */
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {inspections.map((inspection: Inspection) => (
                 <Card key={inspection.id} className="hover:shadow-md transition-shadow">
@@ -934,7 +908,7 @@ export function Inspections() {
             </div>
           )
         ) : (
-          /* Empty State */
+          
           <div className="text-center py-12 bg-card border border-border rounded-lg">
             <ClipboardCheck className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Nenhuma vistoria cadastrada</h3>
@@ -956,7 +930,7 @@ export function Inspections() {
           </div>
         )}
 
-        {/* Create Modal */}
+        {}
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1053,7 +1027,7 @@ export function Inspections() {
                 />
               </div>
 
-              {/* Inspection Items */}
+              {}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label>Itens da Vistoria</Label>
@@ -1173,7 +1147,7 @@ export function Inspections() {
                       />
                     </div>
 
-                    {/* File Upload Section */}
+                    {}
                     <div className="mt-3 pt-3 border-t border-border">
                       <Label className="text-xs flex items-center gap-2 mb-2">
                         <Image className="w-3 h-3" />
@@ -1181,7 +1155,7 @@ export function Inspections() {
                         Fotos e Vídeos
                       </Label>
 
-                      {/* Upload Button */}
+                      {}
                       <div className="flex items-center gap-2">
                         <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
                           <Upload className="w-4 h-4 text-muted-foreground" />
@@ -1199,7 +1173,7 @@ export function Inspections() {
                         </span>
                       </div>
 
-                      {/* File Previews */}
+                      {}
                       {getItemFilePreviews(index).length > 0 && (
                         <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                           {getItemFilePreviews(index).map((filePreview, fileIndex) => (
@@ -1258,7 +1232,7 @@ export function Inspections() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Modal */}
+        {}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1324,7 +1298,7 @@ export function Inspections() {
                   />
                 </div>
 
-                {/* Items section similar to create */}
+                {}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label>Itens da Vistoria</Label>
@@ -1409,7 +1383,7 @@ export function Inspections() {
                         />
                       </div>
 
-                      {/* File Upload Section */}
+                      {}
                       <div className="mt-3 pt-3 border-t border-border">
                         <Label className="text-xs flex items-center gap-2 mb-2">
                           <Image className="w-3 h-3" />
@@ -1417,7 +1391,7 @@ export function Inspections() {
                           Fotos e Vídeos
                         </Label>
 
-                        {/* Upload Button */}
+                        {}
                         <div className="flex items-center gap-2">
                           <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
                             <Upload className="w-4 h-4 text-muted-foreground" />
@@ -1435,7 +1409,7 @@ export function Inspections() {
                           </span>
                         </div>
 
-                        {/* File Previews */}
+                        {}
                         {getItemFilePreviews(index).length > 0 && (
                           <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                             {getItemFilePreviews(index).map((filePreview, fileIndex) => (
@@ -1489,7 +1463,7 @@ export function Inspections() {
           </DialogContent>
         </Dialog>
 
-        {/* Detail Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1497,7 +1471,7 @@ export function Inspections() {
             </DialogHeader>
             {inspectionDetail && (
               <div className="space-y-6">
-                {/* General Info */}
+                {}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-muted-foreground">Imóvel</Label>
@@ -1527,7 +1501,7 @@ export function Inspections() {
                   )}
                 </div>
 
-                {/* Notes */}
+                {}
                 {inspectionDetail.notes && (
                   <div>
                     <Label className="text-muted-foreground">Observações</Label>
@@ -1535,7 +1509,7 @@ export function Inspections() {
                   </div>
                 )}
 
-                {/* Signatures */}
+                {}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="p-3 border rounded-lg text-center">
                     <PenTool className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
@@ -1575,7 +1549,7 @@ export function Inspections() {
                   </div>
                 </div>
 
-                {/* Items */}
+                {}
                 {inspectionDetail.items && inspectionDetail.items.length > 0 && (
                   <div>
                     <Label className="text-muted-foreground mb-2 block">Itens da Vistoria ({inspectionDetail.items.length})</Label>
@@ -1602,7 +1576,7 @@ export function Inspections() {
           </DialogContent>
         </Dialog>
 
-        {/* Reject Modal */}
+        {}
         <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
           <DialogContent>
             <DialogHeader>
@@ -1632,7 +1606,7 @@ export function Inspections() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation */}
+        {}
         <AlertDialog open={!!inspectionToDelete} onOpenChange={() => setInspectionToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>

@@ -21,20 +21,18 @@ export function ImageUpload({ onImagesChange, maxImages = 10, className = '' }: 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
     
-    // Validate file types
     const validFiles = files.filter(file => {
       if (!file.type.startsWith('image/')) {
         toast.error(`${file.name} is not an image file`)
         return false
       }
-      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      if (file.size > 10 * 1024 * 1024) { 
         toast.error(`${file.name} is too large (max 10MB)`)
         return false
       }
       return true
     })
 
-    // Check total number of images
     const totalFiles = selectedFiles.length + validFiles.length
     if (totalFiles > maxImages) {
       toast.error(`Maximum ${maxImages} images allowed`)
@@ -45,11 +43,9 @@ export function ImageUpload({ onImagesChange, maxImages = 10, className = '' }: 
     setSelectedFiles(newFiles)
     onImagesChange(newFiles)
 
-    // Create preview URLs
     const newPreviewUrls = validFiles.map(file => URL.createObjectURL(file))
     setPreviewUrls(prev => [...prev, ...newPreviewUrls])
 
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -63,7 +59,6 @@ export function ImageUpload({ onImagesChange, maxImages = 10, className = '' }: 
     setPreviewUrls(newPreviewUrls)
     onImagesChange(newFiles)
 
-    // Revoke the object URL to free memory
     URL.revokeObjectURL(previewUrls[index])
   }
 
@@ -75,7 +70,7 @@ export function ImageUpload({ onImagesChange, maxImages = 10, className = '' }: 
     <div className={`space-y-4 ${className}`}>
       <Label>Property Images</Label>
       
-      {/* File Input */}
+      {}
       <div className="flex items-center gap-2">
         <Input
           ref={fileInputRef}
@@ -99,7 +94,7 @@ export function ImageUpload({ onImagesChange, maxImages = 10, className = '' }: 
         </span>
       </div>
 
-      {/* Image Previews */}
+      {}
       {previewUrls.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {previewUrls.map((url, index) => (
@@ -125,7 +120,7 @@ export function ImageUpload({ onImagesChange, maxImages = 10, className = '' }: 
         </div>
       )}
 
-      {/* Empty State */}
+      {}
       {previewUrls.length === 0 && (
         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
           <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />

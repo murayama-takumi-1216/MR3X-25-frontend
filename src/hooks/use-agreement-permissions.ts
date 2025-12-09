@@ -21,9 +21,6 @@ import {
   isImmutableStatus,
 } from '../lib/agreement-permissions';
 
-/**
- * Hook to get agreement permissions for the current user
- */
 export function useAgreementPermissions() {
   const { user } = useAuth();
 
@@ -31,8 +28,8 @@ export function useAgreementPermissions() {
     id: user?.id || '',
     role: user?.role || '',
     agencyId: user?.agencyId,
-    brokerId: undefined, // Would need to be set if user is a broker
-    creci: undefined, // Would need to be set if user is a broker
+    brokerId: undefined, 
+    creci: undefined, 
   }), [user]);
 
   const permissions = useMemo(() => {
@@ -53,70 +50,59 @@ export function useAgreementPermissions() {
     return getUserPermissionsSummary(userContext);
   }, [user, userContext]);
 
-  // Check if user can perform a general action
   const checkAction = (action: AgreementAction): boolean => {
     if (!user) return false;
     return canPerformAction(userContext, action);
   };
 
-  // Check if user can view a specific agreement
   const checkViewAgreement = (agreement: AgreementContext): boolean => {
     if (!user) return false;
     return canViewAgreement(userContext, agreement);
   };
 
-  // Check if user can edit a specific agreement
   const checkEditAgreement = (agreement: AgreementContext): boolean => {
     if (!user) return false;
     return canEditAgreement(userContext, agreement);
   };
 
-  // Check if user can delete a specific agreement
   const checkDeleteAgreement = (agreement: AgreementContext): boolean => {
     if (!user) return false;
     return canDeleteAgreement(userContext, agreement);
   };
 
-  // Check if user can sign a specific agreement
   const checkSignAgreement = (agreement: AgreementContext, signatureType: SignatureType): boolean => {
     if (!user) return false;
     return canSignAgreement(userContext, agreement, signatureType);
   };
 
-  // Check if user can approve a specific agreement
   const checkApproveAgreement = (agreement: AgreementContext): boolean => {
     if (!user) return false;
     return canApproveAgreement(userContext, agreement);
   };
 
-  // Check if user can cancel a specific agreement
   const checkCancelAgreement = (agreement: AgreementContext): boolean => {
     if (!user) return false;
     return canCancelAgreement(userContext, agreement);
   };
 
-  // Get available actions for a specific agreement
   const getActions = (agreement: AgreementContext): AgreementAction[] => {
     if (!user) return [];
     return getAvailableActions(userContext, agreement);
   };
 
-  // Get role permissions
   const rolePermissions = useMemo(() => {
     if (!user) return null;
     return getPermissionsForRole(user.role);
   }, [user]);
 
   return {
-    // General permissions
+    
     permissions,
     rolePermissions,
     userContext,
 
-    // Action checks
     checkAction,
 
-    // Agreement-specific checks
     checkViewAgreement,
     checkEditAgreement,
     checkDeleteAgreement,
@@ -125,7 +111,6 @@ export function useAgreementPermissions() {
     checkCancelAgreement,
     getActions,
 
-    // Status helpers
     isEditableStatus,
     isDeletableStatus,
     isSignableStatus,
@@ -133,15 +118,11 @@ export function useAgreementPermissions() {
     isImmutableStatus,
     isMR3XRole: permissions.isMR3XRole,
 
-    // Re-export types for convenience
     AgreementAction,
     SignatureType,
   };
 }
 
-/**
- * Hook to check permissions for a specific agreement
- */
 export function useAgreementActions(agreement: AgreementContext | null) {
   const { user } = useAuth();
 

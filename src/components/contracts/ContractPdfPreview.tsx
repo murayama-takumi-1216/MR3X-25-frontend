@@ -131,7 +131,7 @@ export function ContractPdfPreview({
 
   return (
     <div className={cn('space-y-4 sm:space-y-6', className)}>
-      {/* Header */}
+      {}
       <Card>
         <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -157,7 +157,7 @@ export function ContractPdfPreview({
         </CardHeader>
         <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
           <div className="grid grid-cols-1 gap-3 sm:gap-4">
-            {/* Property & Parties */}
+            {}
             <div className="space-y-2">
               <div className="flex items-start gap-2 text-xs sm:text-sm">
                 <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground mt-0.5 shrink-0" />
@@ -178,7 +178,7 @@ export function ContractPdfPreview({
               </div>
             </div>
 
-            {/* Details */}
+            {}
             <div className="grid grid-cols-2 gap-2 sm:gap-4 pt-2 border-t">
               <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                 <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground shrink-0" />
@@ -195,7 +195,7 @@ export function ContractPdfPreview({
               </div>
             </div>
 
-            {/* Token */}
+            {}
             <div className="flex items-center gap-2 text-xs sm:text-sm pt-2 border-t">
               <span className="font-medium shrink-0">Token:</span>
               <code className="text-[10px] sm:text-xs bg-muted px-1.5 sm:px-2 py-0.5 sm:py-1 rounded truncate flex-1 min-w-0">
@@ -214,7 +214,7 @@ export function ContractPdfPreview({
         </CardContent>
       </Card>
 
-      {/* Signatures Status */}
+      {}
       <Card>
         <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
           <CardTitle className="text-sm sm:text-base">Status das Assinaturas</CardTitle>
@@ -253,7 +253,7 @@ export function ContractPdfPreview({
         </CardContent>
       </Card>
 
-      {/* Security Info - Collapsible on mobile */}
+      {}
       <Card>
         <CardHeader
           className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6 cursor-pointer sm:cursor-auto"
@@ -302,7 +302,7 @@ export function ContractPdfPreview({
         </CardContent>
       </Card>
 
-      {/* Download Buttons */}
+      {}
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         {contract.provisionalHash && onDownloadProvisional && (
           <Button

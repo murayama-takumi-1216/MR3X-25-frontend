@@ -67,9 +67,6 @@ export function Properties() {
   const { hasPermission, user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Check permissions
-  // CEO can VIEW but cannot CREATE/EDIT/DELETE properties
-  // PROPRIETARIO (agency-managed owner) can only VIEW properties
   const isCEO = user?.role === 'CEO';
   const isProprietario = user?.role === 'PROPRIETARIO';
   const canViewProperties = hasPermission('properties:read') || ['CEO', 'AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER', 'PROPRIETARIO'].includes(user?.role || '');
@@ -79,7 +76,6 @@ export function Properties() {
 
   const navigate = useNavigate();
 
-  // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -92,7 +88,6 @@ export function Properties() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeErrorMessage, setUpgradeErrorMessage] = useState('');
 
-  // Form states
   const [newProperty, setNewProperty] = useState({
     name: '',
     address: '',
@@ -121,7 +116,6 @@ export function Properties() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Other states
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [propertyToDelete, setPropertyToDelete] = useState<any>(null);
   const [propertyDetail, setPropertyDetail] = useState<any>(null);
@@ -172,7 +166,6 @@ export function Properties() {
     setSearchQuery('');
   }, []);
 
-  // Don't render if no permission
   if (!canViewProperties) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -227,7 +220,6 @@ export function Properties() {
     },
   });
 
-  // Assign Tenant Mutation
   const assignTenantMutation = useMutation({
     mutationFn: async ({ propertyId, tenantId }: { propertyId: string; tenantId: string | null }) => {
       return propertiesAPI.updateProperty(propertyId, { tenantId });
@@ -250,7 +242,6 @@ export function Properties() {
     },
   });
 
-  // Helper function to close all modals
   const closeAllModals = () => {
     setShowCreateModal(false);
     setShowEditModal(false);
@@ -274,7 +265,6 @@ export function Properties() {
     setDeleting(false);
   };
 
-  // Load tenants when needed
   const loadTenants = async () => {
     try {
       setTenantsLoading(true);
@@ -289,7 +279,7 @@ export function Properties() {
   };
 
   const loadOwners = async () => {
-    // INDEPENDENT_OWNER is their own owner - no need to load owner list
+    
     if (user?.role === 'INDEPENDENT_OWNER') {
       setOwners([]);
       setOwnersLoading(false);
@@ -307,13 +297,11 @@ export function Properties() {
     }
   };
 
-  // Refresh properties list
   const refreshProperties = () => {
     queryClient.invalidateQueries({ queryKey: ['properties'] });
     setImageRefreshTrigger(prev => prev + 1);
   };
 
-  // Format currency input
   const formatCurrencyInput = (value: string) => {
     let onlyNumbers = value.replace(/\D/g, '');
     onlyNumbers = onlyNumbers.replace(/^0+/, '');
@@ -333,7 +321,6 @@ export function Properties() {
     return parsed;
   };
 
-  // Handle CEP lookup
   const handleCepLookup = async (cep: string) => {
     if (cep.replace(/\D/g, '').length === 8) {
       try {
@@ -346,12 +333,11 @@ export function Properties() {
           neighborhood: data?.neighborhood || prev.neighborhood,
         }));
       } catch (error) {
-        // Silent fail for CEP lookup
+        
       }
     }
   };
 
-  // Handle input changes
   const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setNewProperty(prev => ({ ...prev, [name]: value }));
@@ -377,7 +363,7 @@ export function Properties() {
             neighborhood: data?.neighborhood || prev.neighborhood,
           }));
         } catch (error) {
-          // Silent fail for CEP lookup
+          
         }
       }
     }
@@ -403,7 +389,6 @@ export function Properties() {
     }));
   }, []);
 
-  // Create property
   const createPropertyMutation = useMutation({
     mutationFn: async (data: any) => {
       const property = await propertiesAPI.createProperty(data);
@@ -434,7 +419,7 @@ export function Properties() {
       toast.success('Imóvel criado com sucesso');
     },
     onError: (error: any) => {
-      // Check if it's a plan limit error (403 Forbidden with plan-related message)
+      
       const errorMessage = error?.response?.data?.message || error?.data?.message || error?.message || '';
       const isPlanLimitError = error?.response?.status === 403 ||
         errorMessage.toLowerCase().includes('plano') ||
@@ -451,7 +436,6 @@ export function Properties() {
     },
   });
 
-  // Update property
   const updatePropertyMutation = useMutation({
     mutationFn: ({ id, data }: { id: string, data: any }) => propertiesAPI.updateProperty(id, data),
     onSuccess: () => {
@@ -465,7 +449,6 @@ export function Properties() {
     },
   });
 
-  // Delete property
   const deletePropertyMutation = useMutation({
     mutationFn: (id: string) => propertiesAPI.deleteProperty(id),
     onSuccess: () => {
@@ -480,7 +463,6 @@ export function Properties() {
     },
   });
 
-  // Issue charge mutation
   const [issuingCharge, setIssuingCharge] = useState(false);
   const issueChargeMutation = useMutation({
     mutationFn: (data: any) => paymentsAPI.createPayment(data),
@@ -500,7 +482,6 @@ export function Properties() {
     },
   });
 
-  // Generate receipt mutation
   const [generatingReceipt, setGeneratingReceipt] = useState(false);
   const generateReceiptMutation = useMutation({
     mutationFn: (data: any) => paymentsAPI.createPayment(data),
@@ -520,7 +501,6 @@ export function Properties() {
     },
   });
 
-  // Handle form submissions
   const handleCreateProperty = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
@@ -530,7 +510,7 @@ export function Properties() {
         setCreating(false);
         return;
       }
-      // INDEPENDENT_OWNER is their own owner - use their own ID
+      
       const isIndependentOwner = user?.role === 'INDEPENDENT_OWNER';
       const ownerIdToUse = isIndependentOwner ? user?.id : newProperty.ownerId;
 
@@ -570,7 +550,7 @@ export function Properties() {
         setUpdating(false);
         return;
       }
-      // INDEPENDENT_OWNER is their own owner - use their own ID
+      
       const isIndependentOwner = user?.role === 'INDEPENDENT_OWNER';
       const ownerIdToUse = isIndependentOwner ? user?.id : editForm.ownerId;
 
@@ -632,7 +612,6 @@ export function Properties() {
     }
   };
 
-  // Handle property actions
   const handleViewProperty = async (property: any) => {
     closeAllModals();
     setSelectedProperty(property);
@@ -676,7 +655,6 @@ export function Properties() {
     }
   };
 
-  // New action handlers
   const handleViewDocuments = (property: any) => {
     closeAllModals();
     setSelectedProperty(property);
@@ -694,13 +672,12 @@ export function Properties() {
     closeAllModals();
     setSelectedProperty(property);
 
-    // Try to fetch the last PENDING payment for this property
     try {
       const payments = await paymentsAPI.getPaymentsByProperty(property.id);
       const lastPendingPayment = payments.find((p: any) => p.status === 'PENDING');
 
       if (lastPendingPayment) {
-        // Pre-fill with last pending payment data
+        
         setInvoiceData({
           amount: lastPendingPayment.valorPago ? String(lastPendingPayment.valorPago) : (property.monthlyRent ? String(property.monthlyRent) : ''),
           dueDate: lastPendingPayment.dueDate ? new Date(lastPendingPayment.dueDate).toISOString().split('T')[0] : '',
@@ -713,13 +690,12 @@ export function Properties() {
       console.error('Error fetching payments:', error);
     }
 
-    // Calculate next due date based on dueDay
     let nextDueDate = '';
     if (property.dueDay) {
       const today = new Date();
       const dueDay = parseInt(property.dueDay);
       let dueDate = new Date(today.getFullYear(), today.getMonth(), dueDay);
-      // If the due day has passed this month, move to next month
+      
       if (dueDate < today) {
         dueDate = new Date(today.getFullYear(), today.getMonth() + 1, dueDay);
       }
@@ -740,13 +716,12 @@ export function Properties() {
     closeAllModals();
     setSelectedProperty(property);
 
-    // Try to fetch the last PAID payment for this property
     try {
       const payments = await paymentsAPI.getPaymentsByProperty(property.id);
       const lastPaidPayment = payments.find((p: any) => p.status === 'PAID');
 
       if (lastPaidPayment) {
-        // Pre-fill with last paid payment data
+        
         setReceiptData({
           amount: lastPaidPayment.valorPago ? String(lastPaidPayment.valorPago) : (property.monthlyRent ? String(property.monthlyRent) : ''),
           paymentDate: lastPaidPayment.dataPagamento ? new Date(lastPaidPayment.dataPagamento).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -759,7 +734,6 @@ export function Properties() {
       console.error('Error fetching payments:', error);
     }
 
-    // Default values if no paid payment found
     setReceiptData({
       amount: property.monthlyRent ? String(property.monthlyRent) : '',
       paymentDate: new Date().toISOString().split('T')[0],
@@ -807,7 +781,6 @@ export function Properties() {
     });
   };
 
-  // Status badge component
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'PAGO':
@@ -827,7 +800,6 @@ export function Properties() {
     }
   };
 
-  // Property images carousel component for view modal
   const PropertyImagesCarousel = ({ propertyId, propertyName }: { propertyId: string, propertyName?: string }) => {
     const [images, setImages] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -953,7 +925,6 @@ export function Properties() {
     );
   };
 
-  // Existing images component for edit form
   const ExistingImages = ({ propertyId, onImageCountChange, onImageDeleted }: { propertyId: string, onImageCountChange?: (count: number) => void, onImageDeleted?: () => void }) => {
     const [images, setImages] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -1051,7 +1022,6 @@ export function Properties() {
     );
   };
 
-  // Property image component
   const PropertyImage = ({ propertyId, propertyName }: { propertyId: string, propertyName?: string }) => {
     const [errored, setErrored] = useState(false);
 
@@ -1169,11 +1139,11 @@ export function Properties() {
                 <Card key={property.id} className="transition-all hover:shadow-md flex flex-col w-[400px] mx-auto overflow-hidden">
                   <CardContent className="p-0 h-full flex flex-col overflow-hidden min-w-0">
                     <div className="flex h-full min-w-0">
-                      {/* Property Image */}
+                      {}
                       <div className="w-40 min-w-40 h-full bg-gray-100 flex items-center justify-center rounded-l-md overflow-hidden">
                         <PropertyImage propertyId={property.id} propertyName={property.name} />
                       </div>
-                      {/* Property Content */}
+                      {}
                       <div className="flex-1 flex flex-col justify-between p-4 min-w-0 overflow-hidden">
                         <div className="min-w-0 space-y-1">
                           <h3 className="text-lg font-bold truncate" title={property.name}>{property.name}</h3>
@@ -1313,7 +1283,7 @@ export function Properties() {
           </div>
         </div>
 
-        {/* Create Property Modal */}
+        {}
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1342,7 +1312,7 @@ export function Properties() {
                 </div>
               </div>
 
-              {/* Show owner select for non-INDEPENDENT_OWNER roles */}
+              {}
               {user?.role !== 'INDEPENDENT_OWNER' ? (
                 <div>
                   <Label htmlFor="ownerId">Imóvel</Label>
@@ -1473,7 +1443,7 @@ export function Properties() {
                 )}
               </div>
 
-              {/* Image Upload */}
+              {}
               <ImageUpload
                 onImagesChange={setSelectedImages}
                 maxImages={20}
@@ -1492,7 +1462,7 @@ export function Properties() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Property Modal */}
+        {}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1521,7 +1491,7 @@ export function Properties() {
                 </div>
               </div>
 
-              {/* Show owner select for non-INDEPENDENT_OWNER roles */}
+              {}
               {user?.role === 'INDEPENDENT_OWNER' ? (
                 <div>
                   <Label>Imóvel</Label>
@@ -1652,14 +1622,14 @@ export function Properties() {
                 )}
               </div>
 
-              {/* Existing Images */}
+              {}
               {selectedProperty && <ExistingImages
                 propertyId={selectedProperty.id}
                 onImageCountChange={setExistingImageCount}
                 onImageDeleted={refreshProperties}
               />}
 
-              {/* Image Upload for Edit */}
+              {}
               <ImageUpload
                 onImagesChange={setEditSelectedImages}
                 maxImages={Math.max(0, 20 - existingImageCount)}
@@ -1678,7 +1648,7 @@ export function Properties() {
           </DialogContent>
         </Dialog>
 
-        {/* Property Detail Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent>
             <DialogHeader>
@@ -1734,7 +1704,7 @@ export function Properties() {
           </DialogContent>
         </Dialog>
 
-        {/* Settings Modal */}
+        {}
         <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
           <DialogContent>
             <DialogHeader>
@@ -1780,7 +1750,7 @@ export function Properties() {
           </DialogContent>
         </Dialog>
 
-        {/* Documents Modal */}
+        {}
         <Dialog open={showDocumentsModal} onOpenChange={setShowDocumentsModal}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1829,7 +1799,7 @@ export function Properties() {
           </DialogContent>
         </Dialog>
 
-        {/* WhatsApp Notification Modal */}
+        {}
         <Dialog open={showWhatsAppModal} onOpenChange={setShowWhatsAppModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -1874,7 +1844,7 @@ export function Properties() {
           </DialogContent>
         </Dialog>
 
-        {/* Issue Invoice Modal */}
+        {}
         <Dialog open={showInvoiceModal} onOpenChange={setShowInvoiceModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -1925,7 +1895,6 @@ export function Properties() {
                       e.preventDefault();
                       if (!selectedProperty) return;
 
-                      // Parse amount (handle Brazilian format)
                       const amountStr = invoiceData.amount.replace(/\./g, '').replace(',', '.');
                       const amount = parseFloat(amountStr);
 
@@ -1959,7 +1928,7 @@ export function Properties() {
           </DialogContent>
         </Dialog>
 
-        {/* Generate Receipt Modal */}
+        {}
         <Dialog open={showReceiptModal} onOpenChange={setShowReceiptModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -2015,7 +1984,6 @@ export function Properties() {
                       e.preventDefault();
                       if (!selectedProperty) return;
 
-                      // Parse amount (handle Brazilian format)
                       const amountStr = receiptData.amount.replace(/\./g, '').replace(',', '.');
                       const amount = parseFloat(amountStr);
 
@@ -2049,7 +2017,7 @@ export function Properties() {
           </DialogContent>
         </Dialog>
 
-        {/* Assign Broker Modal */}
+        {}
         <Dialog open={assignModalOpen} onOpenChange={setAssignModalOpen}>
           <DialogContent className="max-w-xl">
             <DialogHeader>
@@ -2125,7 +2093,7 @@ export function Properties() {
           </DialogContent>
         </Dialog>
 
-        {/* Assign Tenant Modal */}
+        {}
         <Dialog open={assignTenantModalOpen} onOpenChange={setAssignTenantModalOpen} modal={true}>
           <DialogContent className="max-w-xl">
             <DialogHeader>
@@ -2204,7 +2172,7 @@ export function Properties() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
+        {}
         <AlertDialog open={!!propertyToDelete} onOpenChange={() => setPropertyToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -2226,7 +2194,7 @@ export function Properties() {
           </AlertDialogContent>
         </AlertDialog>
 
-        {/* Upgrade Plan Modal */}
+        {}
         <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
           <DialogContent className="max-w-md">
             <DialogHeader>
@@ -2311,7 +2279,7 @@ export function Properties() {
                 className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white"
                 onClick={() => {
                   setShowUpgradeModal(false);
-                  // Navigate to plans page based on user role
+                  
                   if (user?.role === 'AGENCY_ADMIN' || user?.role === 'AGENCY_MANAGER') {
                     navigate('/dashboard/agency-plan-config');
                   } else if (user?.role === 'INDEPENDENT_OWNER') {

@@ -36,7 +36,6 @@ export function useCEP(): UseCEPReturn {
     try {
       const response = await addressAPI.getByCep(cleanCEP)
 
-      // Handle response wrapped in { isValid, data } structure (NestJS backend)
       const responseData = response.data || response
 
       if (response.isValid === false) {

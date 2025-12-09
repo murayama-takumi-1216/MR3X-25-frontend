@@ -50,7 +50,6 @@ export function UpgradePrompt({
   );
 }
 
-// Inline upgrade banner for smaller spaces
 export function UpgradeBanner({
   message,
   onUpgrade,

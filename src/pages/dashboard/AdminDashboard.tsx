@@ -23,7 +23,6 @@ const COLORS = {
   gray: '#64748b',
 };
 
-// Chart wrapper to prevent -1 dimension errors
 function ChartContainer({ children, height = 280 }: { children: React.ReactNode; height?: number }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -66,14 +65,12 @@ export function AdminDashboard() {
 
   const overview = dashboard?.overview || {};
 
-  // Revenue distribution data from real API data
   const revenueDistributionData = [
     { name: 'Recebido', value: overview.receivedValue ?? overview.receivedRevenue ?? 0, color: COLORS.success },
     { name: 'Pendente', value: Math.max(0, (overview.monthlyRevenue ?? 0) - (overview.receivedValue ?? overview.receivedRevenue ?? 0) - (overview.overdueValue ?? overview.overdueRevenue ?? 0)), color: COLORS.warning },
     { name: 'Vencido', value: overview.overdueValue ?? overview.overdueRevenue ?? 0, color: COLORS.danger },
   ];
 
-  // Property status data from real API data
   const propertyStatusData = dashboard?.propertyStatus
     ? [
         { name: 'Disponíveis', value: dashboard.propertyStatus.available ?? 0, color: COLORS.success },
@@ -88,7 +85,6 @@ export function AdminDashboard() {
         { name: 'Pendentes', value: overview.pendingUnits ?? overview.maintenanceProperties ?? 0, color: COLORS.warning },
       ];
 
-  // Contract status data from real API data
   const activeContracts = overview.activeContracts ?? 0;
   const pendingContracts = overview.pendingPayments ?? 0;
   const contractStatusData = [
@@ -96,12 +92,10 @@ export function AdminDashboard() {
     { name: 'Pendentes', value: pendingContracts, color: COLORS.warning },
   ].filter(item => item.value > 0);
 
-  // Calculate occupancy rate
   const totalProperties = overview.totalProperties ?? 0;
   const occupiedProperties = overview.occupiedProperties ?? 0;
   const occupancyRate = totalProperties > 0 ? Math.round((occupiedProperties / totalProperties) * 100) : 0;
 
-  // Calculate default rate
   const overdueUnits = overview.overdueUnits ?? 0;
   const defaultRate = overview.defaultRate ?? (totalProperties > 0 ? ((overdueUnits / totalProperties) * 100).toFixed(1) : 0);
 
@@ -123,13 +117,13 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold">Dashboard Administrativo</h1>
         <p className="text-muted-foreground">Visão geral completa do sistema</p>
       </div>
 
-      {/* Main KPI Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Total de Imóveis"
@@ -159,7 +153,7 @@ export function AdminDashboard() {
         />
       </div>
 
-      {/* Secondary KPI Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Imóveis Disponíveis"
@@ -191,9 +185,9 @@ export function AdminDashboard() {
         />
       </div>
 
-      {/* Charts Row 1: Revenue Distribution & Property Status */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Distribution */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -232,7 +226,7 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Property Status */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -273,9 +267,9 @@ export function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Charts Row 2: Contract Status & Due Dates */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Contract Status */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -308,7 +302,7 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Due Dates Table */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -351,7 +345,7 @@ export function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Top Agencies Section (if available) */}
+      {}
       {dashboard?.topAgencies && dashboard.topAgencies.length > 0 && (
         <Card>
           <CardHeader>
@@ -395,7 +389,7 @@ export function AdminDashboard() {
         </Card>
       )}
 
-      {/* Pending Payments Section */}
+      {}
       {dashboard?.pendingPayments && dashboard.pendingPayments.length > 0 && (
         <Card>
           <CardHeader>
@@ -442,7 +436,7 @@ export function AdminDashboard() {
         </Card>
       )}
 
-      {/* Recent Payments Section */}
+      {}
       {dashboard?.recentPayments && dashboard.recentPayments.length > 0 && (
         <Card>
           <CardHeader>
@@ -483,7 +477,6 @@ export function AdminDashboard() {
   );
 }
 
-// KPI Card Component
 function KPICard({
   title,
   value,

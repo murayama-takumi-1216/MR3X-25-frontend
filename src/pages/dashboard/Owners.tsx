@@ -51,7 +51,6 @@ export function Owners() {
   const { hasPermission, user } = useAuth()
   const queryClient = useQueryClient()
 
-  // CEO can VIEW but cannot CREATE/EDIT/DELETE owners
   const isCEO = user?.role === 'CEO'
   const canViewUsers = hasPermission('users:read')
   const canCreateUsers = hasPermission('users:create') && !isCEO
@@ -101,7 +100,6 @@ export function Owners() {
   const [showEditPassword, setShowEditPassword] = useState(false)
   const [emailError, setEmailError] = useState('')
 
-  // Email validation
   const checkEmailExists = useCallback(async (email: string, currentEmail?: string) => {
     if (!email || email === currentEmail) {
       setEmailError('')
@@ -254,7 +252,7 @@ export function Owners() {
         return
       }
       const { password, ...restData } = editForm;
-      // Only send password if it's not empty
+      
       const ownerToSend = {
         ...restData,
         birthDate: editForm.birthDate || undefined,
@@ -564,7 +562,7 @@ export function Owners() {
           </div>
         )}
 
-        {/* Create Modal */}
+        {}
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -675,14 +673,14 @@ export function Owners() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Modal */}
+        {}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
             <DialogHeader>
               <DialogTitle>Editar Imóvel</DialogTitle>
             </DialogHeader>
             <form className="space-y-6" onSubmit={handleUpdateOwner}>
-              {/* Personal Information Section */}
+              {}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
@@ -735,7 +733,7 @@ export function Owners() {
                 </div>
               </div>
 
-              {/* Address Section */}
+              {}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
@@ -787,7 +785,7 @@ export function Owners() {
           </DialogContent>
         </Dialog>
 
-        {/* Detail Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -856,7 +854,7 @@ export function Owners() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation */}
+        {}
         <AlertDialog open={!!ownerToDelete} onOpenChange={() => setOwnerToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>

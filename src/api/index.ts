@@ -1,6 +1,5 @@
 import apiClient from './client';
 
-// Dashboard API
 export const dashboardAPI = {
   getDashboard: async () => {
     const response = await apiClient.get('/dashboard');
@@ -13,12 +12,11 @@ export const dashboardAPI = {
   },
 };
 
-// Properties API
 export const propertiesAPI = {
   getProperties: async (params?: { search?: string }) => {
     const query = params?.search ? `?search=${encodeURIComponent(params.search)}` : '';
     const response = await apiClient.get(`/properties${query}`);
-    // Backend returns { data: [...], total, page, limit }, extract the data array
+    
     return Array.isArray(response.data) ? response.data : (response.data?.data || []);
   },
 
@@ -74,11 +72,10 @@ export const propertiesAPI = {
   },
 };
 
-// Contracts API
 export const contractsAPI = {
   getContracts: async () => {
     const response = await apiClient.get('/contracts');
-    // Backend returns { data: [...], total, page, limit }, extract the data array
+    
     return Array.isArray(response.data) ? response.data : (response.data?.data || []);
   },
 
@@ -124,7 +121,6 @@ export const contractsAPI = {
     return response.data;
   },
 
-  // Sign contract (legacy)
   signContract: async (id: string, data: {
     signature: string;
     signatureType: 'tenant' | 'owner' | 'agency' | 'witness';
@@ -135,7 +131,6 @@ export const contractsAPI = {
     return response.data;
   },
 
-  // Sign contract with geolocation (new)
   signContractWithGeo: async (id: string, data: {
     signature: string;
     signatureType: 'tenant' | 'owner' | 'agency' | 'witness';
@@ -149,19 +144,16 @@ export const contractsAPI = {
     return response.data;
   },
 
-  // Prepare contract for signing (generates provisional PDF)
   prepareForSigning: async (id: string) => {
     const response = await apiClient.post(`/contracts/${id}/prepare-signing`);
     return response.data;
   },
 
-  // Finalize contract after all signatures
   finalizeContract: async (id: string) => {
     const response = await apiClient.post(`/contracts/${id}/finalize`);
     return response.data;
   },
 
-  // Download provisional PDF
   downloadProvisionalPdf: async (id: string) => {
     const response = await apiClient.get(`/contracts/${id}/provisional-pdf`, {
       responseType: 'blob',
@@ -169,7 +161,6 @@ export const contractsAPI = {
     return response.data;
   },
 
-  // Download final PDF
   downloadFinalPdf: async (id: string) => {
     const response = await apiClient.get(`/contracts/${id}/final-pdf`, {
       responseType: 'blob',
@@ -177,19 +168,16 @@ export const contractsAPI = {
     return response.data;
   },
 
-  // Update clauses
   updateClauses: async (id: string, clauses: string, changeReason?: string) => {
     const response = await apiClient.put(`/contracts/${id}/clauses`, { clauses, changeReason });
     return response.data;
   },
 
-  // Get clause history
   getClauseHistory: async (id: string) => {
     const response = await apiClient.get(`/contracts/${id}/clause-history`);
     return response.data;
   },
 
-  // Send signature invitation
   sendSignatureInvitation: async (id: string, data: {
     signerType: 'tenant' | 'owner' | 'agency' | 'witness';
     signerEmail: string;
@@ -200,32 +188,27 @@ export const contractsAPI = {
     return response.data;
   },
 
-  // Get signature links for a contract
   getSignatureLinks: async (id: string) => {
     const response = await apiClient.get(`/contracts/${id}/signature-links`);
     return response.data;
   },
 
-  // Revoke a signature link
   revokeSignatureLink: async (contractId: string, linkToken: string) => {
     const response = await apiClient.post(`/contracts/${contractId}/revoke-link/${linkToken}`);
     return response.data;
   },
 
-  // Revoke contract
   revokeContract: async (id: string, reason: string) => {
     const response = await apiClient.post(`/contracts/${id}/revoke`, { reason });
     return response.data;
   },
 
-  // Get tenant's own contract
   getMyContract: async () => {
     const response = await apiClient.get('/contracts/my-contract/tenant');
     return response.data;
   },
 };
 
-// Contract Templates API
 export const contractTemplatesAPI = {
   getTemplates: async () => {
     const response = await apiClient.get('/contract-templates');
@@ -243,7 +226,6 @@ export const contractTemplatesAPI = {
   },
 };
 
-// Payments API
 export const paymentsAPI = {
   getPayments: async () => {
     const response = await apiClient.get('/payments');
@@ -277,7 +259,6 @@ export const paymentsAPI = {
   },
 };
 
-// Users API
 export const usersAPI = {
   listUsers: async (params: { search?: string; role?: string; status?: string; plan?: string; page?: number; pageSize?: number; excludeCurrentUser?: boolean } = {}) => {
     const { page = 1, pageSize = 10, excludeCurrentUser = true, ...otherParams } = params;
@@ -295,7 +276,7 @@ export const usersAPI = {
     });
     const query = qs.toString();
     const response = await apiClient.get(`/users${query ? `?${query}` : ''}`);
-    // Backend returns { data: [...], total, page, limit }, map to { items: [...], total }
+    
     const result = response.data;
     return {
       items: result.data || [],
@@ -366,7 +347,6 @@ export const usersAPI = {
   },
 };
 
-// Chat API
 export const chatAPI = {
   getChats: async () => {
     const response = await apiClient.get('/chats');
@@ -404,7 +384,6 @@ export const chatAPI = {
   },
 };
 
-// Address API
 export const addressAPI = {
   getByCep: async (cep: string) => {
     const response = await apiClient.get(`/validation/cep/${cep}`);
@@ -412,7 +391,6 @@ export const addressAPI = {
   },
 };
 
-// Agencies API
 export const agenciesAPI = {
   getAgencies: async () => {
     const response = await apiClient.get('/agencies');
@@ -439,7 +417,6 @@ export const agenciesAPI = {
     return response.data;
   },
 
-  // Plan Enforcement APIs
   getPlanUsage: async (id: string) => {
     const response = await apiClient.get(`/agencies/${id}/plan-usage`);
     return response.data;
@@ -476,7 +453,6 @@ export const agenciesAPI = {
   },
 };
 
-// Plans API
 export const plansAPI = {
   getPlans: async () => {
     const response = await apiClient.get('/plans');
@@ -503,7 +479,6 @@ export const plansAPI = {
     return response.data;
   },
 
-  // Modification requests
   getPendingModificationRequests: async () => {
     const response = await apiClient.get('/plans/modification-requests/pending');
     return response.data;
@@ -525,7 +500,6 @@ export const plansAPI = {
   },
 };
 
-// Notifications API
 export const notificationsAPI = {
   getNotifications: async () => {
     const response = await apiClient.get('/notifications');
@@ -553,7 +527,6 @@ export const notificationsAPI = {
   },
 };
 
-// Settings API
 export const settingsAPI = {
   getPaymentConfig: async () => {
     const response = await apiClient.get('/settings/payment-config');
@@ -581,7 +554,6 @@ export const settingsAPI = {
   },
 };
 
-// Audit API
 export const auditAPI = {
   getAuditLogs: async (params?: {
     entity?: string;
@@ -610,7 +582,6 @@ export const auditAPI = {
   },
 };
 
-// Documents API
 export const documentsAPI = {
   generateReceipt: async (data: any) => {
     const response = await apiClient.post('/documents/receipt', data, {
@@ -641,7 +612,6 @@ export const documentsAPI = {
   },
 };
 
-// Inspections API
 export const inspectionsAPI = {
   getInspections: async (params?: {
     propertyId?: string;
@@ -715,7 +685,6 @@ export const inspectionsAPI = {
     return response.data;
   },
 
-  // Templates
   getTemplates: async (params?: { type?: string; isDefault?: boolean }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -751,7 +720,6 @@ export const inspectionsAPI = {
   },
 };
 
-// Agreements API
 export const agreementsAPI = {
   getAgreements: async (params?: {
     propertyId?: string;
@@ -835,7 +803,6 @@ export const agreementsAPI = {
     return response.data;
   },
 
-  // Templates
   getTemplates: async (params?: { type?: string; isDefault?: boolean }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -871,7 +838,6 @@ export const agreementsAPI = {
   },
 };
 
-// Invoices API
 export const invoicesAPI = {
   getInvoices: async (params?: {
     propertyId?: string;
@@ -948,9 +914,8 @@ export const invoicesAPI = {
   },
 };
 
-// Platform Manager Dashboard API
 export const platformManagerAPI = {
-  // Dashboard overview
+  
   getDashboardMetrics: async () => {
     const response = await apiClient.get('/platform-manager/dashboard/metrics');
     return response.data;
@@ -986,7 +951,6 @@ export const platformManagerAPI = {
     return response.data;
   },
 
-  // Agencies management
   getAgencies: async (params?: { search?: string; status?: string; plan?: string }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1004,7 +968,6 @@ export const platformManagerAPI = {
     return response.data;
   },
 
-  // Support center
   getTickets: async (params?: { status?: string; priority?: string; category?: string }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1027,7 +990,6 @@ export const platformManagerAPI = {
     return response.data;
   },
 
-  // Internal users
   getInternalUsers: async (params?: { search?: string; role?: string; status?: string }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1040,7 +1002,6 @@ export const platformManagerAPI = {
     return response.data;
   },
 
-  // Logs and integrity
   getLogs: async (params?: { type?: string; startDate?: string; endDate?: string; page?: number; pageSize?: number }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1053,7 +1014,6 @@ export const platformManagerAPI = {
     return response.data;
   },
 
-  // Plans and billing (read-only)
   getPlansOverview: async () => {
     const response = await apiClient.get('/platform-manager/plans-overview');
     return response.data;
@@ -1064,7 +1024,6 @@ export const platformManagerAPI = {
     return response.data;
   },
 
-  // Integrations monitoring
   getWebhookLogs: async (params?: { service?: string; status?: string; startDate?: string; endDate?: string }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1089,7 +1048,6 @@ export const platformManagerAPI = {
     return response.data;
   },
 
-  // Tickets and communication
   getInternalNotes: async () => {
     const response = await apiClient.get('/platform-manager/internal-notes');
     return response.data;
@@ -1105,7 +1063,6 @@ export const platformManagerAPI = {
     return response.data;
   },
 
-  // Knowledge base
   getKnowledgeBaseCategories: async () => {
     const response = await apiClient.get('/platform-manager/knowledge-base/categories');
     return response.data;
@@ -1133,7 +1090,6 @@ export const platformManagerAPI = {
     return response.data;
   },
 
-  // Settings (limited)
   getManagerProfile: async () => {
     const response = await apiClient.get('/platform-manager/profile');
     return response.data;
@@ -1155,7 +1111,6 @@ export const platformManagerAPI = {
   },
 };
 
-// Auditor Dashboard API
 export const auditorAPI = {
   getDashboardMetrics: async () => {
     const response = await apiClient.get('/auditor/dashboard/metrics');
@@ -1217,7 +1172,6 @@ export const auditorAPI = {
     return response.data;
   },
 
-  // Agencies view
   getAgencies: async (params?: { search?: string }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1230,7 +1184,6 @@ export const auditorAPI = {
     return response.data;
   },
 
-  // Documents view
   getDocuments: async (params?: { type?: string; status?: string; search?: string }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1243,7 +1196,6 @@ export const auditorAPI = {
     return response.data;
   },
 
-  // Users view
   getUsers: async (params?: { role?: string; status?: string; search?: string }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1256,7 +1208,6 @@ export const auditorAPI = {
     return response.data;
   },
 
-  // Payments view
   getPayments: async (params?: { status?: string; startDate?: string; endDate?: string }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1269,7 +1220,6 @@ export const auditorAPI = {
     return response.data;
   },
 
-  // Signatures view
   getSignatures: async (params?: { type?: string; status?: string; startDate?: string; endDate?: string }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1282,19 +1232,16 @@ export const auditorAPI = {
     return response.data;
   },
 
-  // Security view
   getSecurity: async () => {
     const response = await apiClient.get('/auditor/security');
     return response.data;
   },
 
-  // Data integrity
   getDataIntegrity: async () => {
     const response = await apiClient.get('/auditor/data-integrity');
     return response.data;
   },
 
-  // Logs view
   getLogs: async (params?: { type?: string; level?: string; startDate?: string; endDate?: string; page?: number; pageSize?: number }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1307,14 +1254,12 @@ export const auditorAPI = {
     return response.data;
   },
 
-  // Tools
   getTools: async () => {
     const response = await apiClient.get('/auditor/tools');
     return response.data;
   },
 };
 
-// Sales Rep Dashboard API
 export const salesRepAPI = {
   getStats: async () => {
     const response = await apiClient.get('/sales-rep/stats');
@@ -1347,7 +1292,6 @@ export const salesRepAPI = {
   },
 };
 
-// API Client Dashboard API
 export const apiClientDashboardAPI = {
   getStats: async () => {
     const response = await apiClient.get('/api-client/stats');
@@ -1380,15 +1324,13 @@ export const apiClientDashboardAPI = {
   },
 };
 
-// Tenant Analysis API
 export const tenantAnalysisAPI = {
-  // Perform a new tenant analysis
+  
   analyze: async (data: { document: string; name?: string; analysisType?: 'FULL' | 'FINANCIAL' | 'BACKGROUND' | 'QUICK' }) => {
     const response = await apiClient.post('/tenant-analysis/analyze', data);
     return response.data;
   },
 
-  // Get analysis history with filters
   getHistory: async (params?: {
     document?: string;
     riskLevel?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -1407,19 +1349,16 @@ export const tenantAnalysisAPI = {
     return response.data;
   },
 
-  // Get analysis statistics for dashboard
   getStats: async () => {
     const response = await apiClient.get('/tenant-analysis/stats');
     return response.data;
   },
 
-  // Get specific analysis by ID
   getById: async (id: string) => {
     const response = await apiClient.get(`/tenant-analysis/${id}`);
     return response.data;
   },
 
-  // Health check
   healthCheck: async () => {
     const response = await apiClient.get('/tenant-analysis/health');
     return response.data;

@@ -28,13 +28,11 @@ export function ManagerSettings() {
   const [activeTab, setActiveTab] = useState('profile');
   const queryClient = useQueryClient();
 
-  // Fetch profile
   const { data: profileData = {}, isLoading: profileLoading } = useQuery({
     queryKey: ['platform-manager', 'profile'],
     queryFn: platformManagerAPI.getManagerProfile,
   });
 
-  // Fetch notification settings
   const { data: notificationsData = {}, isLoading: notificationsLoading } = useQuery({
     queryKey: ['platform-manager', 'notification-settings'],
     queryFn: platformManagerAPI.getNotificationSettings,
@@ -61,7 +59,6 @@ export function ManagerSettings() {
     digestWeekly: false,
   });
 
-  // Initialize state from API data
   useState(() => {
     if (profileData && Object.keys(profileData).length > 0) {
       setProfile({
@@ -82,7 +79,6 @@ export function ManagerSettings() {
     }
   });
 
-  // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: (data: { name?: string; phone?: string }) => platformManagerAPI.updateManagerProfile(data),
     onSuccess: () => {
@@ -90,7 +86,6 @@ export function ManagerSettings() {
     },
   });
 
-  // Update notification settings mutation
   const updateNotificationsMutation = useMutation({
     mutationFn: (settings: NotificationSettings) => platformManagerAPI.updateNotificationSettings(settings),
     onSuccess: () => {
@@ -108,7 +103,6 @@ export function ManagerSettings() {
 
   const isLoading = profileLoading || notificationsLoading;
 
-  // Update local state when data is fetched
   const displayProfile = {
     ...profile,
     name: profile.name || profileData.name || '',
@@ -130,13 +124,13 @@ export function ManagerSettings() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold">Configurações</h1>
         <p className="text-muted-foreground">Gerencie suas preferências pessoais (acesso limitado)</p>
       </div>
 
-      {/* Tabs */}
+      {}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="profile">
@@ -157,7 +151,7 @@ export function ManagerSettings() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Profile Tab */}
+        {}
         <TabsContent value="profile" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -165,7 +159,7 @@ export function ManagerSettings() {
               <CardDescription>Seus dados cadastrados no sistema</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Profile Header */}
+              {}
               <div className="flex items-center gap-4">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-2xl font-bold">
                   {displayProfile.name?.charAt(0) || '?'}
@@ -179,7 +173,7 @@ export function ManagerSettings() {
                 </div>
               </div>
 
-              {/* Profile Form */}
+              {}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nome Completo</Label>
@@ -215,7 +209,7 @@ export function ManagerSettings() {
                 </div>
               </div>
 
-              {/* Account Info */}
+              {}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                   <Calendar className="w-5 h-5 text-muted-foreground" />
@@ -247,7 +241,7 @@ export function ManagerSettings() {
           </Card>
         </TabsContent>
 
-        {/* Notifications Tab */}
+        {}
         <TabsContent value="notifications" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -255,7 +249,7 @@ export function ManagerSettings() {
               <CardDescription>Configure como você deseja receber notificações</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Email Notifications */}
+              {}
               <div>
                 <h4 className="font-medium mb-4">Notificações por Email</h4>
                 <div className="space-y-4">
@@ -292,7 +286,7 @@ export function ManagerSettings() {
                 </div>
               </div>
 
-              {/* Push Notifications */}
+              {}
               <div className="pt-4 border-t">
                 <h4 className="font-medium mb-4">Notificações Push</h4>
                 <div className="space-y-4">
@@ -329,7 +323,7 @@ export function ManagerSettings() {
                 </div>
               </div>
 
-              {/* Digest */}
+              {}
               <div className="pt-4 border-t">
                 <h4 className="font-medium mb-4">Resumo Periódico</h4>
                 <div className="space-y-4">
@@ -370,7 +364,7 @@ export function ManagerSettings() {
           </Card>
         </TabsContent>
 
-        {/* Security Tab */}
+        {}
         <TabsContent value="security" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -378,7 +372,7 @@ export function ManagerSettings() {
               <CardDescription>Configurações de segurança e autenticação</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Password */}
+              {}
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Lock className="w-5 h-5 text-muted-foreground" />
@@ -390,7 +384,7 @@ export function ManagerSettings() {
                 <Button variant="outline">Alterar Senha</Button>
               </div>
 
-              {/* 2FA */}
+              {}
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Shield className="w-5 h-5 text-muted-foreground" />
@@ -402,7 +396,7 @@ export function ManagerSettings() {
                 <Badge variant="outline">Em breve</Badge>
               </div>
 
-              {/* Active Sessions */}
+              {}
               <div>
                 <h4 className="font-medium mb-4">Sessões Ativas</h4>
                 <div className="space-y-3">
@@ -419,7 +413,7 @@ export function ManagerSettings() {
           </Card>
         </TabsContent>
 
-        {/* Preferences Tab */}
+        {}
         <TabsContent value="preferences" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -461,7 +455,7 @@ export function ManagerSettings() {
             </CardContent>
           </Card>
 
-          {/* Limited Access Notice */}
+          {}
           <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
             <p className="text-sm text-yellow-700">
               <strong>Nota:</strong> Como Gerente de Plataforma, você pode modificar suas preferências pessoais e configurações de notificação. Configurações do sistema e permissões são gerenciadas exclusivamente pelo Administrador.

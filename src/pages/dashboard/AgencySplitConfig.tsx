@@ -35,33 +35,28 @@ export function AgencySplitConfig() {
   const [saving, setSaving] = useState(false);
   const [exampleRent, setExampleRent] = useState<string>('1000');
 
-  // Check permissions
   const canViewSplit = hasPermission('payments:read') || user?.role === 'AGENCY_ADMIN';
   const canUpdateSplit = hasPermission('agencies:update') || user?.role === 'AGENCY_ADMIN';
   const agencyId = user?.agencyId;
 
-  // Fetch agency data
   const { data: agency, isLoading: agencyLoading } = useQuery({
     queryKey: ['agency', agencyId],
     queryFn: () => agenciesAPI.getAgencyById(agencyId!),
     enabled: !!agencyId && canViewSplit,
   });
 
-  // Fetch platform payment config (to show platform fee)
   const { data: paymentConfig, isLoading: configLoading } = useQuery({
     queryKey: ['paymentConfig'],
     queryFn: () => settingsAPI.getPaymentConfig(),
     enabled: canViewSplit,
   });
 
-  // Update agency fee when data loads
   useEffect(() => {
     if (agency?.agencyFee !== undefined) {
       setAgencyFee(agency.agencyFee.toString());
     }
   }, [agency]);
 
-  // Update mutation
   const updateMutation = useMutation({
     mutationFn: (data: { agencyFee: number }) =>
       agenciesAPI.updateAgency(agencyId!, data),
@@ -74,7 +69,6 @@ export function AgencySplitConfig() {
     },
   });
 
-  // Don't render if no permission or no agency
   if (!canViewSplit || !agencyId) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -102,7 +96,6 @@ export function AgencySplitConfig() {
   const handleSave = async () => {
     const feeValue = parseFloat(agencyFee);
 
-    // Validation
     if (isNaN(feeValue) || feeValue < 0) {
       toast.error('A taxa deve ser um valor positivo');
       return;
@@ -123,7 +116,7 @@ export function AgencySplitConfig() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold">Configuração de Divisão</h1>
         <p className="text-sm sm:text-base text-muted-foreground mt-1">
@@ -131,7 +124,7 @@ export function AgencySplitConfig() {
         </p>
       </div>
 
-      {/* Info Alert */}
+      {}
       <Alert className="border-blue-200 bg-blue-50">
         <Info className="h-5 w-5 text-blue-600" />
         <AlertDescription className="text-blue-800">
@@ -147,7 +140,7 @@ export function AgencySplitConfig() {
         </AlertDescription>
       </Alert>
 
-      {/* Split Configuration Card */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -160,7 +153,7 @@ export function AgencySplitConfig() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Platform Fee (Read-only) */}
+            {}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <DollarSign className="w-4 h-4 text-orange-600" />
@@ -180,7 +173,7 @@ export function AgencySplitConfig() {
               </p>
             </div>
 
-            {/* Agency Fee (Editable) */}
+            {}
             <div className="space-y-2">
               <Label htmlFor="agencyFee" className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-blue-600" />
@@ -217,7 +210,7 @@ export function AgencySplitConfig() {
               </p>
             </div>
 
-            {/* Owner Fee (Calculated) */}
+            {}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <User className="w-4 h-4 text-green-600" />
@@ -249,7 +242,7 @@ export function AgencySplitConfig() {
 
           <Separator />
 
-          {/* Example Calculation */}
+          {}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Calculator className="w-5 h-5 text-muted-foreground" />
@@ -310,7 +303,7 @@ export function AgencySplitConfig() {
             </div>
           </div>
 
-          {/* Visual Split Bar */}
+          {}
           <div className="space-y-2">
             <Label>Visualização da Divisão</Label>
             <div className="h-8 rounded-lg overflow-hidden flex">
@@ -375,7 +368,7 @@ export function AgencySplitConfig() {
         </CardContent>
       </Card>
 
-      {/* Additional Info */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Informações Importantes</CardTitle>

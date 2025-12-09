@@ -13,7 +13,7 @@ interface SecurityData {
 }
 
 export function AuditorSecurity() {
-  // Fetch security data from API
+  
   const { data: securityData, isLoading } = useQuery<SecurityData>({
     queryKey: ['auditor-security'],
     queryFn: () => auditorAPI.getSecurity(),
@@ -48,7 +48,7 @@ export function AuditorSecurity() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-red-100 rounded-lg">
           <Shield className="w-6 h-6 text-red-700" />
@@ -59,7 +59,7 @@ export function AuditorSecurity() {
         </div>
       </div>
 
-      {/* Loading State */}
+      {}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -67,7 +67,7 @@ export function AuditorSecurity() {
         </div>
       ) : (
         <>
-          {/* Stats */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardContent className="p-4 flex items-center gap-3">
@@ -115,7 +115,7 @@ export function AuditorSecurity() {
             </Card>
           </div>
 
-          {/* Security Overview */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">

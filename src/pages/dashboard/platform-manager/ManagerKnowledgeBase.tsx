@@ -10,7 +10,6 @@ import { Badge } from '../../../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
 import { platformManagerAPI } from '../../../api';
 
-// Icon mapping for categories
 const iconMap: Record<string, any> = {
   User,
   FileText,
@@ -23,13 +22,11 @@ export function ManagerKnowledgeBase() {
   const [activeTab, setActiveTab] = useState('docs');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Fetch categories
   const { data: documentationCategories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ['platform-manager', 'knowledge-base', 'categories'],
     queryFn: platformManagerAPI.getKnowledgeBaseCategories,
   });
 
-  // Fetch articles
   const { data: documentationArticles = [], isLoading: articlesLoading } = useQuery({
     queryKey: ['platform-manager', 'knowledge-base', 'articles', selectedCategory, searchTerm],
     queryFn: () => platformManagerAPI.getKnowledgeBaseArticles({
@@ -38,13 +35,11 @@ export function ManagerKnowledgeBase() {
     }),
   });
 
-  // Fetch procedures
   const { data: procedures = [], isLoading: proceduresLoading } = useQuery({
     queryKey: ['platform-manager', 'knowledge-base', 'procedures'],
     queryFn: platformManagerAPI.getProcedures,
   });
 
-  // Fetch checklists
   const { data: checklists = [], isLoading: checklistsLoading } = useQuery({
     queryKey: ['platform-manager', 'knowledge-base', 'checklists'],
     queryFn: platformManagerAPI.getChecklists,
@@ -69,13 +64,13 @@ export function ManagerKnowledgeBase() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold">Base de Conhecimento</h1>
         <p className="text-muted-foreground">Documentação interna, procedimentos e checklists</p>
       </div>
 
-      {/* Search */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="relative">
@@ -90,7 +85,7 @@ export function ManagerKnowledgeBase() {
         </CardContent>
       </Card>
 
-      {/* Tabs */}
+      {}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="docs">
@@ -107,9 +102,9 @@ export function ManagerKnowledgeBase() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Documentation Tab */}
+        {}
         <TabsContent value="docs" className="space-y-4 mt-4">
-          {/* Categories */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {documentationCategories.map((category: any) => {
               const IconComponent = iconMap[category.icon] || FileText;
@@ -147,7 +142,7 @@ export function ManagerKnowledgeBase() {
             })}
           </div>
 
-          {/* Articles List */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">
@@ -203,7 +198,7 @@ export function ManagerKnowledgeBase() {
           </Card>
         </TabsContent>
 
-        {/* Procedures Tab */}
+        {}
         <TabsContent value="procedures" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -238,7 +233,7 @@ export function ManagerKnowledgeBase() {
           </Card>
         </TabsContent>
 
-        {/* Checklists Tab */}
+        {}
         <TabsContent value="checklists" className="space-y-4 mt-4">
           <Card>
             <CardHeader>

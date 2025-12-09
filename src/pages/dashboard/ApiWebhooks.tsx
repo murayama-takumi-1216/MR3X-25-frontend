@@ -52,7 +52,6 @@ export function ApiWebhooks() {
   const [selectedWebhook, setSelectedWebhook] = useState<any>(null);
   const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
 
-  // Form state
   const [webhookUrl, setWebhookUrl] = useState('');
   const [webhookName, setWebhookName] = useState('');
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
@@ -65,7 +64,7 @@ export function ApiWebhooks() {
         const response = await apiClient.get('/api-client/webhooks');
         return response.data;
       } catch {
-        // Return mock data for development
+        
         return {
           webhooks: [
             {
@@ -324,7 +323,7 @@ export function ApiWebhooks() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Webhooks</h1>
@@ -338,7 +337,7 @@ export function ApiWebhooks() {
         </Button>
       </div>
 
-      {/* Webhook Secret */}
+      {}
       <Card className="border-purple-200 bg-purple-50">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
@@ -372,7 +371,7 @@ export function ApiWebhooks() {
         </TabsList>
 
         <TabsContent value="webhooks" className="space-y-4">
-          {/* Webhooks List */}
+          {}
           {webhooks?.webhooks?.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
@@ -473,7 +472,7 @@ export function ApiWebhooks() {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4">
-          {/* Delivery History */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle>Recent Deliveries</CardTitle>
@@ -547,7 +546,7 @@ export function ApiWebhooks() {
         </TabsContent>
       </Tabs>
 
-      {/* Create/Edit Modal */}
+      {}
       <Dialog open={showCreateModal || showEditModal} onOpenChange={(open) => {
         if (!open) {
           setShowCreateModal(false);
@@ -656,7 +655,7 @@ export function ApiWebhooks() {
         </DialogContent>
       </Dialog>
 
-      {/* Delivery Details Modal */}
+      {}
       <Dialog open={showDeliveryDetails} onOpenChange={setShowDeliveryDetails}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -719,7 +718,7 @@ export function ApiWebhooks() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

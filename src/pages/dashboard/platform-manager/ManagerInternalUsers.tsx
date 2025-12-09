@@ -69,7 +69,6 @@ export function ManagerInternalUsers() {
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
-  // Fetch internal users
   const { data: internalUsers = [], isLoading } = useQuery({
     queryKey: ['platform-manager', 'internal-users', searchTerm, roleFilter, statusFilter],
     queryFn: () => platformManagerAPI.getInternalUsers({
@@ -110,13 +109,13 @@ export function ManagerInternalUsers() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold">Usuários Internos MR3X</h1>
         <p className="text-muted-foreground">Visualize a equipe interna da plataforma (somente leitura)</p>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -185,7 +184,7 @@ export function ManagerInternalUsers() {
         </Card>
       </div>
 
-      {/* Filters */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
@@ -226,7 +225,7 @@ export function ManagerInternalUsers() {
         </CardContent>
       </Card>
 
-      {/* Users Table */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Equipe Interna</CardTitle>
@@ -295,7 +294,7 @@ export function ManagerInternalUsers() {
         </CardContent>
       </Card>
 
-      {/* User Details Dialog */}
+      {}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -305,7 +304,7 @@ export function ManagerInternalUsers() {
 
           {selectedUser && (
             <div className="space-y-6 mt-4">
-              {/* User Header */}
+              {}
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-2xl font-bold">
                   {selectedUser.name?.charAt(0) || '?'}
@@ -322,7 +321,7 @@ export function ManagerInternalUsers() {
                 </div>
               </div>
 
-              {/* Contact Info */}
+              {}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Informações de Contato</CardTitle>
@@ -359,7 +358,7 @@ export function ManagerInternalUsers() {
                 </CardContent>
               </Card>
 
-              {/* Permissions */}
+              {}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Permissões</CardTitle>

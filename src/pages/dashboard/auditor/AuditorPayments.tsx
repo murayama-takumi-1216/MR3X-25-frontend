@@ -28,7 +28,6 @@ interface SplitDetail {
   percentage: number;
 }
 
-// Map API response to component format
 const mapApiPaymentToTransaction = (payment: any): Transaction => {
   return {
     id: `TXN-${payment.id}`,
@@ -46,13 +45,11 @@ export function AuditorPayments() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
-  // Fetch payments from API
   const { data: apiPayments = [], isLoading } = useQuery({
     queryKey: ['auditor-payments'],
     queryFn: () => auditorAPI.getPayments(),
   });
 
-  // Map API payments to component format
   const transactions: Transaction[] = Array.isArray(apiPayments) ? apiPayments.map(mapApiPaymentToTransaction) : [];
 
   const filteredTransactions = transactions.filter(txn =>
@@ -84,7 +81,7 @@ export function AuditorPayments() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-orange-100 rounded-lg">
           <Receipt className="w-6 h-6 text-orange-700" />
@@ -95,7 +92,7 @@ export function AuditorPayments() {
         </div>
       </div>
 
-      {/* Stats */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
@@ -143,7 +140,7 @@ export function AuditorPayments() {
         </Card>
       </div>
 
-      {/* Search */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="relative">
@@ -159,7 +156,7 @@ export function AuditorPayments() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Transactions List */}
+        {}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">Histórico de Transações</CardTitle>
@@ -200,7 +197,7 @@ export function AuditorPayments() {
           </CardContent>
         </Card>
 
-        {/* Transaction Details */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">

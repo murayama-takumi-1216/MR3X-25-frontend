@@ -66,7 +66,6 @@ export const authApi = {
     return response.data;
   },
 
-  // Email verification for registration flow
   requestEmailCode: async (email: string): Promise<EmailCodeResponse> => {
     const response = await apiClient.post('/auth/verify-email/request', { email });
     return response.data;

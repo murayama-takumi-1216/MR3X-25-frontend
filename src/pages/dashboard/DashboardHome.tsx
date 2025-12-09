@@ -22,57 +22,46 @@ export function DashboardHome() {
   const { hasPermission, user } = useAuth();
   const navigate = useNavigate();
 
-  // Render INQUILINO users tenant dashboard directly
   if (user?.role === 'INQUILINO') {
     return <TenantDashboard />;
   }
 
-  // Render BROKER users broker dashboard directly
   if (user?.role === 'BROKER') {
     return <BrokerDashboard />;
   }
 
-  // Render API_CLIENT users API dashboard directly
   if (user?.role === 'API_CLIENT') {
     return <ApiClientDashboard />;
   }
 
-  // Render REPRESENTATIVE users sales rep dashboard directly
   if (user?.role === 'REPRESENTATIVE') {
     return <SalesRepDashboard />;
   }
 
-  // Render LEGAL_AUDITOR users auditor dashboard directly
   if (user?.role === 'LEGAL_AUDITOR') {
     return <AuditorDashboard />;
   }
 
-  // Render PLATFORM_MANAGER users manager dashboard directly
   if (user?.role === 'PLATFORM_MANAGER') {
     return <ManagerDashboard />;
   }
 
-  // Render ADMIN users admin dashboard directly
   if (user?.role === 'ADMIN') {
     return <AdminDashboard />;
   }
 
-  // Render CEO users CEO dashboard directly
   if (user?.role === 'CEO') {
     return <CEODashboard />;
   }
 
-  // Render INDEPENDENT_OWNER users independent owner dashboard directly
   if (user?.role === 'INDEPENDENT_OWNER') {
     return <IndependentOwnerDashboard />;
   }
 
-  // Render AGENCY_ADMIN users (Diretor) agency admin dashboard directly
   if (user?.role === 'AGENCY_ADMIN') {
     return <AgencyAdminDashboard />;
   }
 
-  // Check permissions for different dashboard sections
   const canViewDashboard = hasPermission('dashboard:read');
   const canViewProperties = hasPermission('properties:read');
   const canViewContracts = hasPermission('contracts:read');
@@ -93,7 +82,6 @@ export function DashboardHome() {
     enabled: canViewDashboard && canViewPayments,
   });
 
-  // Don't render if no permission
   if (!canViewDashboard) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -115,7 +103,6 @@ export function DashboardHome() {
 
   const overview = dashboard?.overview || {};
 
-  // Mock data for charts
   const defaultInadimplenciaData = [
     { month: 'Jan', inadimplencia: 12 },
     { month: 'Fev', inadimplencia: 8 },
@@ -125,10 +112,8 @@ export function DashboardHome() {
     { month: 'Jun', inadimplencia: 4 },
   ];
 
-  // Colors for pie charts
-  const pieColors = ['#22c55e', '#fbbf24', '#ef4444']; // green, yellow, red
+  const pieColors = ['#22c55e', '#fbbf24', '#ef4444']; 
 
-  // Revenue distribution data
   const revenueData = isCEO
     ? [
         { name: 'Recebido', value: overview.receivedRevenue ?? 0 },
@@ -141,15 +126,10 @@ export function DashboardHome() {
         { name: 'Vencido', value: overview.overdueValue ?? 0 },
       ];
 
-  // Property status data for CEO - with correct colors
-  // Colors: Disponíveis (green), Ocupados (blue), Vencidos (red), Manutenção (yellow)
   const ceoPropertyStatusColors = ['#22c55e', '#3b82f6', '#ef4444', '#fbbf24'];
 
-  // Property status data for non-CEO
-  // Colors: Vagos (gray), Vencidos (red), Em dia (green), Pendentes (yellow)
   const defaultPropertyStatusColors = ['#64748b', '#ef4444', '#22c55e', '#fbbf24'];
 
-  // Property status data
   const propertyStatusData = isCEO && dashboard?.propertyStatus
     ? [
         { name: 'Disponíveis', value: dashboard.propertyStatus.available ?? 0, color: '#22c55e' },
@@ -164,7 +144,6 @@ export function DashboardHome() {
         { name: 'Pendentes', value: overview.pendingUnits ?? 0, color: '#fbbf24' },
       ];
 
-  // Get colors based on user role
   const propertyStatusPieColors = isCEO ? ceoPropertyStatusColors : defaultPropertyStatusColors;
 
   const getStatusBadge = (status: string) => {
@@ -191,7 +170,7 @@ export function DashboardHome() {
         </p>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {isCEO ? (
           <>
@@ -218,7 +197,7 @@ export function DashboardHome() {
         )}
       </div>
 
-      {/* CEO-Specific Additional KPIs */}
+      {}
       {isCEO && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <StatCard title="Receita Mensal Total" value={formatCurrency(overview.monthlyRevenue || 0)} icon={DollarSign} color="green" isAmount />
@@ -228,7 +207,7 @@ export function DashboardHome() {
         </div>
       )}
 
-      {/* Plan Usage Widget for Agency Users */}
+      {}
       {!isCEO && user?.agencyId && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <PlanUsageWidget
@@ -238,9 +217,9 @@ export function DashboardHome() {
         </div>
       )}
 
-      {/* Charts Section */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Distribution Pie Chart */}
+        {}
         {canViewPayments && (
           <Card>
             <CardHeader>
@@ -282,7 +261,7 @@ export function DashboardHome() {
           </Card>
         )}
 
-        {/* Property Status Pie Chart */}
+        {}
         {canViewProperties && (
           <Card>
             <CardHeader>
@@ -326,9 +305,9 @@ export function DashboardHome() {
         )}
       </div>
 
-      {/* Due Dates and Inadimplencia Chart */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Due Dates Table */}
+        {}
         {canViewPayments && (
           <Card>
             <CardHeader>
@@ -378,7 +357,7 @@ export function DashboardHome() {
           </Card>
         )}
 
-        {/* Inadimplencia Chart */}
+        {}
         {canViewReports && (
           <Card>
             <CardHeader>
@@ -408,7 +387,7 @@ export function DashboardHome() {
         )}
       </div>
 
-      {/* Pending Payments */}
+      {}
       {canViewPayments && dashboard?.pendingPayments && dashboard.pendingPayments.length > 0 && (
         <div className="bg-card border border-border rounded-lg p-6">
           <div className="flex items-center gap-2 mb-4">
@@ -447,7 +426,7 @@ export function DashboardHome() {
         </div>
       )}
 
-      {/* Recent Payments */}
+      {}
       {canViewPayments && dashboard?.recentPayments && dashboard.recentPayments.length > 0 && (
         <div className="bg-card border border-border rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Pagamentos Recentes</h2>
@@ -478,7 +457,7 @@ export function DashboardHome() {
         </div>
       )}
 
-      {/* Top Agencies (CEO only) */}
+      {}
       {isCEO && dashboard?.topAgencies && dashboard.topAgencies.length > 0 && (
         <div className="bg-card border border-border rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Principais Agências</h2>

@@ -538,7 +538,7 @@ export function Managers() {
           </div>
         )}
 
-        {/* Create Modal */}
+        {}
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -657,7 +657,7 @@ export function Managers() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Modal */}
+        {}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -759,7 +759,7 @@ export function Managers() {
           </DialogContent>
         </Dialog>
 
-        {/* Detail Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -828,7 +828,7 @@ export function Managers() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation */}
+        {}
         <AlertDialog open={!!managerToDelete} onOpenChange={() => setManagerToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>

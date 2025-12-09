@@ -28,7 +28,6 @@ import { apiClientDashboardAPI } from '../../api';
 
 const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
-// Chart container to prevent -1 dimension errors
 function ChartContainer({ children, height = 300 }: { children: React.ReactNode; height?: number }) {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -115,7 +114,7 @@ export function ApiClientDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Header */}
+      {}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-6 text-white">
         <h1 className="text-2xl font-bold">API Dashboard</h1>
         <p className="text-purple-100 mt-1">
@@ -132,7 +131,7 @@ export function ApiClientDashboard() {
         </div>
       </div>
 
-      {/* Summary Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-6">
@@ -195,9 +194,9 @@ export function ApiClientDashboard() {
         </Card>
       </div>
 
-      {/* Charts Row */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Daily Requests Chart */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -247,7 +246,7 @@ export function ApiClientDashboard() {
           </CardContent>
         </Card>
 
-        {/* Method Distribution */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -285,7 +284,7 @@ export function ApiClientDashboard() {
         </Card>
       </div>
 
-      {/* Endpoint Stats */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -310,9 +309,9 @@ export function ApiClientDashboard() {
         </CardContent>
       </Card>
 
-      {/* Token Status & Quick Actions */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Token & API Health Status */}
+        {}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -323,7 +322,7 @@ export function ApiClientDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Token Health */}
+              {}
               <div className="p-4 border rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium">Token Status</span>
@@ -344,7 +343,7 @@ export function ApiClientDashboard() {
                 </div>
               </div>
 
-              {/* API Performance */}
+              {}
               <div className="p-4 border rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium">Performance</span>
@@ -365,7 +364,7 @@ export function ApiClientDashboard() {
                 </div>
               </div>
 
-              {/* Monthly Usage */}
+              {}
               <div className="p-4 border rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium">Monthly Usage</span>
@@ -392,7 +391,7 @@ export function ApiClientDashboard() {
                 </div>
               </div>
 
-              {/* Last Activity */}
+              {}
               <div className="p-4 border rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium">Last Activity</span>
@@ -415,7 +414,7 @@ export function ApiClientDashboard() {
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>

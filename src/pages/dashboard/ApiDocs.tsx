@@ -165,7 +165,7 @@ export function ApiDocs() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold">API Documentation</h1>
         <p className="text-muted-foreground mt-1">
@@ -173,7 +173,7 @@ export function ApiDocs() {
         </p>
       </div>
 
-      {/* Quick Links */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
           <CardContent className="p-4 flex items-center gap-3">
@@ -222,7 +222,7 @@ export function ApiDocs() {
         </Card>
       </div>
 
-      {/* Authentication */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -265,14 +265,14 @@ export function ApiDocs() {
         </CardContent>
       </Card>
 
-      {/* Base URL */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle>Base URL</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
-            <code className="text-green-400 font-mono">https://api.mr3x.com/v1</code>
+            <code className="text-green-400 font-mono">https:
             <Button
               variant="ghost"
               size="sm"
@@ -285,7 +285,7 @@ export function ApiDocs() {
         </CardContent>
       </Card>
 
-      {/* Endpoints */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle>API Endpoints</CardTitle>
@@ -338,7 +338,7 @@ export function ApiDocs() {
         </CardContent>
       </Card>
 
-      {/* Code Examples */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle>Code Examples</CardTitle>
@@ -373,7 +373,7 @@ export function ApiDocs() {
         </CardContent>
       </Card>
 
-      {/* Error Codes */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle>Error Codes</CardTitle>
@@ -411,7 +411,7 @@ export function ApiDocs() {
         </CardContent>
       </Card>
 
-      {/* Rate Limiting */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle>Rate Limiting</CardTitle>
@@ -447,7 +447,7 @@ export function ApiDocs() {
         </CardContent>
       </Card>
 
-      {/* SDK Downloads */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle>Official SDKs</CardTitle>

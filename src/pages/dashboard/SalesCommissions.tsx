@@ -193,7 +193,7 @@ export function SalesCommissions() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Comissões</h1>
@@ -205,7 +205,7 @@ export function SalesCommissions() {
         </Button>
       </div>
 
-      {/* Summary Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-6">
@@ -267,7 +267,7 @@ export function SalesCommissions() {
         </Card>
       </div>
 
-      {/* Charts */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -326,7 +326,7 @@ export function SalesCommissions() {
         </Card>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-6 text-center">
@@ -348,7 +348,7 @@ export function SalesCommissions() {
         </Card>
       </div>
 
-      {/* Filters */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -382,7 +382,7 @@ export function SalesCommissions() {
         </CardContent>
       </Card>
 
-      {/* Commissions Table */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -447,7 +447,7 @@ export function SalesCommissions() {
         </CardContent>
       </Card>
 
-      {/* Payment Schedule Info */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

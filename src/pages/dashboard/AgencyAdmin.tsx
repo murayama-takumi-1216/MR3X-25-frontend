@@ -43,12 +43,10 @@ import { CEPInput } from '@/components/ui/cep-input'
 import { isValidCEPFormat } from '@/lib/validation'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
-// This page shows AGENCY_ADMIN users (Diretor de Agência) - real estate agency directors
 export function AgencyAdmin() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
 
-  // Allow only CEO or ADMIN to view this page
   const isCEO = user?.role === 'CEO'
   const canView = user && ['CEO', 'ADMIN'].includes(user.role)
   const canUpdate = canView && !isCEO
@@ -62,7 +60,6 @@ export function AgencyAdmin() {
   const [updating, setUpdating] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  // Fetch AGENCY_ADMIN users (Diretor de Agência)
   const { data: agencyAdminsData, isLoading } = useQuery({
     queryKey: ['agency-admins'],
     queryFn: () => usersAPI.listUsers({ role: 'AGENCY_ADMIN' }),
@@ -367,7 +364,7 @@ export function AgencyAdmin() {
           </div>
         )}
 
-        {/* View Agency Admin Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-xl">
             <DialogHeader>
@@ -429,7 +426,7 @@ export function AgencyAdmin() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Agency Admin Modal */}
+        {}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -524,7 +521,7 @@ export function AgencyAdmin() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
+        {}
         <AlertDialog open={!!agencyToDelete} onOpenChange={() => setAgencyToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>

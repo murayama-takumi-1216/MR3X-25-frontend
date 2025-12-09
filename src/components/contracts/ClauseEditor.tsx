@@ -104,9 +104,9 @@ export function ClauseEditor({
     <div className={cn('border rounded-lg overflow-hidden', className)}>
       {!readOnly && (
         <>
-          {/* Desktop Toolbar */}
+          {}
           <div className="hidden sm:flex border-b bg-muted/30 p-2 flex-wrap gap-1">
-            {/* Text Style */}
+            {}
             <div className="flex items-center gap-0.5 border-r pr-2 mr-2">
               <ToolbarButton
                 onClick={() => editor.chain().focus().toggleBold().run()}
@@ -131,7 +131,7 @@ export function ClauseEditor({
               </ToolbarButton>
             </div>
 
-            {/* Headings */}
+            {}
             <div className="flex items-center gap-0.5 border-r pr-2 mr-2">
               <ToolbarButton
                 onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -156,7 +156,7 @@ export function ClauseEditor({
               </ToolbarButton>
             </div>
 
-            {/* Lists */}
+            {}
             <div className="flex items-center gap-0.5 border-r pr-2 mr-2">
               <ToolbarButton
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -174,7 +174,7 @@ export function ClauseEditor({
               </ToolbarButton>
             </div>
 
-            {/* Alignment */}
+            {}
             <div className="flex items-center gap-0.5 border-r pr-2 mr-2">
               <ToolbarButton
                 onClick={() => editor.chain().focus().setTextAlign('left').run()}
@@ -206,7 +206,7 @@ export function ClauseEditor({
               </ToolbarButton>
             </div>
 
-            {/* Undo/Redo */}
+            {}
             <div className="flex items-center gap-0.5">
               <ToolbarButton
                 onClick={() => editor.chain().focus().undo().run()}
@@ -225,9 +225,9 @@ export function ClauseEditor({
             </div>
           </div>
 
-          {/* Mobile Toolbar */}
+          {}
           <div className="flex sm:hidden border-b bg-muted/30 p-2 gap-1 overflow-x-auto">
-            {/* Essential formatting buttons visible on mobile */}
+            {}
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleBold().run()}
               active={editor.isActive('bold')}
@@ -257,7 +257,7 @@ export function ClauseEditor({
               <Undo className="w-4 h-4" />
             </ToolbarButton>
 
-            {/* More options dropdown for mobile */}
+            {}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">

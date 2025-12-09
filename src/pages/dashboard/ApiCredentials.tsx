@@ -38,7 +38,7 @@ export function ApiCredentials() {
         const response = await apiClient.get('/api-client/credentials');
         return response.data;
       } catch {
-        // Return mock data for development (using env prefixes with masked values)
+        
         const secretPrefix = import.meta.env.VITE_API_CLIENT_SECRET_PREFIX;
         const publicKeyPrefix = import.meta.env.VITE_API_CLIENT_PUBLIC_KEY_PREFIX;
         const webhookSecretPrefix = import.meta.env.VITE_API_CLIENT_WEBHOOK_SECRET_PREFIX;
@@ -120,7 +120,7 @@ export function ApiCredentials() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold">API Credentials</h1>
         <p className="text-muted-foreground mt-1">
@@ -128,7 +128,7 @@ export function ApiCredentials() {
         </p>
       </div>
 
-      {/* Warning Card */}
+      {}
       <Card className="border-yellow-200 bg-yellow-50">
         <CardContent className="p-4 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
@@ -141,7 +141,7 @@ export function ApiCredentials() {
         </CardContent>
       </Card>
 
-      {/* Environment Badge */}
+      {}
       <div className="flex items-center gap-2">
         <Badge className={credentials?.environment === 'production' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
           <Shield className="w-3 h-3 mr-1" />
@@ -152,9 +152,9 @@ export function ApiCredentials() {
         </span>
       </div>
 
-      {/* Credentials Cards */}
+      {}
       <div className="grid grid-cols-1 gap-6">
-        {/* Client ID */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -183,7 +183,7 @@ export function ApiCredentials() {
           </CardContent>
         </Card>
 
-        {/* Client Secret */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -234,7 +234,7 @@ export function ApiCredentials() {
           </CardContent>
         </Card>
 
-        {/* Public Key */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -263,7 +263,7 @@ export function ApiCredentials() {
           </CardContent>
         </Card>
 
-        {/* Webhook Secret */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -318,7 +318,7 @@ export function ApiCredentials() {
           </CardContent>
         </Card>
 
-        {/* Token Expiration */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -344,7 +344,7 @@ export function ApiCredentials() {
         </Card>
       </div>
 
-      {/* Rotate Confirmation Dialog */}
+      {}
       <AlertDialog open={showRotateDialog} onOpenChange={setShowRotateDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

@@ -1,16 +1,3 @@
-/**
- * Owner Permission Utilities for Frontend
- *
- * PROPRIETARIO (Owner linked to agency):
- * - Has READ-ONLY access to most modules
- * - Cannot sign rental contracts (agency represents them)
- * - Cannot create/edit/delete tenant analysis, payments, inspections, agreements
- * - Can ONLY sign service contracts with the agency
- *
- * INDEPENDENT_OWNER (Owner without agency):
- * - Has FULL control over their properties
- * - Can perform all operations
- */
 
 export type UserRole =
   | 'CEO'
@@ -40,10 +27,6 @@ export interface ModulePermission {
   message?: string;
 }
 
-/**
- * Permission matrix for PROPRIETARIO (agency-managed owner)
- * Key principle: Owner views, Agency acts on their behalf
- */
 const PROPRIETARIO_PERMISSIONS: Record<string, ModulePermission> = {
   dashboard: {
     canView: true,
@@ -99,7 +82,7 @@ const PROPRIETARIO_PERMISSIONS: Record<string, ModulePermission> = {
     canCreate: false,
     canEdit: false,
     canDelete: false,
-    canSign: false, // Cannot sign rental contracts - agency represents them
+    canSign: false, 
     canApprove: false,
     canExport: true,
     message: 'Contratos de aluguel são assinados pela imobiliária em nome do proprietário',
@@ -109,7 +92,7 @@ const PROPRIETARIO_PERMISSIONS: Record<string, ModulePermission> = {
     canCreate: false,
     canEdit: false,
     canDelete: false,
-    canSign: true, // CAN sign service contracts with agency
+    canSign: true, 
     canApprove: false,
     canExport: true,
     message: 'Imóvel assina apenas o contrato de prestação de serviços com a imobiliária',
@@ -154,7 +137,7 @@ const PROPRIETARIO_PERMISSIONS: Record<string, ModulePermission> = {
   },
   chat: {
     canView: true,
-    canCreate: true, // Can communicate with agency
+    canCreate: true, 
     canEdit: false,
     canDelete: false,
     canSign: false,
@@ -164,7 +147,7 @@ const PROPRIETARIO_PERMISSIONS: Record<string, ModulePermission> = {
   profile: {
     canView: true,
     canCreate: false,
-    canEdit: true, // Can edit their own profile
+    canEdit: true, 
     canDelete: false,
     canSign: false,
     canApprove: false,
@@ -181,9 +164,6 @@ const PROPRIETARIO_PERMISSIONS: Record<string, ModulePermission> = {
   },
 };
 
-/**
- * Full permissions for INDEPENDENT_OWNER
- */
 const FULL_PERMISSIONS: ModulePermission = {
   canView: true,
   canCreate: true,
@@ -194,30 +174,18 @@ const FULL_PERMISSIONS: ModulePermission = {
   canExport: true,
 };
 
-/**
- * Check if user is an agency-managed owner (PROPRIETARIO)
- */
 export function isAgencyManagedOwner(role: string | undefined): boolean {
   return role === 'PROPRIETARIO';
 }
 
-/**
- * Check if user is an independent owner
- */
 export function isIndependentOwner(role: string | undefined): boolean {
   return role === 'INDEPENDENT_OWNER';
 }
 
-/**
- * Check if user is any type of owner
- */
 export function isOwner(role: string | undefined): boolean {
   return role === 'PROPRIETARIO' || role === 'INDEPENDENT_OWNER';
 }
 
-/**
- * Get permissions for a user role and module
- */
 export function getOwnerPermissions(role: string | undefined, module: string): ModulePermission {
   if (role === 'PROPRIETARIO') {
     return PROPRIETARIO_PERMISSIONS[module] || {
@@ -231,14 +199,9 @@ export function getOwnerPermissions(role: string | undefined, module: string): M
     };
   }
 
-  // All other roles (including INDEPENDENT_OWNER) get full permissions
-  // (individual role restrictions are handled by the backend)
   return FULL_PERMISSIONS;
 }
 
-/**
- * Check if owner can perform a specific action on a module
- */
 export function canOwnerPerformAction(
   role: string | undefined,
   module: string,
@@ -265,9 +228,6 @@ export function canOwnerPerformAction(
   };
 }
 
-/**
- * Hook-friendly function to check if user is in read-only mode for a module
- */
 export function isReadOnlyForModule(role: string | undefined, module: string): boolean {
   if (role !== 'PROPRIETARIO') return false;
 
@@ -275,9 +235,6 @@ export function isReadOnlyForModule(role: string | undefined, module: string): b
   return !permissions.canCreate && !permissions.canEdit && !permissions.canDelete;
 }
 
-/**
- * Get a user-friendly message for why an action is restricted
- */
 export function getRestrictionMessage(module: string): string {
   const messages: Record<string, string> = {
     properties: 'Imóveis são gerenciados pela imobiliária',

@@ -14,7 +14,7 @@ interface IntegrityData {
 }
 
 export function AuditorDataIntegrity() {
-  // Fetch integrity data from API
+  
   const { data: integrityData, isLoading } = useQuery<IntegrityData>({
     queryKey: ['auditor-integrity'],
     queryFn: () => auditorAPI.getDataIntegrity(),
@@ -40,7 +40,7 @@ export function AuditorDataIntegrity() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-emerald-100 rounded-lg">
           <Database className="w-6 h-6 text-emerald-700" />
@@ -51,7 +51,7 @@ export function AuditorDataIntegrity() {
         </div>
       </div>
 
-      {/* Loading State */}
+      {}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -59,7 +59,7 @@ export function AuditorDataIntegrity() {
         </div>
       ) : (
         <>
-          {/* Stats */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardContent className="p-4 flex items-center gap-3">
@@ -107,7 +107,7 @@ export function AuditorDataIntegrity() {
             </Card>
           </div>
 
-          {/* Integrity Overview */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">

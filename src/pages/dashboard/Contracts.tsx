@@ -55,9 +55,6 @@ export function Contracts() {
   const { user, hasPermission } = useAuth();
   const queryClient = useQueryClient();
 
-  // Check permissions
-  // CEO can VIEW but cannot CREATE/EDIT/DELETE contracts
-  // PROPRIETARIO (agency-managed owner) can only VIEW contracts
   const isCEO = user?.role === 'CEO';
   const isProprietario = user?.role === 'PROPRIETARIO';
   const canViewContracts = hasPermission('contracts:read') || ['CEO', 'AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'INDEPENDENT_OWNER', 'PROPRIETARIO'].includes(user?.role || '');
@@ -65,12 +62,10 @@ export function Contracts() {
   const canUpdateContracts = hasPermission('contracts:update') && !isCEO && !isProprietario;
   const canDeleteContracts = hasPermission('contracts:delete') && !isCEO && !isProprietario;
 
-  // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // Form states
   const [newContract, setNewContract] = useState({
     propertyId: '',
     tenantId: '',
@@ -99,7 +94,6 @@ export function Contracts() {
     description: '',
   });
 
-  // Other states
   const [selectedContract, setSelectedContract] = useState<any>(null);
   const [contractToDelete, setContractToDelete] = useState<any>(null);
   const [contractDetail, setContractDetail] = useState<any>(null);
@@ -114,7 +108,6 @@ export function Contracts() {
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [previewContent, setPreviewContent] = useState<string>('');
 
-  // Don't render if no permission
   if (!canViewContracts) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -132,14 +125,12 @@ export function Contracts() {
     enabled: canViewContracts,
   });
 
-  // Load contract templates
   const { data: templates = [], isLoading: templatesLoading } = useQuery({
     queryKey: ['contract-templates'],
     queryFn: () => contractTemplatesAPI.getTemplates(),
     enabled: canCreateContracts,
   });
 
-  // Load properties and tenants only if user can create or update contracts
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -153,13 +144,12 @@ export function Contracts() {
         console.error('Error loading data:', error);
       }
     };
-    // Only load form data if user can create or update contracts
+    
     if (canCreateContracts || canUpdateContracts) {
       loadData();
     }
   }, [canCreateContracts, canUpdateContracts]);
 
-  // Helper function to close all modals
   const closeAllModals = () => {
     setShowCreateModal(false);
     setShowEditModal(false);
@@ -170,16 +160,14 @@ export function Contracts() {
     setEditPdfFile(null);
   };
 
-  // Update contract
   const updateContractMutation = useMutation({
     mutationFn: ({ id, data }: { id: string, data: any }) => contractsAPI.updateContract(id, data),
-    // Note: onSuccess toast is handled in handleUpdateContract to provide context about PDF upload
+    
     onError: () => {
       toast.error('Erro ao atualizar contrato');
     },
   });
 
-  // Delete contract
   const deleteContractMutation = useMutation({
     mutationFn: (id: string) => contractsAPI.deleteContract(id),
     onSuccess: () => {
@@ -196,7 +184,6 @@ export function Contracts() {
     },
   });
 
-  // Handle form submissions
   const handleCreateContract = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
@@ -214,10 +201,8 @@ export function Contracts() {
         creci: newContract.creci || undefined,
       };
 
-      // Create contract first
       const createdContract = await contractsAPI.createContract(contractToSend);
 
-      // If PDF file is provided, upload it
       if (pdfFile && createdContract?.id) {
         try {
           await contractsAPI.uploadContractPDF(createdContract.id.toString(), pdfFile);
@@ -230,7 +215,6 @@ export function Contracts() {
         toast.success('Contrato criado com sucesso');
       }
 
-      // Refresh and close
       queryClient.invalidateQueries({
         queryKey: ['contracts', user?.id ?? 'anonymous', user?.role ?? 'unknown', user?.agencyId ?? 'none', user?.brokerId ?? 'none']
       });
@@ -266,10 +250,8 @@ export function Contracts() {
         dueDay: Number(editForm.dueDay),
       };
 
-      // Update contract first
       await updateContractMutation.mutateAsync({ id: selectedContract.id.toString(), data: contractToSend });
 
-      // If new PDF file is provided, upload it (replaces existing PDF)
       if (editPdfFile) {
         try {
           await contractsAPI.uploadContractPDF(selectedContract.id.toString(), editPdfFile);
@@ -282,7 +264,6 @@ export function Contracts() {
         toast.success('Contrato atualizado com sucesso');
       }
 
-      // Refresh and close
       queryClient.invalidateQueries({
         queryKey: ['contracts', user?.id ?? 'anonymous', user?.role ?? 'unknown', user?.agencyId ?? 'none', user?.brokerId ?? 'none']
       });
@@ -297,7 +278,6 @@ export function Contracts() {
     }
   };
 
-  // Handle contract actions
   const handleViewContract = async (contract: any) => {
     closeAllModals();
     setSelectedContract(contract);
@@ -309,7 +289,7 @@ export function Contracts() {
     closeAllModals();
     setLoading(true);
     try {
-      // Fetch full contract details
+      
       const fullContractDetails = await contractsAPI.getContractById(contract.id.toString());
       console.log('[handleEditContract] Full contract details:', fullContractDetails);
 
@@ -320,7 +300,6 @@ export function Contracts() {
 
       setSelectedContract(fullContractDetails);
 
-      // Ensure propertyId and tenantId are strings for form inputs
       const propertyIdStr = fullContractDetails.propertyId?.toString() || fullContractDetails.property?.id?.toString() || '';
       const tenantIdStr = fullContractDetails.tenantId?.toString() || fullContractDetails.tenantUser?.id?.toString() || '';
 
@@ -334,7 +313,7 @@ export function Contracts() {
         dueDay: fullContractDetails.dueDay ? fullContractDetails.dueDay.toString() : '',
         description: fullContractDetails.description || '',
       });
-      setEditPdfFile(null); // Reset PDF file when opening edit modal
+      setEditPdfFile(null); 
       setShowEditModal(true);
     } catch (error: any) {
       console.error('Error fetching contract details:', error);
@@ -378,7 +357,6 @@ export function Contracts() {
     }
   };
 
-  // Generate preview from template
   const generatePreview = (template: any) => {
     if (!template) return;
 
@@ -394,7 +372,6 @@ export function Contracts() {
 
     const owner = selectedProperty?.owner || {};
 
-    // Calculate months between dates
     const calculateMonths = (start: string, end: string) => {
       if (!start || !end) return '';
       const startDate = new Date(start);
@@ -403,10 +380,8 @@ export function Contracts() {
       return months.toString();
     };
 
-    // Replace placeholders with actual data
     let content = template.content;
 
-    // Replace all placeholders
     const replacements: Record<string, string> = {
       NOME_CORRETOR: user?.name || '',
       CRECI_CORRETOR: newContract.creci || '',
@@ -441,13 +416,11 @@ export function Contracts() {
     setPreviewContent(content);
   };
 
-  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setNewContract(prev => {
       const updated = { ...prev, [name]: value };
 
-      // When property is selected, auto-fill property information
       if (name === 'propertyId' && value) {
         const selectedProperty = properties.find(p => {
           const pId = p.id?.toString() || String(p.id);
@@ -455,20 +428,20 @@ export function Contracts() {
           return pId === vId;
         });
         if (selectedProperty) {
-          // Always update monthly rent when property changes
+          
           if (selectedProperty.monthlyRent) {
             updated.monthlyRent = selectedProperty.monthlyRent.toString();
           }
-          // Always update due day when property changes
+          
           if (selectedProperty.dueDay) {
             updated.dueDay = selectedProperty.dueDay.toString();
           }
-          // Always update tenant if property has a tenant
+          
           if (selectedProperty.tenantId) {
             const tenantIdStr = selectedProperty.tenantId?.toString() || String(selectedProperty.tenantId);
             updated.tenantId = tenantIdStr;
           }
-          // Also update deposit if property has deposit
+          
           if (selectedProperty.deposit) {
             updated.deposit = selectedProperty.deposit.toString();
           }
@@ -484,7 +457,6 @@ export function Contracts() {
     setEditForm(prev => {
       const updated = { ...prev, [name]: value };
 
-      // When property is selected, auto-fill property information
       if (name === 'propertyId' && value) {
         const selectedProperty = properties.find(p => {
           const pId = p.id?.toString() || String(p.id);
@@ -492,20 +464,20 @@ export function Contracts() {
           return pId === vId;
         });
         if (selectedProperty) {
-          // Always update monthly rent when property changes
+          
           if (selectedProperty.monthlyRent) {
             updated.monthlyRent = selectedProperty.monthlyRent.toString();
           }
-          // Always update due day when property changes
+          
           if (selectedProperty.dueDay) {
             updated.dueDay = selectedProperty.dueDay.toString();
           }
-          // Always update tenant if property has a tenant
+          
           if (selectedProperty.tenantId) {
             const tenantIdStr = selectedProperty.tenantId?.toString() || String(selectedProperty.tenantId);
             updated.tenantId = tenantIdStr;
           }
-          // Also update deposit if property has deposit
+          
           if (selectedProperty.deposit) {
             updated.deposit = selectedProperty.deposit.toString();
           }
@@ -516,7 +488,6 @@ export function Contracts() {
     });
   };
 
-  // Status badge component
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'ATIVO':
@@ -549,7 +520,7 @@ export function Contracts() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {/* View Toggle Buttons */}
+            {}
             <div className="flex border border-border rounded-lg p-1">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -600,12 +571,12 @@ export function Contracts() {
           </div>
         </div>
 
-        {/* Contracts Display */}
+        {}
         {contracts && contracts.length > 0 ? (
           viewMode === 'table' ? (
-            /* Table View - Responsive */
+            
             <div className="bg-card border border-border rounded-lg overflow-hidden">
-              {/* Desktop Table View */}
+              {}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted/50">
@@ -691,7 +662,7 @@ export function Contracts() {
                 </table>
               </div>
 
-              {/* Mobile Card View */}
+              {}
               <div className="md:hidden">
                 {contracts.map((contract: any) => (
                   <div key={contract.id} className="border-b border-border last:border-b-0 p-4">
@@ -759,18 +730,18 @@ export function Contracts() {
               </div>
             </div>
           ) : (
-            /* Card View */
+            
             <div className="flex justify-center w-full">
               <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-6 w-full max-w-7xl px-2 items-stretch justify-center">
                 {contracts.map((contract: any) => (
                 <Card key={contract.id} className="transition-all hover:shadow-md flex flex-col w-[400px] mx-auto overflow-hidden">
                   <CardContent className="p-0 h-full flex flex-col overflow-hidden">
                     <div className="flex h-full">
-                      {/* Contract Icon */}
+                      {}
                       <div className="w-28 min-w-28 h-36 bg-primary/10 flex items-center justify-center rounded-l-md">
                         <FileText className="w-12 h-12 text-primary" />
                       </div>
-                      {/* Contract Content */}
+                      {}
                       <div className="flex-1 flex flex-col justify-between p-4">
                         <div>
                           <h3 className="text-lg font-bold break-words">
@@ -844,7 +815,7 @@ export function Contracts() {
             </div>
           )
         ) : (
-          /* Empty State */
+          
           <div className="text-center py-12 sm:py-16 bg-card border border-border rounded-lg px-4">
             <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-base sm:text-lg font-semibold mb-2">Nenhum contrato cadastrado</h3>
@@ -866,7 +837,7 @@ export function Contracts() {
           </div>
         )}
 
-        {/* Create Contract Modal */}
+        {}
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -874,7 +845,7 @@ export function Contracts() {
               <DialogDescription>Preencha os dados abaixo para criar um novo contrato de aluguel.</DialogDescription>
             </DialogHeader>
             <form className="space-y-4" onSubmit={handleCreateContract}>
-              {/* Template Selection */}
+              {}
               <div>
                 <Label htmlFor="templateId">Modelo de Contrato (Opcional)</Label>
                 <Select
@@ -919,7 +890,7 @@ export function Contracts() {
                 )}
               </div>
 
-              {/* CRECI Field */}
+              {}
               {(user?.role === 'BROKER' || user?.role === 'AGENCY_MANAGER' || user?.role === 'AGENCY_ADMIN') && (
                 <div>
                   <Label htmlFor="creci">CRECI (Opcional)</Label>
@@ -1112,7 +1083,7 @@ export function Contracts() {
           </DialogContent>
         </Dialog>
 
-        {/* Preview Modal */}
+        {}
         <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1121,7 +1092,7 @@ export function Contracts() {
             </DialogHeader>
             {previewContent ? (
               <div className="space-y-4">
-                {/* Security Info */}
+                {}
                 <div className="bg-muted p-4 rounded-lg border">
                   <h3 className="font-semibold mb-2">Informações de Segurança</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
@@ -1135,7 +1106,7 @@ export function Contracts() {
                   </div>
                 </div>
 
-                {/* QR Code and Barcode Preview */}
+                {}
                 <div className="flex items-center justify-between p-4 bg-white border rounded-lg">
                   <div className="flex items-center gap-4">
                     {newContract.creci && (
@@ -1161,7 +1132,7 @@ export function Contracts() {
                   </div>
                 </div>
 
-                {/* Contract Content */}
+                {}
                 <div className="prose prose-sm max-w-none bg-white p-6 border rounded-lg">
                   <div className="whitespace-pre-wrap text-sm leading-relaxed">
                     {previewContent.split('\n').map((line, index) => {
@@ -1188,7 +1159,7 @@ export function Contracts() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Contract Modal */}
+        {}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1327,7 +1298,7 @@ export function Contracts() {
                 />
               </div>
 
-              {/* Current PDF Info and Upload Section */}
+              {}
               <div className="space-y-2">
                 {selectedContract?.pdfPath && (
                   <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
@@ -1383,7 +1354,7 @@ export function Contracts() {
           </DialogContent>
         </Dialog>
 
-        {/* Contract Detail Modal */}
+        {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent>
             <DialogHeader>
@@ -1412,7 +1383,7 @@ export function Contracts() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
+        {}
         <AlertDialog open={!!contractToDelete} onOpenChange={() => setContractToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>

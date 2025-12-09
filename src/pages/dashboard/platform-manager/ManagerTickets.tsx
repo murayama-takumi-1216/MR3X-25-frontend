@@ -42,7 +42,6 @@ interface TicketCategory {
   color: string;
 }
 
-// Chart wrapper to prevent -1 dimension errors
 function ChartContainer({ children, height = 300 }: { children: React.ReactNode; height?: number }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -69,31 +68,26 @@ export function ManagerTickets() {
   const [activeTab, setActiveTab] = useState('notes');
   const [newNote, setNewNote] = useState('');
 
-  // Fetch internal notes
   const { data: internalNotes = [], isLoading: notesLoading } = useQuery({
     queryKey: ['platform-manager', 'internal-notes'],
     queryFn: platformManagerAPI.getInternalNotes,
   });
 
-  // Fetch agency messages
   const { data: agencyMessages = [], isLoading: messagesLoading } = useQuery({
     queryKey: ['platform-manager', 'agency-messages'],
     queryFn: platformManagerAPI.getAgencyMessages,
   });
 
-  // Fetch support metrics
   const { data: supportMetrics = {}, isLoading: metricsLoading } = useQuery({
     queryKey: ['platform-manager', 'support-metrics'],
     queryFn: platformManagerAPI.getSupportMetrics,
   });
 
-  // Fetch tickets by category (for pie chart)
   const { data: ticketsByCategory = [], isLoading: categoryLoading } = useQuery({
     queryKey: ['platform-manager', 'ticket-status'],
     queryFn: platformManagerAPI.getTicketStatusDistribution,
   });
 
-  // Fetch monthly tickets (for bar chart)
   const { data: ticketsByMonth = [], isLoading: monthlyLoading } = useQuery({
     queryKey: ['platform-manager', 'monthly-tickets'],
     queryFn: platformManagerAPI.getMonthlyTickets,
@@ -139,13 +133,13 @@ export function ManagerTickets() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold">Tickets e Comunicação</h1>
         <p className="text-muted-foreground">Notas internas, mensagens de agências e analytics de suporte</p>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -201,7 +195,7 @@ export function ManagerTickets() {
         </Card>
       </div>
 
-      {/* Tabs */}
+      {}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="notes">
@@ -218,9 +212,9 @@ export function ManagerTickets() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Internal Notes Tab */}
+        {}
         <TabsContent value="notes" className="space-y-4 mt-4">
-          {/* Add Note */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Nova Nota Interna</CardTitle>
@@ -243,7 +237,7 @@ export function ManagerTickets() {
             </CardContent>
           </Card>
 
-          {/* Notes List */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Notas da Equipe</CardTitle>
@@ -277,7 +271,7 @@ export function ManagerTickets() {
           </Card>
         </TabsContent>
 
-        {/* Agency Messages Tab */}
+        {}
         <TabsContent value="messages" className="space-y-4 mt-4">
           <Card>
             <CardContent className="p-4">
@@ -332,10 +326,10 @@ export function ManagerTickets() {
           </Card>
         </TabsContent>
 
-        {/* Analytics Tab */}
+        {}
         <TabsContent value="analytics" className="space-y-4 mt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Tickets by Category */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Tickets por Categoria</CardTitle>
@@ -365,7 +359,7 @@ export function ManagerTickets() {
               </CardContent>
             </Card>
 
-            {/* Tickets by Month */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Tickets Mensais</CardTitle>
@@ -387,7 +381,7 @@ export function ManagerTickets() {
             </Card>
           </div>
 
-          {/* Metrics Summary */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Métricas de Suporte</CardTitle>

@@ -40,7 +40,6 @@ export function TenantProfile() {
     queryFn: () => usersAPI.getUserDetails(),
   });
 
-  // Update form data when userDetails loads
   useEffect(() => {
     if (userDetails) {
       setFormData({
@@ -81,7 +80,7 @@ export function TenantProfile() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
           <ArrowLeft className="w-5 h-5" />
@@ -92,7 +91,7 @@ export function TenantProfile() {
         </div>
       </div>
 
-      {/* Profile Header Card */}
+      {}
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row items-center gap-6">
@@ -141,7 +140,7 @@ export function TenantProfile() {
         </CardContent>
       </Card>
 
-      {/* Personal Information */}
+      {}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -209,7 +208,7 @@ export function TenantProfile() {
         </CardContent>
       </Card>
 
-      {/* Documents */}
+      {}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -265,7 +264,7 @@ export function TenantProfile() {
         </CardContent>
       </Card>
 
-      {/* Account Info */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Informações da Conta</CardTitle>
@@ -292,7 +291,7 @@ export function TenantProfile() {
         </CardContent>
       </Card>
 
-      {/* Security */}
+      {}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">

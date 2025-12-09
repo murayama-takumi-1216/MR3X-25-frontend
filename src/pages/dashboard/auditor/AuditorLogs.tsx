@@ -21,9 +21,8 @@ interface LogEntry {
   details: string;
 }
 
-// Map API response to component format
 const mapApiLogToEntry = (log: any): LogEntry => {
-  // Determine log type based on event name
+  
   let type: LogType = 'activity';
   const eventLower = (log.event || '').toLowerCase();
   if (eventLower.includes('login') || eventLower.includes('logout') || eventLower.includes('access')) {
@@ -36,7 +35,6 @@ const mapApiLogToEntry = (log: any): LogEntry => {
     type = 'system';
   }
 
-  // Determine level based on event
   let level: 'info' | 'warning' | 'error' | 'success' = 'info';
   if (eventLower.includes('error') || eventLower.includes('fail')) {
     level = 'error';
@@ -46,7 +44,6 @@ const mapApiLogToEntry = (log: any): LogEntry => {
     level = 'success';
   }
 
-  // Format timestamp
   const timestamp = log.timestamp
     ? new Date(log.timestamp).toLocaleString('pt-BR', {
         year: 'numeric',
@@ -82,14 +79,12 @@ export function AuditorLogs() {
   const [activeTab, setActiveTab] = useState<LogType | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Fetch logs from API
   const { data: apiLogs = [], isLoading, error } = useQuery({
     queryKey: ['auditor-logs'],
     queryFn: () => auditorAPI.getLogs(),
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000, 
   });
 
-  // Map API logs to component format
   const logs: LogEntry[] = Array.isArray(apiLogs) ? apiLogs.map(mapApiLogToEntry) : [];
 
   const filteredLogs = logs.filter(log => {
@@ -111,7 +106,7 @@ export function AuditorLogs() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-green-100 rounded-lg">
@@ -128,7 +123,7 @@ export function AuditorLogs() {
         </Button>
       </div>
 
-      {/* Log Type Tabs */}
+      {}
       <div className="flex flex-wrap gap-2">
         <Button
           variant={activeTab === 'all' ? 'default' : 'outline'}
@@ -151,7 +146,7 @@ export function AuditorLogs() {
         ))}
       </div>
 
-      {/* Search and Filter */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="flex gap-4">
@@ -172,7 +167,7 @@ export function AuditorLogs() {
         </CardContent>
       </Card>
 
-      {/* Logs Table */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">

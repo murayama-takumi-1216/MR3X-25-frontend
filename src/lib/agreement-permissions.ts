@@ -1,11 +1,4 @@
-/**
- * Agreement Permission System - Frontend Utilities
- *
- * This file mirrors the backend permission logic to provide consistent
- * access control checks on the frontend for UI/UX purposes.
- */
 
-// User roles matching backend enum
 export const UserRole = {
   CEO: 'CEO',
   ADMIN: 'ADMIN',
@@ -23,7 +16,6 @@ export const UserRole = {
 } as const;
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
-// Agreement actions
 export const AgreementAction = {
   VIEW: 'view',
   CREATE: 'create',
@@ -37,7 +29,6 @@ export const AgreementAction = {
 } as const;
 export type AgreementAction = (typeof AgreementAction)[keyof typeof AgreementAction];
 
-// Agreement status values
 export const AgreementStatus = {
   RASCUNHO: 'RASCUNHO',
   AGUARDANDO_ASSINATURA: 'AGUARDANDO_ASSINATURA',
@@ -48,7 +39,6 @@ export const AgreementStatus = {
 } as const;
 export type AgreementStatus = (typeof AgreementStatus)[keyof typeof AgreementStatus];
 
-// Signature types
 export const SignatureType = {
   TENANT: 'tenant',
   OWNER: 'owner',
@@ -58,7 +48,6 @@ export const SignatureType = {
 } as const;
 export type SignatureType = (typeof SignatureType)[keyof typeof SignatureType];
 
-// Access scope
 export const AccessScope = {
   ALL: 'all',
   AGENCY: 'agency',
@@ -68,7 +57,6 @@ export const AccessScope = {
 } as const;
 export type AccessScope = (typeof AccessScope)[keyof typeof AccessScope];
 
-// Permission interface
 export interface RolePermissions {
   view: AccessScope;
   create: boolean;
@@ -83,7 +71,6 @@ export interface RolePermissions {
   requiresCreci?: boolean;
 }
 
-// User context for permission checks
 export interface UserContext {
   id: string;
   role: string;
@@ -92,7 +79,6 @@ export interface UserContext {
   creci?: string;
 }
 
-// Agreement context for permission checks
 export interface AgreementContext {
   id: string;
   status: string;
@@ -113,11 +99,8 @@ export interface AgreementContext {
   };
 }
 
-/**
- * Complete Permission Matrix by Role
- */
 export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
-  // CEO (MR3X) - Read-only, governance and audits
+  
   [UserRole.CEO]: {
     view: AccessScope.ALL,
     create: false,
@@ -131,7 +114,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     sendForSignature: false,
   },
 
-  // Admin (MR3X) - Read-only for support and compliance
   [UserRole.ADMIN]: {
     view: AccessScope.ALL,
     create: false,
@@ -145,7 +127,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     sendForSignature: false,
   },
 
-  // Platform Manager (MR3X) - Read-only for client assistance
   [UserRole.PLATFORM_MANAGER]: {
     view: AccessScope.ALL,
     create: false,
@@ -159,7 +140,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     sendForSignature: false,
   },
 
-  // Agency Admin/Director - Full control within agency
   [UserRole.AGENCY_ADMIN]: {
     view: AccessScope.AGENCY,
     create: true,
@@ -173,7 +153,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     sendForSignature: true,
   },
 
-  // Agency Manager - Full operational control
   [UserRole.AGENCY_MANAGER]: {
     view: AccessScope.AGENCY,
     create: true,
@@ -187,7 +166,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     sendForSignature: true,
   },
 
-  // Broker - Limited to own scope
   [UserRole.BROKER]: {
     view: AccessScope.OWN_CREATED,
     create: true,
@@ -202,14 +180,12 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     requiresCreci: true,
   },
 
-  // Owner (linked to Agency) - READ-ONLY participatory role
-  // Agency acts on behalf of PROPRIETARIO for all operations including signing
   [UserRole.PROPRIETARIO]: {
     view: AccessScope.PARTY_TO,
     create: false,
     edit: false,
     delete: false,
-    sign: false, // Agency signs on behalf of PROPRIETARIO
+    sign: false, 
     signatureTypes: [],
     approve: false,
     reject: false,
@@ -217,7 +193,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     sendForSignature: false,
   },
 
-  // Independent Owner - Similar to Agency Manager for own properties
   [UserRole.INDEPENDENT_OWNER]: {
     view: AccessScope.OWN_CREATED,
     create: true,
@@ -231,7 +206,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     sendForSignature: true,
   },
 
-  // Tenant - Participatory role
   [UserRole.INQUILINO]: {
     view: AccessScope.PARTY_TO,
     create: false,
@@ -245,7 +219,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     sendForSignature: false,
   },
 
-  // Building Manager - Informational, rarely contractual
   [UserRole.BUILDING_MANAGER]: {
     view: AccessScope.PARTY_TO,
     create: false,
@@ -259,7 +232,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     sendForSignature: false,
   },
 
-  // Legal Auditor - Pure read-only with deep visibility
   [UserRole.LEGAL_AUDITOR]: {
     view: AccessScope.ALL,
     create: false,
@@ -273,7 +245,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     sendForSignature: false,
   },
 
-  // Representative/Sales - No access to agreements
   [UserRole.REPRESENTATIVE]: {
     view: AccessScope.NONE,
     create: false,
@@ -287,7 +258,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
     sendForSignature: false,
   },
 
-  // API Client - Scoped based on token
   [UserRole.API_CLIENT]: {
     view: AccessScope.AGENCY,
     create: false,
@@ -302,7 +272,6 @@ export const AGREEMENT_PERMISSION_MATRIX: Record<string, RolePermissions> = {
   },
 };
 
-// Status-based restrictions
 export const EDITABLE_STATUSES: string[] = [
   AgreementStatus.RASCUNHO,
   AgreementStatus.AGUARDANDO_ASSINATURA,
@@ -327,7 +296,6 @@ export const IMMUTABLE_STATUSES: string[] = [
   AgreementStatus.REJEITADO,
 ];
 
-// MR3X Platform roles (read-only access)
 export const MR3X_ROLES: string[] = [
   UserRole.CEO,
   UserRole.ADMIN,
@@ -336,44 +304,26 @@ export const MR3X_ROLES: string[] = [
   UserRole.REPRESENTATIVE,
 ];
 
-/**
- * Get permissions for a specific role
- */
 export function getPermissionsForRole(role: string): RolePermissions {
   return AGREEMENT_PERMISSION_MATRIX[role] || AGREEMENT_PERMISSION_MATRIX[UserRole.REPRESENTATIVE];
 }
 
-/**
- * Check if a role is a platform (MR3X) role
- */
 export function isMR3XRole(role: string): boolean {
   return MR3X_ROLES.includes(role);
 }
 
-/**
- * Check if status allows editing
- */
 export function isEditableStatus(status: string): boolean {
   return EDITABLE_STATUSES.includes(status);
 }
 
-/**
- * Check if status allows deletion
- */
 export function isDeletableStatus(status: string): boolean {
   return DELETABLE_STATUSES.includes(status);
 }
 
-/**
- * Check if status allows signing
- */
 export function isSignableStatus(status: string): boolean {
   return SIGNABLE_STATUSES.includes(status);
 }
 
-/**
- * Check if agreement has been signed
- */
 export function hasBeenSigned(agreement: AgreementContext): boolean {
   return !!(
     agreement.tenantSignature ||
@@ -382,16 +332,10 @@ export function hasBeenSigned(agreement: AgreementContext): boolean {
   );
 }
 
-/**
- * Check if status is immutable
- */
 export function isImmutableStatus(status: string): boolean {
   return IMMUTABLE_STATUSES.includes(status);
 }
 
-/**
- * Check if user can perform a general action
- */
 export function canPerformAction(user: UserContext, action: AgreementAction): boolean {
   const permissions = getPermissionsForRole(user.role);
 
@@ -421,9 +365,6 @@ export function canPerformAction(user: UserContext, action: AgreementAction): bo
   }
 }
 
-/**
- * Check if user can view a specific agreement
- */
 export function canViewAgreement(user: UserContext, agreement: AgreementContext): boolean {
   const permissions = getPermissionsForRole(user.role);
 
@@ -436,9 +377,9 @@ export function canViewAgreement(user: UserContext, agreement: AgreementContext)
       return agreement.agencyId === user.agencyId;
 
     case AccessScope.OWN_CREATED:
-      // Check if user created it
+      
       if (agreement.createdBy === user.id) return true;
-      // For brokers, also check if linked to property
+      
       if (user.role === UserRole.BROKER && agreement.property?.brokerId === user.id) {
         return true;
       }
@@ -453,20 +394,14 @@ export function canViewAgreement(user: UserContext, agreement: AgreementContext)
   }
 }
 
-/**
- * Check if user can edit a specific agreement
- */
 export function canEditAgreement(user: UserContext, agreement: AgreementContext): boolean {
-  // First check general permission
+  
   if (!canPerformAction(user, AgreementAction.EDIT)) return false;
 
-  // Check status-based restriction
   if (!isEditableStatus(agreement.status)) return false;
 
-  // Check if immutable
   if (isImmutableStatus(agreement.status)) return false;
 
-  // MR3X roles have read-only access
   if (isMR3XRole(user.role)) return false;
 
   const permissions = getPermissionsForRole(user.role);
@@ -474,7 +409,7 @@ export function canEditAgreement(user: UserContext, agreement: AgreementContext)
   switch (permissions.view) {
     case AccessScope.AGENCY:
       if (!user.agencyId || agreement.agencyId !== user.agencyId) return false;
-      // Agency manager can't edit signed agreements
+      
       if (user.role === UserRole.AGENCY_MANAGER && hasBeenSigned(agreement)) return false;
       return true;
 
@@ -485,7 +420,7 @@ export function canEditAgreement(user: UserContext, agreement: AgreementContext)
       return agreement.createdBy === user.id;
 
     case AccessScope.PARTY_TO:
-      // Parties cannot edit
+      
       return false;
 
     default:
@@ -493,17 +428,12 @@ export function canEditAgreement(user: UserContext, agreement: AgreementContext)
   }
 }
 
-/**
- * Check if user can delete a specific agreement
- */
 export function canDeleteAgreement(user: UserContext, agreement: AgreementContext): boolean {
-  // First check general permission
+  
   if (!canPerformAction(user, AgreementAction.DELETE)) return false;
 
-  // Check status-based restriction
   if (!isDeletableStatus(agreement.status)) return false;
 
-  // Check if signed
   if (hasBeenSigned(agreement)) return false;
 
   const permissions = getPermissionsForRole(user.role);
@@ -520,26 +450,20 @@ export function canDeleteAgreement(user: UserContext, agreement: AgreementContex
   }
 }
 
-/**
- * Check if user can sign a specific agreement with a specific signature type
- */
 export function canSignAgreement(
   user: UserContext,
   agreement: AgreementContext,
   signatureType: SignatureType
 ): boolean {
-  // First check general permission
+  
   if (!canPerformAction(user, AgreementAction.SIGN)) return false;
 
-  // Check status
   if (!isSignableStatus(agreement.status)) return false;
 
   const permissions = getPermissionsForRole(user.role);
 
-  // Check if role allows this signature type
   if (!permissions.signatureTypes.includes(signatureType)) return false;
 
-  // Validate user is the appropriate party
   switch (signatureType) {
     case SignatureType.TENANT:
       if (agreement.tenantId !== user.id &&
@@ -567,16 +491,13 @@ export function canSignAgreement(
       break;
 
     case SignatureType.WITNESS:
-      // Witness can be anyone with signing permission
+      
       break;
   }
 
   return true;
 }
 
-/**
- * Check if user can approve a specific agreement
- */
 export function canApproveAgreement(user: UserContext, agreement: AgreementContext): boolean {
   if (!canPerformAction(user, AgreementAction.APPROVE)) return false;
 
@@ -591,9 +512,6 @@ export function canApproveAgreement(user: UserContext, agreement: AgreementConte
   return true;
 }
 
-/**
- * Check if user can cancel a specific agreement
- */
 export function canCancelAgreement(user: UserContext, agreement: AgreementContext): boolean {
   if (!canPerformAction(user, AgreementAction.CANCEL)) return false;
 
@@ -610,15 +528,11 @@ export function canCancelAgreement(user: UserContext, agreement: AgreementContex
   return true;
 }
 
-/**
- * Check if user is a party to the agreement
- */
 function isPartyToAgreement(user: UserContext, agreement: AgreementContext): boolean {
-  // Direct party
+  
   if (agreement.tenantId === user.id) return true;
   if (agreement.ownerId === user.id) return true;
 
-  // Property-based party
   if (agreement.property) {
     if (agreement.property.ownerId === user.id) return true;
     if (agreement.property.tenantId === user.id) return true;
@@ -627,9 +541,6 @@ function isPartyToAgreement(user: UserContext, agreement: AgreementContext): boo
   return false;
 }
 
-/**
- * Get all available actions for a user on an agreement
- */
 export function getAvailableActions(user: UserContext, agreement: AgreementContext): AgreementAction[] {
   const actions: AgreementAction[] = [];
 
@@ -639,7 +550,6 @@ export function getAvailableActions(user: UserContext, agreement: AgreementConte
   if (canApproveAgreement(user, agreement)) actions.push(AgreementAction.APPROVE);
   if (canCancelAgreement(user, agreement)) actions.push(AgreementAction.CANCEL);
 
-  // Check each signature type
   const permissions = getPermissionsForRole(user.role);
   for (const sigType of permissions.signatureTypes) {
     if (canSignAgreement(user, agreement, sigType)) {
@@ -648,7 +558,6 @@ export function getAvailableActions(user: UserContext, agreement: AgreementConte
     }
   }
 
-  // Check send for signature
   if (canPerformAction(user, AgreementAction.SEND_FOR_SIGNATURE)) {
     if (agreement.status === AgreementStatus.RASCUNHO) {
       actions.push(AgreementAction.SEND_FOR_SIGNATURE);
@@ -658,9 +567,6 @@ export function getAvailableActions(user: UserContext, agreement: AgreementConte
   return [...new Set(actions)];
 }
 
-/**
- * Get user permissions summary
- */
 export function getUserPermissionsSummary(user: UserContext) {
   return {
     role: user.role,

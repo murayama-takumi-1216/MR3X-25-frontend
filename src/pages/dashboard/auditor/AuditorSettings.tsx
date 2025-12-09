@@ -8,7 +8,7 @@ import {
 export function AuditorSettings() {
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <div className="p-3 bg-gray-100 rounded-lg">
           <Settings className="w-6 h-6 text-gray-700" />
@@ -19,7 +19,7 @@ export function AuditorSettings() {
         </div>
       </div>
 
-      {/* Read-Only Notice */}
+      {}
       <Card className="border-amber-200 bg-amber-50">
         <CardContent className="p-4 flex items-center gap-3">
           <Eye className="w-5 h-5 text-amber-600" />
@@ -30,7 +30,7 @@ export function AuditorSettings() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Personal Profile */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -60,7 +60,7 @@ export function AuditorSettings() {
           </CardContent>
         </Card>
 
-        {/* Security */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -87,7 +87,7 @@ export function AuditorSettings() {
           </CardContent>
         </Card>
 
-        {/* Session Info */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -121,7 +121,7 @@ export function AuditorSettings() {
           </CardContent>
         </Card>
 
-        {/* Role Information */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">

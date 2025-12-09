@@ -31,7 +31,6 @@ import {
   Area
 } from 'recharts';
 
-// KPI Card component
 function KPICard({
   title,
   value,
@@ -81,7 +80,6 @@ function KPICard({
   );
 }
 
-// Chart colors
 const COLORS = {
   green: '#22c55e',
   blue: '#3b82f6',
@@ -94,13 +92,12 @@ const COLORS = {
 };
 
 export function AgencyAdminDashboard() {
-  // Fetch dashboard data
+  
   const { data: dashboard, isLoading } = useQuery({
     queryKey: ['dashboard', 'agency-admin'],
     queryFn: () => dashboardAPI.getDashboard(),
   });
 
-  // Fetch due dates
   const { data: dueDates, isLoading: dueDatesLoading } = useQuery({
     queryKey: ['due-dates', 'agency-admin'],
     queryFn: () => dashboardAPI.getDueDates(),
@@ -116,7 +113,6 @@ export function AgencyAdminDashboard() {
 
   const overview = dashboard?.overview || {};
 
-  // Calculate metrics
   const totalProperties = overview.totalProperties || 0;
   const occupiedProperties = overview.occupiedProperties || 0;
   const availableProperties = overview.vacantUnits || overview.availableProperties || 0;
@@ -127,14 +123,12 @@ export function AgencyAdminDashboard() {
   const pendingPaymentsCount = overview.pendingPayments || 0;
   const occupancyRate = totalProperties > 0 ? Math.round((occupiedProperties / totalProperties) * 100) : 0;
 
-  // Revenue distribution data
   const revenueData = [
     { name: 'Recebido', value: receivedValue, color: COLORS.green },
     { name: 'Pendente', value: Math.max(0, monthlyRevenue - receivedValue - overdueValue), color: COLORS.yellow },
     { name: 'Vencido', value: overdueValue, color: COLORS.red },
   ].filter(item => item.value > 0);
 
-  // Property status data
   const propertyStatusData = [
     { name: 'Ocupados', value: occupiedProperties, color: COLORS.blue },
     { name: 'Disponíveis', value: availableProperties, color: COLORS.green },
@@ -142,21 +136,18 @@ export function AgencyAdminDashboard() {
     { name: 'Manutenção', value: overview.maintenanceProperties || 0, color: COLORS.yellow },
   ].filter(item => item.value > 0);
 
-  // Contract status data
   const contractStatusData = [
     { name: 'Ativos', value: activeContracts, color: COLORS.green },
     { name: 'A vencer', value: Math.round(activeContracts * 0.15), color: COLORS.yellow },
     { name: 'Vencidos', value: Math.max(0, pendingPaymentsCount), color: COLORS.red },
   ].filter(item => item.value > 0);
 
-  // Due dates chart data
   const dueDatesChartData = dueDates?.slice(0, 10).map((item: any, index: number) => ({
     name: item.propertyName?.substring(0, 15) || `Imóvel ${index + 1}`,
     valor: Number(item.amount) || Number(item.monthlyRent) || 0,
     status: item.status,
   })) || [];
 
-  // Payment trend data (simulated based on current data)
   const paymentTrendData = [
     { month: 'Jan', recebido: Math.round(monthlyRevenue * 0.85), pendente: Math.round(monthlyRevenue * 0.15) },
     { month: 'Fev', recebido: Math.round(monthlyRevenue * 0.88), pendente: Math.round(monthlyRevenue * 0.12) },
@@ -184,7 +175,7 @@ export function AgencyAdminDashboard() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold">Dashboard do Diretor</h1>
         <p className="text-sm sm:text-base text-muted-foreground">
@@ -192,7 +183,7 @@ export function AgencyAdminDashboard() {
         </p>
       </div>
 
-      {/* KPI Cards - Row 1 */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <KPICard
           title="Total de Imóveis"
@@ -222,7 +213,7 @@ export function AgencyAdminDashboard() {
         />
       </div>
 
-      {/* KPI Cards - Row 2 */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <KPICard
           title="Valor Recebido"
@@ -252,9 +243,9 @@ export function AgencyAdminDashboard() {
         />
       </div>
 
-      {/* Charts Row 1 */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Distribution Pie Chart */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl">Distribuição da Receita</CardTitle>
@@ -291,7 +282,7 @@ export function AgencyAdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Property Status Pie Chart */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl">Status dos Imóveis</CardTitle>
@@ -329,9 +320,9 @@ export function AgencyAdminDashboard() {
         </Card>
       </div>
 
-      {/* Charts Row 2 */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Contract Status Pie Chart */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl">Status dos Contratos</CardTitle>
@@ -368,7 +359,7 @@ export function AgencyAdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Payment Trend Area Chart */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl">Tendência de Pagamentos</CardTitle>
@@ -392,7 +383,7 @@ export function AgencyAdminDashboard() {
         </Card>
       </div>
 
-      {/* Due Dates Chart */}
+      {}
       {dueDatesChartData.length > 0 && (
         <Card>
           <CardHeader>
@@ -421,7 +412,7 @@ export function AgencyAdminDashboard() {
         </Card>
       )}
 
-      {/* Due Dates Table */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl">Agenda de Vencimentos</CardTitle>
@@ -476,7 +467,7 @@ export function AgencyAdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Pending Payments */}
+      {}
       {dashboard?.pendingPayments && dashboard.pendingPayments.length > 0 && (
         <Card>
           <CardHeader>
@@ -518,7 +509,7 @@ export function AgencyAdminDashboard() {
         </Card>
       )}
 
-      {/* Recent Payments */}
+      {}
       {dashboard?.recentPayments && dashboard.recentPayments.length > 0 && (
         <Card>
           <CardHeader>

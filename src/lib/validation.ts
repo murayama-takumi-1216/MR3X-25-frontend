@@ -1,6 +1,3 @@
-/**
- * Frontend validation utilities for Brazilian documents
- */
 
 export interface ValidationResult {
   isValid: boolean;
@@ -10,9 +7,6 @@ export interface ValidationResult {
   scheme?: 'legacy' | '2026';
 }
 
-/**
- * Validates CPF (Cadastro de Pessoas Físicas)
- */
 export function validateCPF(cpf: string): ValidationResult {
   const cleanCPF = cpf.replace(/\D/g, '');
 
@@ -57,9 +51,6 @@ export function validateCPF(cpf: string): ValidationResult {
   };
 }
 
-/**
- * Validates CNPJ (Cadastro Nacional da Pessoa Jurídica)
- */
 export function validateCNPJ(cnpj: string): ValidationResult {
   const cleanCNPJ = cnpj.replace(/\D/g, '');
 
@@ -108,33 +99,21 @@ export function validateCNPJ(cnpj: string): ValidationResult {
   };
 }
 
-/**
- * Formats CPF with dots and dash
- */
 export function formatCPF(cpf: string): string {
   const cleanCPF = cpf.replace(/\D/g, '');
   return cleanCPF.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
 
-/**
- * Formats CNPJ with dots, slash and dash
- */
 export function formatCNPJ(cnpj: string): string {
   const cleanCNPJ = cnpj.replace(/\D/g, '');
   return cleanCNPJ.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
 }
 
-/**
- * Formats CEP with dash
- */
 export function formatCEP(cep: string): string {
   const cleanCEP = cep.replace(/\D/g, '');
   return cleanCEP.replace(/(\d{5})(\d{3})/, '$1-$2');
 }
 
-/**
- * Formats CEP input as user types
- */
 export function formatCEPInput(value: string): string {
   if (!value) return '';
   const cleanValue = value.replace(/\D/g, '');
@@ -146,18 +125,12 @@ export function formatCEPInput(value: string): string {
   }
 }
 
-/**
- * Validates CEP format
- */
 export function isValidCEPFormat(cep: string): boolean {
   if (!cep) return false;
   const cleanCEP = cep.replace(/\D/g, '');
   return cleanCEP.length === 8 && /^\d{8}$/.test(cleanCEP);
 }
 
-/**
- * Validates document (CPF or CNPJ) based on length
- */
 export function validateDocument(document: string): ValidationResult {
   const cleanDoc = document.replace(/\D/g, '');
 

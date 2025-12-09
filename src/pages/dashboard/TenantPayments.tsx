@@ -33,11 +33,9 @@ export function TenantPayments() {
   const property = dashboard?.property;
   const paymentHistory = dashboard?.paymentHistory || [];
 
-  // Calculate payment statistics
   const totalPaid = paymentHistory.reduce((sum: number, p: any) => sum + (Number(p.amount) || 0), 0);
   const paymentsCount = paymentHistory.length;
 
-  // Get payment status
   const getPaymentStatus = () => {
     if (!property?.nextDueDate) return { status: 'unknown', label: 'Sem data', color: 'gray' };
 
@@ -58,8 +56,7 @@ export function TenantPayments() {
   const handleDownloadReceipt = async (_paymentId: string) => {
     try {
       toast.info('Gerando comprovante...');
-      // This would call the backend to generate a receipt
-      // For now, show a placeholder message
+      
       toast.success('Funcionalidade em desenvolvimento');
     } catch (error) {
       toast.error('Erro ao baixar comprovante');
@@ -68,7 +65,7 @@ export function TenantPayments() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
           <ArrowLeft className="w-5 h-5" />
@@ -79,7 +76,7 @@ export function TenantPayments() {
         </div>
       </div>
 
-      {/* Current Payment Status */}
+      {}
       {property && (
         <Card className={`border-l-4 ${
           paymentStatus.color === 'green' ? 'border-l-green-500' :
@@ -131,7 +128,7 @@ export function TenantPayments() {
               </div>
             </div>
 
-            {/* Payment Action */}
+            {}
             {paymentStatus.status === 'overdue' && (
               <div className="mt-4 p-4 bg-red-50 rounded-lg">
                 <div className="flex items-center justify-between">
@@ -175,7 +172,7 @@ export function TenantPayments() {
         </Card>
       )}
 
-      {/* Payment Summary */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-6">
@@ -224,7 +221,7 @@ export function TenantPayments() {
         </Card>
       </div>
 
-      {/* Payment History */}
+      {}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -291,7 +288,7 @@ export function TenantPayments() {
         </CardContent>
       </Card>
 
-      {/* Payment Methods Info */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Formas de Pagamento</CardTitle>

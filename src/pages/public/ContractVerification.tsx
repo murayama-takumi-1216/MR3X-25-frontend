@@ -131,7 +131,7 @@ export function ContractVerification() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-6 sm:py-12 px-3 sm:px-4">
       <div className="max-w-4xl mx-auto space-y-4 sm:space-y-8">
-        {/* Header */}
+        {}
         <div className="text-center">
           <div className="flex justify-center mb-3 sm:mb-4">
             <Shield className="w-12 h-12 sm:w-16 sm:h-16 text-primary" />
@@ -144,7 +144,7 @@ export function ContractVerification() {
           </p>
         </div>
 
-        {/* Search */}
+        {}
         {!urlToken && (
           <Card>
             <CardHeader className="px-3 sm:px-6 py-3 sm:py-6">
@@ -174,7 +174,7 @@ export function ContractVerification() {
           </Card>
         )}
 
-        {/* Loading */}
+        {}
         {isLoading && (
           <Card>
             <CardContent className="py-8 sm:py-12 text-center">
@@ -184,7 +184,7 @@ export function ContractVerification() {
           </Card>
         )}
 
-        {/* Error */}
+        {}
         {error && (
           <Card className="border-red-200 bg-red-50">
             <CardContent className="py-6 sm:py-8 text-center">
@@ -199,7 +199,7 @@ export function ContractVerification() {
           </Card>
         )}
 
-        {/* Contract Info */}
+        {}
         {contract && (
           <>
             <Card className="border-green-200 bg-green-50">
@@ -227,7 +227,7 @@ export function ContractVerification() {
               </CardContent>
             </Card>
 
-            {/* Contract Details */}
+            {}
             <Card>
               <CardHeader className="px-3 sm:px-6 py-3 sm:py-6">
                 <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
@@ -262,7 +262,7 @@ export function ContractVerification() {
                     )}
                   </div>
 
-                  {/* Signatures */}
+                  {}
                   {contract.signatures && contract.signatures.length > 0 && (
                     <div className="pt-3 border-t">
                       <h4 className="font-medium mb-2 text-sm">Assinaturas:</h4>
@@ -289,7 +289,7 @@ export function ContractVerification() {
                   )}
                 </div>
 
-                {/* Hash Info */}
+                {}
                 {contract.hashFinal && (
                   <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-muted rounded-lg">
                     <h4 className="font-medium mb-2 flex items-center gap-2 text-xs sm:text-sm">
@@ -304,7 +304,7 @@ export function ContractVerification() {
               </CardContent>
             </Card>
 
-            {/* Verify Hash - Collapsible */}
+            {}
             {contract.hashFinal && (
               <Card>
                 <CardHeader
@@ -372,7 +372,7 @@ export function ContractVerification() {
               </Card>
             )}
 
-            {/* Verify PDF - Collapsible */}
+            {}
             {contract.hashFinal && (
               <Card>
                 <CardHeader
@@ -459,7 +459,7 @@ export function ContractVerification() {
           </>
         )}
 
-        {/* Footer */}
+        {}
         <div className="text-center text-[10px] sm:text-sm text-muted-foreground py-4">
           <p>Sistema de verificação de contratos MR3X</p>
           <p className="hidden sm:block">Os dados exibidos são apenas para verificação de autenticidade.</p>

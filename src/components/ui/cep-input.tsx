@@ -38,10 +38,7 @@ export function CEPInput({
     if (cepData && onCEPData) {
       onCEPData(cepData);
     }
-    // Important: do NOT include onCEPData in the deps, or parents passing
-    // inline functions will create a new reference every render and re-run
-    // this effect, causing update loops.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [cepData]);
 
   const clearError = () => {
@@ -54,11 +51,10 @@ export function CEPInput({
     onChange(formatted);
     clearError();
 
-    // Auto-trigger search when CEP is complete (8 digits) and different from last search
     const cleanCEP = formatted.replace(/\D/g, '');
     if (cleanCEP.length === 8 && cleanCEP !== lastSearchedCEP.current) {
       lastSearchedCEP.current = cleanCEP;
-      // Use the freshly typed value to avoid stale state
+      
       handleSearch(formatted);
     }
   };

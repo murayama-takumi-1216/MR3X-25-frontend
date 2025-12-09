@@ -10,7 +10,6 @@ import { FileText, Download, Receipt, ReceiptText } from 'lucide-react'
 export default function DocumentsPage() {
   const [generating, setGenerating] = useState(false)
 
-  // Receipt form data
   const [receiptData, setReceiptData] = useState({
     receiptNumber: '',
     paymentDate: '',
@@ -25,7 +24,6 @@ export default function DocumentsPage() {
     referenceMonth: '',
   })
 
-  // Invoice form data
   const [invoiceData, setInvoiceData] = useState({
     invoiceNumber: '',
     invoiceDate: '',
@@ -97,7 +95,6 @@ export default function DocumentsPage() {
 
       const blob = await documentsAPI.generateReceipt(data)
 
-      // Download the PDF
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -136,7 +133,6 @@ export default function DocumentsPage() {
 
       const blob = await documentsAPI.generateInvoice(data)
 
-      // Download the PDF
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -173,7 +169,7 @@ export default function DocumentsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-        {/* Receipt Generator */}
+        {}
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -313,7 +309,7 @@ export default function DocumentsPage() {
           </CardContent>
         </Card>
 
-        {/* Invoice Generator */}
+        {}
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2">

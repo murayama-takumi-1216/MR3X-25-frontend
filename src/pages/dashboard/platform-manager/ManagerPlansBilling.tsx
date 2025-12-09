@@ -61,7 +61,6 @@ export function ManagerPlansBilling() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('plans');
 
-  // Fetch plans overview
   const { data: plansData = { plans: [], subscriptions: [], upcomingBillings: [] }, isLoading } = useQuery({
     queryKey: ['platform-manager', 'plans-overview'],
     queryFn: platformManagerAPI.getPlansOverview,
@@ -131,13 +130,13 @@ export function ManagerPlansBilling() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold">Planos e Cobrança</h1>
         <p className="text-muted-foreground">Visualize planos e status de cobrança das agências (somente leitura)</p>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -193,7 +192,7 @@ export function ManagerPlansBilling() {
         </Card>
       </div>
 
-      {/* Tabs */}
+      {}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="plans">Tabela de Planos</TabsTrigger>
@@ -201,7 +200,7 @@ export function ManagerPlansBilling() {
           <TabsTrigger value="upcoming">Próximas Cobranças</TabsTrigger>
         </TabsList>
 
-        {/* Plans Table */}
+        {}
         <TabsContent value="plans" className="space-y-4 mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {plans.length === 0 ? (
@@ -243,9 +242,9 @@ export function ManagerPlansBilling() {
           </div>
         </TabsContent>
 
-        {/* Subscriptions */}
+        {}
         <TabsContent value="subscriptions" className="space-y-4 mt-4">
-          {/* Filters */}
+          {}
           <Card>
             <CardContent className="p-4">
               <div className="flex flex-col md:flex-row gap-4">
@@ -286,7 +285,7 @@ export function ManagerPlansBilling() {
             </CardContent>
           </Card>
 
-          {/* Subscriptions Table */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Assinaturas de Agências</CardTitle>
@@ -338,7 +337,7 @@ export function ManagerPlansBilling() {
           </Card>
         </TabsContent>
 
-        {/* Upcoming Billings */}
+        {}
         <TabsContent value="upcoming" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -377,7 +376,7 @@ export function ManagerPlansBilling() {
         </TabsContent>
       </Tabs>
 
-      {/* Subscription Details Dialog */}
+      {}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -459,7 +458,7 @@ export function ManagerPlansBilling() {
         </DialogContent>
       </Dialog>
 
-      {/* Read-only notice */}
+      {}
       <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
         <p className="text-sm text-yellow-700">
           <strong>Nota:</strong> Como Gerente de Plataforma, você pode visualizar os planos e status de cobrança, mas não pode modificar preços ou alterar assinaturas. Essas ações são exclusivas do Administrador.
