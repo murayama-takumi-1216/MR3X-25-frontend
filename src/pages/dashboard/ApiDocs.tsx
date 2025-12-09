@@ -272,7 +272,7 @@ export function ApiDocs() {
         </CardHeader>
         <CardContent>
           <div className="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
-            <code className="text-green-400 font-mono">https:
+            <code className="text-green-400 font-mono">https://api.mr3x.com/v1</code>
             <Button
               variant="ghost"
               size="sm"
