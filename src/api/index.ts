@@ -454,8 +454,19 @@ export const agenciesAPI = {
 };
 
 export const plansAPI = {
+  // Basic plan endpoints
   getPlans: async () => {
     const response = await apiClient.get('/plans');
+    return response.data;
+  },
+
+  getPricing: async () => {
+    const response = await apiClient.get('/plans/pricing');
+    return response.data;
+  },
+
+  getPlanConfig: async (planName: string) => {
+    const response = await apiClient.get(`/plans/config/${planName}`);
     return response.data;
   },
 
@@ -479,6 +490,134 @@ export const plansAPI = {
     return response.data;
   },
 
+  // Agency usage & billing
+  getAgencyUsage: async (agencyId: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/usage`);
+    return response.data;
+  },
+
+  getUsageSummary: async (agencyId: string, month?: string) => {
+    const query = month ? `?month=${month}` : '';
+    const response = await apiClient.get(`/plans/agency/${agencyId}/usage-summary${query}`);
+    return response.data;
+  },
+
+  getBillingHistory: async (agencyId: string, limit?: number) => {
+    const query = limit ? `?limit=${limit}` : '';
+    const response = await apiClient.get(`/plans/agency/${agencyId}/billing-history${query}`);
+    return response.data;
+  },
+
+  getPendingCharges: async (agencyId: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/pending-charges`);
+    return response.data;
+  },
+
+  getAgencyPricing: async (agencyId: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/pricing`);
+    return response.data;
+  },
+
+  // Plan limits & enforcement
+  getFrozenSummary: async (agencyId: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/frozen`);
+    return response.data;
+  },
+
+  getFrozenList: async (agencyId: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/frozen/list`);
+    return response.data;
+  },
+
+  switchActiveContract: async (agencyId: string, contractId: string) => {
+    const response = await apiClient.post(`/plans/agency/${agencyId}/switch-contract/${contractId}`);
+    return response.data;
+  },
+
+  canCreateContract: async (agencyId: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/can-create-contract`);
+    return response.data;
+  },
+
+  canPerformInspection: async (agencyId: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/can-perform-inspection`);
+    return response.data;
+  },
+
+  canCreateSettlement: async (agencyId: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/can-create-settlement`);
+    return response.data;
+  },
+
+  getScreeningPrice: async (agencyId: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/screening-price`);
+    return response.data;
+  },
+
+  // Upgrade & downgrade
+  calculateUpgrade: async (agencyId: string, targetPlan: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/calculate-upgrade/${targetPlan}`);
+    return response.data;
+  },
+
+  previewPlanChange: async (agencyId: string, targetPlan: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/preview-change/${targetPlan}`);
+    return response.data;
+  },
+
+  changePlan: async (agencyId: string, newPlan: string) => {
+    const response = await apiClient.post(`/plans/agency/${agencyId}/change-plan`, { newPlan });
+    return response.data;
+  },
+
+  // API add-on
+  enableApiAddOn: async (agencyId: string) => {
+    const response = await apiClient.post(`/plans/agency/${agencyId}/api-addon/enable`);
+    return response.data;
+  },
+
+  disableApiAddOn: async (agencyId: string) => {
+    const response = await apiClient.post(`/plans/agency/${agencyId}/api-addon/disable`);
+    return response.data;
+  },
+
+  checkApiAccess: async (agencyId: string) => {
+    const response = await apiClient.get(`/plans/agency/${agencyId}/api-access`);
+    return response.data;
+  },
+
+  // Microtransaction charges
+  chargeExtraContract: async (agencyId: string, contractId: string) => {
+    const response = await apiClient.post(`/plans/agency/${agencyId}/charge/extra-contract`, { contractId });
+    return response.data;
+  },
+
+  chargeInspection: async (agencyId: string, inspectionId: string) => {
+    const response = await apiClient.post(`/plans/agency/${agencyId}/charge/inspection`, { inspectionId });
+    return response.data;
+  },
+
+  chargeSettlement: async (agencyId: string, agreementId: string) => {
+    const response = await apiClient.post(`/plans/agency/${agencyId}/charge/settlement`, { agreementId });
+    return response.data;
+  },
+
+  chargeScreening: async (agencyId: string, analysisId: string) => {
+    const response = await apiClient.post(`/plans/agency/${agencyId}/charge/screening`, { analysisId });
+    return response.data;
+  },
+
+  markMicrotransactionPaid: async (id: string, paymentDetails?: { asaasPaymentId?: string; paymentMethod?: string }) => {
+    const response = await apiClient.post(`/plans/microtransaction/${id}/mark-paid`, paymentDetails || {});
+    return response.data;
+  },
+
+  resetMonthlyUsage: async (agencyId: string) => {
+    const response = await apiClient.post(`/plans/agency/${agencyId}/reset-monthly-usage`);
+    return response.data;
+  },
+
+  // Plan modification requests
   getPendingModificationRequests: async () => {
     const response = await apiClient.get('/plans/modification-requests/pending');
     return response.data;
@@ -496,6 +635,17 @@ export const plansAPI = {
 
   rejectModificationRequest: async (id: string, reason?: string) => {
     const response = await apiClient.post(`/plans/modification-requests/${id}/reject`, { reason });
+    return response.data;
+  },
+
+  // Legacy endpoints
+  checkUserLimits: async (userId: string, type: 'property' | 'user' | 'contract') => {
+    const response = await apiClient.get(`/plans/user/${userId}/limits?type=${type}`);
+    return response.data;
+  },
+
+  getUserUsage: async (userId: string) => {
+    const response = await apiClient.get(`/plans/user/${userId}/usage`);
     return response.data;
   },
 };

@@ -556,9 +556,9 @@ export function TenantAnalysis() {
         </div>
       </div>
 
-      {}
+      {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -578,6 +578,17 @@ export function TenantAnalysis() {
                   <p className="text-2xl font-bold text-green-600">{stats.byRiskLevel?.LOW || 0}</p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Risco Moderado</p>
+                  <p className="text-2xl font-bold text-yellow-600">{stats.byRiskLevel?.MEDIUM || 0}</p>
+                </div>
+                <Shield className="w-8 h-8 text-yellow-600" />
               </div>
             </CardContent>
           </Card>
@@ -606,7 +617,7 @@ export function TenantAnalysis() {
         </div>
       )}
 
-      {}
+      {/* New Analysis Form */}
       <Card>
         <CardHeader>
           <CardTitle>Nova Análise</CardTitle>

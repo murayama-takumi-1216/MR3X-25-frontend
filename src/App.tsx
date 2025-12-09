@@ -83,6 +83,8 @@ import Billing from './pages/dashboard/Billing';
 import Communications from './pages/dashboard/Communications';
 import Integrations from './pages/dashboard/Integrations';
 import Documents from './pages/dashboard/Documents';
+import { PricingPage } from './pages/public/PricingPage';
+import { SubscriptionPage } from './pages/dashboard/SubscriptionPage';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -118,6 +120,7 @@ function App() {
             <Route path="/forgot-password" element={<PlaceholderPage title="Recuperar Senha" />} />
             <Route path="/reset-password" element={<PlaceholderPage title="Redefinir Senha" />} />
             <Route path="/terms" element={<PlaceholderPage title="Termos de Uso" />} />
+            <Route path="/pricing" element={<PricingPage />} />
 
             {}
             <Route path="/verify" element={<ContractVerification />} />
@@ -190,6 +193,7 @@ function App() {
 
               <Route path="reports" element={<Reports />} />
               <Route path="plans" element={<Plans />} />
+              <Route path="subscription" element={<SubscriptionPage />} />
               <Route path="billing" element={<Billing />} />
               <Route path="communications" element={<Communications />} />
               <Route path="integrations" element={<Integrations />} />
