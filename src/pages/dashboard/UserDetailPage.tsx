@@ -157,36 +157,36 @@ export function UserDetailPage() {
   return (
     <div className="space-y-6">
       {}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Voltar
-          </Button>
+      <div className="space-y-4">
+        <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-2">
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </Button>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">{user.name}</h1>
-            <p className="text-muted-foreground">Detalhes do Perfil do Usuário</p>
+            <h1 className="text-xl sm:text-2xl font-bold break-words">{user.name}</h1>
+            <p className="text-sm text-muted-foreground">Detalhes do Perfil do Usuário</p>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {canEditUsers && (
-            <Button variant="outline" onClick={() => navigate(`/dashboard/users/${user.id}/edit`)} className="flex items-center gap-2">
-              <Edit className="w-4 h-4" />
-              Editar Usuário
-            </Button>
-          )}
-          {canDeleteUsers &&
-            (user.status === 'ACTIVE' ? (
-              <Button variant="destructive" onClick={() => handleStatusChange('SUSPENDED')} className="flex items-center gap-2">
-                <UserX className="w-4 h-4" />
-                Suspender
+          <div className="flex flex-wrap items-center gap-2">
+            {canEditUsers && (
+              <Button variant="outline" size="sm" onClick={() => navigate(`/dashboard/users/${user.id}/edit`)} className="flex items-center gap-2">
+                <Edit className="w-4 h-4" />
+                <span className="hidden sm:inline">Editar</span>
               </Button>
-            ) : (
-              <Button onClick={() => handleStatusChange('ACTIVE')} className="flex items-center gap-2">
-                <UserCheck className="w-4 h-4" />
-                Ativar
-              </Button>
-            ))}
+            )}
+            {canDeleteUsers &&
+              (user.status === 'ACTIVE' ? (
+                <Button variant="destructive" size="sm" onClick={() => handleStatusChange('SUSPENDED')} className="flex items-center gap-2">
+                  <UserX className="w-4 h-4" />
+                  Suspender
+                </Button>
+              ) : (
+                <Button size="sm" onClick={() => handleStatusChange('ACTIVE')} className="flex items-center gap-2">
+                  <UserCheck className="w-4 h-4" />
+                  Ativar
+                </Button>
+              ))}
+          </div>
         </div>
       </div>
 
@@ -195,47 +195,49 @@ export function UserDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                 <Shield className="w-5 h-5" />
                 Informações Gerais
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Nome</Label>
-                  <p className="text-sm">{user.name}</p>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Nome</Label>
+                  <p className="text-sm font-medium break-words">{user.name}</p>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Email</Label>
-                  <p className="text-sm flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
+                <div className="space-y-1">
+                  <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Email</Label>
+                  <p className="text-sm flex items-center gap-2 break-all">
+                    <Mail className="w-4 h-4 flex-shrink-0" />
                     {user.email}
                   </p>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Telefone</Label>
+                <div className="space-y-1">
+                  <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Telefone</Label>
                   <p className="text-sm flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
+                    <Phone className="w-4 h-4 flex-shrink-0" />
                     {user.phone || 'Não informado'}
                   </p>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Documento</Label>
+                <div className="space-y-1">
+                  <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Documento</Label>
                   <p className="text-sm">{user.document || 'Não informado'}</p>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Função</Label>
-                  <Badge className={getRoleColor(user.role)}>{user.role}</Badge>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                  <Badge className={getStatusColor(user.status)}>{user.status}</Badge>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Plano</Label>
-                  <Badge variant="outline">{user.plan}</Badge>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Função</Label>
+                    <div><Badge className={`${getRoleColor(user.role)} text-xs`}>{user.role}</Badge></div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Status</Label>
+                    <div><Badge className={`${getStatusColor(user.status)} text-xs`}>{user.status}</Badge></div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Plano</Label>
+                    <div><Badge variant="outline" className="text-xs">{user.plan}</Badge></div>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -243,19 +245,19 @@ export function UserDetailPage() {
 
           {}
           <Card>
-            <CardHeader>
-              <CardTitle>Entidades Vinculadas</CardTitle>
-              <CardDescription>Imóveis e contratos associados a este usuário</CardDescription>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg">Entidades Vinculadas</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Imóveis e contratos associados a este usuário</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-medium mb-2">Imóveis ({user._count?.ownedProperties || 0})</h4>
+                <h4 className="font-medium mb-2 text-sm">Imóveis ({user._count?.ownedProperties || 0})</h4>
                 {user.ownedProperties && user.ownedProperties.length > 0 ? (
                   <div className="space-y-2">
                     {user.ownedProperties.map((property) => (
-                      <div key={property.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="text-sm">Imóvel #{property.id}</span>
-                        <span className="text-sm text-muted-foreground">{property.name}</span>
+                      <div key={property.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-2 bg-gray-50 rounded gap-1">
+                        <span className="text-sm font-medium">Imóvel #{property.id}</span>
+                        <span className="text-xs sm:text-sm text-muted-foreground truncate">{property.name}</span>
                       </div>
                     ))}
                   </div>
@@ -267,13 +269,13 @@ export function UserDetailPage() {
               <Separator />
 
               <div>
-                <h4 className="font-medium mb-2">Contratos ({user._count?.contracts || 0})</h4>
+                <h4 className="font-medium mb-2 text-sm">Contratos ({user._count?.contracts || 0})</h4>
                 {user.contracts && user.contracts.length > 0 ? (
                   <div className="space-y-2">
                     {user.contracts.map((contract) => (
-                      <div key={contract.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="text-sm">Contrato #{contract.id}</span>
-                        <Badge variant="outline">{contract.status}</Badge>
+                      <div key={contract.id} className="flex items-center justify-between p-2 bg-gray-50 rounded gap-2">
+                        <span className="text-sm font-medium">Contrato #{contract.id}</span>
+                        <Badge variant="outline" className="text-xs">{contract.status}</Badge>
                       </div>
                     ))}
                   </div>
@@ -286,22 +288,22 @@ export function UserDetailPage() {
         </div>
 
         {}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                 <Calendar className="w-5 h-5" />
                 Informações da Conta
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <Label className="text-sm font-medium text-muted-foreground">Criado em</Label>
+                <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Criado em</Label>
                 <p className="text-sm">{new Date(user.createdAt).toLocaleDateString('pt-BR')}</p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-muted-foreground">Último login</Label>
+                <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Último login</Label>
                 <p className="text-sm">{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('pt-BR') : 'Nunca'}</p>
               </div>
             </CardContent>
@@ -309,8 +311,8 @@ export function UserDetailPage() {
 
           {}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                 <Activity className="w-5 h-5" />
                 Atividade Recente
               </CardTitle>
@@ -320,9 +322,9 @@ export function UserDetailPage() {
                 <div className="space-y-3">
                   {user.audit.slice(0, 5).map((log, index) => (
                     <div key={index} className="text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">{log.event}</span>
-                        <span className="text-muted-foreground">{new Date(log.timestamp).toLocaleDateString('pt-BR')}</span>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                        <span className="font-medium text-xs sm:text-sm">{log.event}</span>
+                        <span className="text-xs text-muted-foreground">{new Date(log.timestamp).toLocaleDateString('pt-BR')}</span>
                       </div>
                     </div>
                   ))}

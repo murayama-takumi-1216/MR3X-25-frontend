@@ -4,6 +4,7 @@ import { usersAPI } from '../../api';
 import { Plus, Search, Filter, RefreshCw, Eye, Edit, UserCheck, UserX, Users } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 import { FrozenUserBadge } from '../../components/ui/FrozenBadge';
@@ -175,48 +176,50 @@ export function UsersPage() {
             Limpar
           </Button>
         </div>
-        <select value={role} onChange={(e) => setRole(e.target.value)} className="border rounded-md px-3 py-2">
-          <option value="">Função</option>
-          {[
-            { value: 'CEO', label: 'CEO' },
-            { value: 'ADMIN', label: 'Admin' },
-            { value: 'PLATFORM_MANAGER', label: 'Gerente Interno MR3X' },
-            { value: 'AGENCY_ADMIN', label: 'Diretor de Agência' },
-            { value: 'AGENCY_MANAGER', label: 'Gestor de Agência' },
-            { value: 'BROKER', label: 'Corretor' },
-            { value: 'PROPRIETARIO', label: 'Imóvel' },
-            { value: 'INDEPENDENT_OWNER', label: 'Imóvel Independente' },
-            { value: 'INQUILINO', label: 'Inquilino' },
-            { value: 'BUILDING_MANAGER', label: 'Síndico' },
-            { value: 'LEGAL_AUDITOR', label: 'Auditor' },
-            { value: 'REPRESENTATIVE', label: 'Representante' },
-            { value: 'API_CLIENT', label: 'API Client' },
-          ].map((r) => (
-            <option key={r.value} value={r.value}>
-              {r.label}
-            </option>
-          ))}
-        </select>
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className="border rounded-md px-3 py-2">
-          <option value="">Status</option>
-          {[
-            { value: 'ACTIVE', label: 'Ativo' },
-            { value: 'INVITED', label: 'Convidado' },
-            { value: 'SUSPENDED', label: 'Suspenso' },
-          ].map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-        <select value={plan} onChange={(e) => setPlan(e.target.value)} className="border rounded-md px-3 py-2">
-          <option value="">Plano</option>
-          {['FREE', 'ESSENCIAL', 'PROFISSIONAL', 'PREMIUM'].map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
+        <Select value={role || 'all'} onValueChange={(v) => setRole(v === 'all' ? '' : v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Função" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Função</SelectItem>
+            <SelectItem value="CEO">CEO</SelectItem>
+            <SelectItem value="ADMIN">Admin</SelectItem>
+            <SelectItem value="PLATFORM_MANAGER">Gerente Interno MR3X</SelectItem>
+            <SelectItem value="AGENCY_ADMIN">Diretor de Agência</SelectItem>
+            <SelectItem value="AGENCY_MANAGER">Gestor de Agência</SelectItem>
+            <SelectItem value="BROKER">Corretor</SelectItem>
+            <SelectItem value="PROPRIETARIO">Imóvel</SelectItem>
+            <SelectItem value="INDEPENDENT_OWNER">Imóvel Independente</SelectItem>
+            <SelectItem value="INQUILINO">Inquilino</SelectItem>
+            <SelectItem value="BUILDING_MANAGER">Síndico</SelectItem>
+            <SelectItem value="LEGAL_AUDITOR">Auditor</SelectItem>
+            <SelectItem value="REPRESENTATIVE">Representante</SelectItem>
+            <SelectItem value="API_CLIENT">API Client</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={status || 'all'} onValueChange={(v) => setStatus(v === 'all' ? '' : v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Status</SelectItem>
+            <SelectItem value="ACTIVE">Ativo</SelectItem>
+            <SelectItem value="INVITED">Convidado</SelectItem>
+            <SelectItem value="SUSPENDED">Suspenso</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={plan || 'all'} onValueChange={(v) => setPlan(v === 'all' ? '' : v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Plano" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Plano</SelectItem>
+            <SelectItem value="FREE">FREE</SelectItem>
+            <SelectItem value="ESSENCIAL">ESSENCIAL</SelectItem>
+            <SelectItem value="PROFISSIONAL">PROFISSIONAL</SelectItem>
+            <SelectItem value="PREMIUM">PREMIUM</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {loading ? (
