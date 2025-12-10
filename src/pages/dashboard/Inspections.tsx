@@ -38,16 +38,6 @@ import { Card, CardContent } from '../../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Textarea } from '../../components/ui/textarea';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '../../components/ui/alert-dialog';
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -1770,25 +1760,31 @@ export function Inspections() {
         </Dialog>
 
         {}
-        <AlertDialog open={!!inspectionToDelete} onOpenChange={() => setInspectionToDelete(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Excluir Vistoria</AlertDialogTitle>
-              <AlertDialogDescription>
+        <Dialog open={!!inspectionToDelete} onOpenChange={() => setInspectionToDelete(null)}>
+          <DialogContent className="w-[calc(100%-2rem)] sm:max-w-lg rounded-xl">
+            <DialogHeader>
+              <DialogTitle>Excluir Vistoria</DialogTitle>
+              <DialogDescription>
                 Tem certeza que deseja excluir esta vistoria? Esta ação não pode ser desfeita.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-row gap-2 mt-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setInspectionToDelete(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
                 onClick={confirmDelete}
-                className="bg-destructive hover:bg-destructive/90"
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               >
                 Excluir
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   );

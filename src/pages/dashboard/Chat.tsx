@@ -5,7 +5,6 @@ import { toast } from 'sonner'
 import { useAuth } from '../../contexts/AuthContext'
 import { MessageSquare, Send, Menu, Trash2, Users } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/dialog'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { Card, CardContent } from '../../components/ui/card'
@@ -524,26 +523,32 @@ export function Chat() {
       </Dialog>
 
       {}
-      <AlertDialog open={chatToDelete !== null} onOpenChange={(open) => !open && setChatToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir Chat</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={chatToDelete !== null} onOpenChange={(open) => !open && setChatToDelete(null)}>
+        <DialogContent className="w-[calc(100%-2rem)] sm:max-w-lg rounded-xl">
+          <DialogHeader>
+            <DialogTitle>Excluir Chat</DialogTitle>
+            <DialogDescription>
               Tem certeza que deseja deletar este chat? Esta ação não pode ser desfeita e todas as mensagens serão permanentemente removidas.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-row gap-2 mt-4">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setChatToDelete(null)}
+            >
+              Cancelar
+            </Button>
+            <Button
               onClick={confirmDeleteChat}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               disabled={deleteChatMutation.isPending}
             >
               {deleteChatMutation.isPending ? 'Excluindo...' : 'Excluir'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -15,7 +15,6 @@ import {
   Eye,
   MoreHorizontal,
   User,
-  Clock
 } from 'lucide-react';
 import { formatCurrency, formatDate } from '../../lib/utils';
 import { ReadOnlyBadge } from '../../components/ui/read-only-badge';
@@ -25,16 +24,7 @@ import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Card, CardContent } from '../../components/ui/card';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '../../components/ui/alert-dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -325,40 +315,40 @@ export function Payments() {
 
         {}
         {annualReport && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-green-500/10 text-green-500 rounded-lg">
-                    <TrendingUp className="w-6 h-6" />
+              <CardContent className="p-3 sm:p-4 md:p-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                  <div className="p-2 sm:p-3 bg-green-500/10 text-green-500 rounded-lg shrink-0">
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                   </div>
                 </div>
-                <h3 className="text-sm text-muted-foreground mb-1">Total Anual ({selectedYear})</h3>
-                <p className="text-2xl font-bold">{formatCurrency(annualReport.total)}</p>
+                <h3 className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mb-0.5 sm:mb-1">Total Anual ({selectedYear})</h3>
+                <p className="text-sm sm:text-lg md:text-2xl font-bold truncate">{formatCurrency(annualReport.total)}</p>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-blue-500/10 text-blue-500 rounded-lg">
-                    <DollarSign className="w-6 h-6" />
+              <CardContent className="p-3 sm:p-4 md:p-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                  <div className="p-2 sm:p-3 bg-blue-500/10 text-blue-500 rounded-lg shrink-0">
+                    <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                   </div>
                 </div>
-                <h3 className="text-sm text-muted-foreground mb-1">Total de Pagamentos</h3>
-                <p className="text-2xl font-bold">{annualReport.totalPayments}</p>
+                <h3 className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mb-0.5 sm:mb-1">Total Pagamentos</h3>
+                <p className="text-sm sm:text-lg md:text-2xl font-bold">{annualReport.totalPayments}</p>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-purple-500/10 text-purple-500 rounded-lg">
-                    <Calendar className="w-6 h-6" />
+              <CardContent className="p-3 sm:p-4 md:p-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                  <div className="p-2 sm:p-3 bg-purple-500/10 text-purple-500 rounded-lg shrink-0">
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                   </div>
                 </div>
-                <h3 className="text-sm text-muted-foreground mb-1">Média Mensal</h3>
-                <p className="text-2xl font-bold">
+                <h3 className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mb-0.5 sm:mb-1">Média Mensal</h3>
+                <p className="text-sm sm:text-lg md:text-2xl font-bold truncate">
                   {formatCurrency(annualReport.total / 12)}
                 </p>
               </CardContent>
@@ -366,52 +356,44 @@ export function Payments() {
           </div>
         )}
 
-        <div className="flex justify-center w-full">
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-6 w-full max-w-7xl px-2 items-stretch justify-center">
+        <div className="w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {payments && payments.length > 0 ? (
               payments.map((payment: any) => (
-                <Card key={payment.id} className="transition-all hover:shadow-md flex flex-col w-[400px] mx-auto overflow-hidden">
-                  <CardContent className="p-0 h-full flex flex-col overflow-hidden">
-                    <div className="flex h-full">
+                <Card key={payment.id} className="transition-all hover:shadow-md overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="flex">
                       {}
-                      <div className="w-28 min-w-28 h-36 bg-primary/10 flex items-center justify-center rounded-l-md">
-                        <DollarSign className="w-12 h-12 text-primary" />
+                      <div className="w-20 sm:w-28 min-w-[5rem] sm:min-w-[7rem] h-32 sm:h-36 bg-primary/10 flex items-center justify-center rounded-l-md">
+                        <DollarSign className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
                       </div>
                       {}
-                      <div className="flex-1 flex flex-col justify-between p-4">
+                      <div className="flex-1 flex flex-col justify-between p-3 sm:p-4 min-w-0">
                         <div>
-                          <h3 className="text-lg font-bold break-words">
+                          <h3 className="text-base sm:text-lg font-bold truncate">
                             {formatCurrency(Number(payment.amount || payment.valorPago))}
                           </h3>
-                          <p className="text-sm text-muted-foreground break-words">
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">
                             <Building2 className="w-3 h-3 inline mr-1" />
                             {payment.property?.name || payment.property?.address || 'Imóvel'}
                           </p>
-                          <p className="text-sm text-muted-foreground break-words">
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">
                             <User className="w-3 h-3 inline mr-1" />
                             {payment.user?.name || payment.tenantUser?.name || 'Inquilino'}
                           </p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Calendar className="w-3 h-3 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1 sm:gap-2 mt-1 sm:mt-2">
+                            <Calendar className="w-3 h-3 text-muted-foreground shrink-0" />
+                            <span className="text-[10px] sm:text-xs text-muted-foreground">
                               {formatDate(payment.paymentDate || payment.dataPagamento)}
                             </span>
                           </div>
-                          {payment.referenceMonth && (
-                            <div className="flex items-center gap-2 mt-1">
-                              <Clock className="w-3 h-3 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">
-                                Referência: {formatDate(payment.referenceMonth)}
-                              </span>
-                            </div>
-                          )}
                         </div>
-                        <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center justify-between mt-2 gap-2">
                           {getPaymentTypeBadge(payment.paymentType || payment.tipo)}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button size="icon" variant="outline">
-                                <MoreHorizontal className="w-5 h-5" />
+                              <Button size="icon" variant="outline" className="h-8 w-8 sm:h-10 sm:w-10">
+                                <MoreHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -474,41 +456,41 @@ export function Payments() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="propertyId">Imóvel</Label>
-                  <select
-                    id="propertyId"
-                    name="propertyId"
+                  <Select
                     value={newPayment.propertyId}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-input rounded-md"
-                    required
+                    onValueChange={(value) => setNewPayment(prev => ({ ...prev, propertyId: value }))}
                   >
-                    <option value="">Selecione um imóvel</option>
-                    {properties.map((property) => (
-                      <option key={property.id} value={property.id}>
-                        {property.name || property.address}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="[&>span]:text-left [&>span]:truncate">
+                      <SelectValue placeholder="Selecione um imóvel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {properties.map((property) => (
+                        <SelectItem key={property.id} value={property.id?.toString()}>
+                          {property.name || property.address}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="contratoId">Contrato</Label>
-                  <select
-                    id="contratoId"
-                    name="contratoId"
+                  <Select
                     value={newPayment.contratoId}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-input rounded-md"
-                    required
+                    onValueChange={(value) => setNewPayment(prev => ({ ...prev, contratoId: value }))}
                   >
-                    <option value="">Selecione um contrato</option>
-                    {contracts
-                      .filter((c: any) => !newPayment.propertyId || c.propertyId === newPayment.propertyId)
-                      .map((contract: any) => (
-                      <option key={contract.id} value={contract.id}>
-                        {contract.property?.address || contract.property?.name || `Contrato #${contract.id}`} - {contract.tenantUser?.name || 'Inquilino'}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="[&>span]:text-left [&>span]:truncate">
+                      <SelectValue placeholder="Selecione um contrato" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {contracts
+                        .filter((c: any) => !newPayment.propertyId || c.propertyId === newPayment.propertyId)
+                        .map((contract: any) => (
+                        <SelectItem key={contract.id} value={contract.id?.toString()}>
+                          {contract.property?.address || contract.property?.name || `Contrato #${contract.id}`} - {contract.tenantUser?.name || 'Inquilino'}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -528,19 +510,20 @@ export function Payments() {
                 </div>
                 <div>
                   <Label htmlFor="tipo">Tipo de pagamento</Label>
-                  <select
-                    id="tipo"
-                    name="tipo"
+                  <Select
                     value={newPayment.tipo}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-input rounded-md"
-                    required
+                    onValueChange={(value) => setNewPayment(prev => ({ ...prev, tipo: value }))}
                   >
-                    <option value="ALUGUEL">Aluguel</option>
-                    <option value="CONDOMINIO">Condomínio</option>
-                    <option value="IPTU">IPTU</option>
-                    <option value="OUTROS">Outros</option>
-                  </select>
+                    <SelectTrigger className="[&>span]:text-left [&>span]:truncate">
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALUGUEL">Aluguel</SelectItem>
+                      <SelectItem value="CONDOMINIO">Condomínio</SelectItem>
+                      <SelectItem value="IPTU">IPTU</SelectItem>
+                      <SelectItem value="OUTROS">Outros</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -579,41 +562,41 @@ export function Payments() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit-propertyId">Imóvel</Label>
-                  <select
-                    id="edit-propertyId"
-                    name="propertyId"
+                  <Select
                     value={editForm.propertyId}
-                    onChange={handleEditInputChange}
-                    className="w-full p-2 border border-input rounded-md"
-                    required
+                    onValueChange={(value) => setEditForm(prev => ({ ...prev, propertyId: value }))}
                   >
-                    <option value="">Selecione um imóvel</option>
-                    {properties.map((property) => (
-                      <option key={property.id} value={property.id}>
-                        {property.name || property.address}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="[&>span]:text-left [&>span]:truncate">
+                      <SelectValue placeholder="Selecione um imóvel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {properties.map((property) => (
+                        <SelectItem key={property.id} value={property.id?.toString()}>
+                          {property.name || property.address}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="edit-contratoId">Contrato</Label>
-                  <select
-                    id="edit-contratoId"
-                    name="contratoId"
+                  <Select
                     value={editForm.contratoId}
-                    onChange={handleEditInputChange}
-                    className="w-full p-2 border border-input rounded-md"
-                    required
+                    onValueChange={(value) => setEditForm(prev => ({ ...prev, contratoId: value }))}
                   >
-                    <option value="">Selecione um contrato</option>
-                    {contracts
-                      .filter((c: any) => !editForm.propertyId || c.propertyId === editForm.propertyId)
-                      .map((contract: any) => (
-                      <option key={contract.id} value={contract.id}>
-                        {contract.property?.address || contract.property?.name || `Contrato #${contract.id}`} - {contract.tenantUser?.name || 'Inquilino'}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="[&>span]:text-left [&>span]:truncate">
+                      <SelectValue placeholder="Selecione um contrato" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {contracts
+                        .filter((c: any) => !editForm.propertyId || c.propertyId === editForm.propertyId)
+                        .map((contract: any) => (
+                        <SelectItem key={contract.id} value={contract.id?.toString()}>
+                          {contract.property?.address || contract.property?.name || `Contrato #${contract.id}`} - {contract.tenantUser?.name || 'Inquilino'}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -633,19 +616,20 @@ export function Payments() {
                 </div>
                 <div>
                   <Label htmlFor="edit-tipo">Tipo de pagamento</Label>
-                  <select
-                    id="edit-tipo"
-                    name="tipo"
+                  <Select
                     value={editForm.tipo}
-                    onChange={handleEditInputChange}
-                    className="w-full p-2 border border-input rounded-md"
-                    required
+                    onValueChange={(value) => setEditForm(prev => ({ ...prev, tipo: value }))}
                   >
-                    <option value="ALUGUEL">Aluguel</option>
-                    <option value="CONDOMINIO">Condomínio</option>
-                    <option value="IPTU">IPTU</option>
-                    <option value="OUTROS">Outros</option>
-                  </select>
+                    <SelectTrigger className="[&>span]:text-left [&>span]:truncate">
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALUGUEL">Aluguel</SelectItem>
+                      <SelectItem value="CONDOMINIO">Condomínio</SelectItem>
+                      <SelectItem value="IPTU">IPTU</SelectItem>
+                      <SelectItem value="OUTROS">Outros</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -701,26 +685,33 @@ export function Payments() {
         </Dialog>
 
         {}
-        <AlertDialog open={!!paymentToDelete} onOpenChange={() => setPaymentToDelete(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Excluir pagamento</AlertDialogTitle>
-              <AlertDialogDescription>
+        <Dialog open={!!paymentToDelete} onOpenChange={() => setPaymentToDelete(null)}>
+          <DialogContent className="w-[calc(100%-2rem)] sm:max-w-lg rounded-xl">
+            <DialogHeader>
+              <DialogTitle>Excluir pagamento</DialogTitle>
+              <DialogDescription>
                 Tem certeza que deseja excluir este pagamento? Esta ação não poderá ser desfeita.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-row gap-2 mt-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setPaymentToDelete(null)}
+                disabled={deleting}
+              >
+                Cancelar
+              </Button>
+              <Button
                 onClick={confirmDelete}
                 disabled={deleting}
-                className="bg-destructive hover:bg-destructive/90"
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               >
                 {deleting ? 'Excluindo...' : 'Excluir'}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   );

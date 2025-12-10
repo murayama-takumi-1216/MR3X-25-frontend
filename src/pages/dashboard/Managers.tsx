@@ -13,10 +13,13 @@ import {
   MoreHorizontal,
   MapPin,
   Grid3X3,
-  List
+  List,
+  CheckCircle,
+  XCircle,
+  Loader2
 } from 'lucide-react'
 import { DocumentInput } from '@/components/ui/document-input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { CEPInput } from '@/components/ui/cep-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -24,16 +27,6 @@ import { Button } from '@/components/ui/button'
 import { validateDocument, isValidCEPFormat } from '@/lib/validation'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -97,6 +90,46 @@ export function Managers() {
   const [updating, setUpdating] = useState(false)
   const [loadingDetails, setLoadingDetails] = useState(false)
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
+  const [emailError, setEmailError] = useState('')
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [checkingEmail, setCheckingEmail] = useState(false)
+
+  const checkEmailExists = useCallback(async (email: string, currentEmail?: string) => {
+    setEmailVerified(false)
+
+    if (!email || email === currentEmail) {
+      setEmailError('')
+      if (email === currentEmail) {
+        setEmailVerified(true)
+      }
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setEmailError('Formato de email inválido')
+      return
+    }
+
+    setCheckingEmail(true)
+    try {
+      const result = await usersAPI.checkEmailExists(email)
+      if (result.exists) {
+        setEmailError('Este email já está em uso, por favor altere o email')
+        setEmailVerified(false)
+        toast.error('Este email já está em uso, por favor altere o email')
+      } else {
+        setEmailError('')
+        setEmailVerified(true)
+      }
+    } catch (error) {
+      console.error('Error checking email:', error)
+      setEmailError('Erro ao verificar email')
+      setEmailVerified(false)
+    } finally {
+      setCheckingEmail(false)
+    }
+  }, [])
 
   if (!canViewUsers) {
     return (
@@ -136,6 +169,9 @@ export function Managers() {
     setShowDetailModal(false)
     setSelectedManager(null)
     setManagerToDelete(null)
+    setEmailError('')
+    setEmailVerified(false)
+    setCheckingEmail(false)
   }
 
   const createManagerMutation = useMutation({
@@ -157,12 +193,18 @@ export function Managers() {
     },
     onError: (error: any) => {
       let errorMessage = 'Erro ao criar gerente'
-      if (error.message) {
-        const message = error.message.toLowerCase()
-        if (message.includes('already exists')) {
+      // Extract error message from axios error response
+      const backendMessage = error.response?.data?.message || error.message
+      if (backendMessage) {
+        const message = backendMessage.toLowerCase()
+        if (message.includes('already exists') || message.includes('email already registered')) {
           errorMessage = 'Este usuario ja existe. Verifique o email ou documento.'
+        } else if (message.includes('limite') || message.includes('limit')) {
+          errorMessage = backendMessage
+        } else if (message.includes('não pode criar') || message.includes('cannot create')) {
+          errorMessage = backendMessage
         } else {
-          errorMessage = error.message
+          errorMessage = backendMessage
         }
       }
       toast.error(errorMessage)
@@ -298,6 +340,7 @@ export function Managers() {
         city: fullManagerDetails.city || '',
         state: fullManagerDetails.state || '',
       })
+      setEmailVerified(true) // Current email is valid
       setShowEditModal(true)
     } catch {
       toast.error('Erro ao carregar detalhes do gerente')
@@ -574,7 +617,26 @@ export function Managers() {
                   </div>
                   <div>
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" value={newManager.email} onChange={handleInputChange} placeholder="email@exemplo.com" required />
+                    <div className="relative">
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={newManager.email}
+                        onChange={handleInputChange}
+                        onBlur={(e) => checkEmailExists(e.target.value)}
+                        placeholder="email@exemplo.com"
+                        required
+                        className={`pr-10 ${emailError ? 'border-red-500' : emailVerified ? 'border-green-500' : ''}`}
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {checkingEmail && <Loader2 className="w-4 h-4 animate-spin text-gray-400" />}
+                        {!checkingEmail && emailVerified && <CheckCircle className="w-4 h-4 text-green-500" />}
+                        {!checkingEmail && emailError && <XCircle className="w-4 h-4 text-red-500" />}
+                      </div>
+                    </div>
+                    {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+                    {emailVerified && !emailError && <p className="text-green-500 text-sm mt-1">Email disponível</p>}
                   </div>
                 </div>
 
@@ -683,7 +745,26 @@ export function Managers() {
                   </div>
                   <div>
                     <Label htmlFor="edit-email">Email</Label>
-                    <Input id="edit-email" name="email" type="email" value={editForm.email} onChange={handleEditInputChange} placeholder="email@exemplo.com" required />
+                    <div className="relative">
+                      <Input
+                        id="edit-email"
+                        name="email"
+                        type="email"
+                        value={editForm.email}
+                        onChange={handleEditInputChange}
+                        onBlur={(e) => checkEmailExists(e.target.value, selectedManager?.email)}
+                        placeholder="email@exemplo.com"
+                        required
+                        className={`pr-10 ${emailError ? 'border-red-500' : emailVerified ? 'border-green-500' : ''}`}
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {checkingEmail && <Loader2 className="w-4 h-4 animate-spin text-gray-400" />}
+                        {!checkingEmail && emailVerified && <CheckCircle className="w-4 h-4 text-green-500" />}
+                        {!checkingEmail && emailError && <XCircle className="w-4 h-4 text-red-500" />}
+                      </div>
+                    </div>
+                    {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+                    {emailVerified && !emailError && <p className="text-green-500 text-sm mt-1">Email disponível</p>}
                   </div>
                 </div>
 
@@ -829,22 +910,31 @@ export function Managers() {
         </Dialog>
 
         {}
-        <AlertDialog open={!!managerToDelete} onOpenChange={() => setManagerToDelete(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Excluir gerente</AlertDialogTitle>
-              <AlertDialogDescription>
+        <Dialog open={!!managerToDelete} onOpenChange={() => setManagerToDelete(null)}>
+          <DialogContent className="w-[calc(100%-2rem)] sm:max-w-lg rounded-xl">
+            <DialogHeader>
+              <DialogTitle>Excluir gerente</DialogTitle>
+              <DialogDescription>
                 Tem certeza que deseja excluir o gerente <b>{managerToDelete?.name}</b>? Esta acao nao podera ser desfeita.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-row gap-2 mt-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setManagerToDelete(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={confirmDelete}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+              >
                 Excluir
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   )

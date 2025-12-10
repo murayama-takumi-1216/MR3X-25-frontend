@@ -84,6 +84,7 @@ import Billing from './pages/dashboard/Billing';
 import Communications from './pages/dashboard/Communications';
 import Integrations from './pages/dashboard/Integrations';
 import Documents from './pages/dashboard/Documents';
+import { CEOPayments } from './pages/dashboard/CEOPayments';
 import { PricingPage } from './pages/public/PricingPage';
 import { SubscriptionPage } from './pages/dashboard/SubscriptionPage';
 import './index.css';
@@ -259,6 +260,9 @@ function App() {
               <Route path="manager-tickets" element={<ManagerTickets />} />
               <Route path="manager-knowledge" element={<ManagerKnowledgeBase />} />
               <Route path="manager-settings" element={<ManagerSettings />} />
+
+              {}
+              <Route path="ceo-payments" element={<CEOPayments />} />
             </Route>
 
             {}

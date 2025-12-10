@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { useAuth } from '@/contexts/AuthContext'
 import { usersAPI } from '@/api'
@@ -12,6 +12,9 @@ import {
   Phone,
   Mail,
   User,
+  CheckCircle,
+  XCircle,
+  Loader2,
 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -61,6 +64,46 @@ export function Agencies() {
   const [ownerDetail, setOwnerDetail] = useState<any>(null)
   const [updating, setUpdating] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [emailError, setEmailError] = useState('')
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [checkingEmail, setCheckingEmail] = useState(false)
+
+  const checkEmailExists = useCallback(async (email: string, currentEmail?: string) => {
+    setEmailVerified(false)
+
+    if (!email || email === currentEmail) {
+      setEmailError('')
+      if (email === currentEmail) {
+        setEmailVerified(true)
+      }
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setEmailError('Formato de email inválido')
+      return
+    }
+
+    setCheckingEmail(true)
+    try {
+      const result = await usersAPI.checkEmailExists(email)
+      if (result.exists) {
+        setEmailError('Este email já está em uso, por favor altere o email')
+        setEmailVerified(false)
+        toast.error('Este email já está em uso, por favor altere o email')
+      } else {
+        setEmailError('')
+        setEmailVerified(true)
+      }
+    } catch (error) {
+      console.error('Error checking email:', error)
+      setEmailError('Erro ao verificar email')
+      setEmailVerified(false)
+    } finally {
+      setCheckingEmail(false)
+    }
+  }, [])
 
   const { data: ownersData, isLoading } = useQuery({
     queryKey: ['independent-owners'],
@@ -76,6 +119,9 @@ export function Agencies() {
     setSelectedOwner(null)
     setOwnerToDelete(null)
     setOwnerDetail(null)
+    setEmailError('')
+    setEmailVerified(false)
+    setCheckingEmail(false)
   }
 
   const updateOwnerMutation = useMutation({
@@ -185,6 +231,9 @@ export function Agencies() {
 
   const handleEditOwnerClick = (owner: any) => {
     setSelectedOwner(owner)
+    setEmailError('')
+    setEmailVerified(true)
+    setCheckingEmail(false)
     setShowEditModal(true)
   }
 
@@ -408,7 +457,23 @@ export function Agencies() {
                   </div>
                   <div>
                     <Label htmlFor="edit-email">E-mail</Label>
-                    <Input id="edit-email" type="email" value={selectedOwner.email || ''} onChange={(e) => setSelectedOwner({ ...selectedOwner, email: e.target.value })} />
+                    <div className="relative">
+                      <Input
+                        id="edit-email"
+                        type="email"
+                        value={selectedOwner.email || ''}
+                        onChange={(e) => setSelectedOwner({ ...selectedOwner, email: e.target.value })}
+                        onBlur={(e) => checkEmailExists(e.target.value, selectedOwner?.email)}
+                        className={`pr-10 ${emailError ? 'border-red-500' : emailVerified ? 'border-green-500' : ''}`}
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {checkingEmail && <Loader2 className="w-4 h-4 animate-spin text-gray-400" />}
+                        {!checkingEmail && emailVerified && <CheckCircle className="w-4 h-4 text-green-500" />}
+                        {!checkingEmail && emailError && <XCircle className="w-4 h-4 text-red-500" />}
+                      </div>
+                    </div>
+                    {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+                    {emailVerified && !emailError && <p className="text-green-500 text-sm mt-1">Email disponível</p>}
                   </div>
                   <div>
                     <Label htmlFor="edit-phone">Telefone</Label>

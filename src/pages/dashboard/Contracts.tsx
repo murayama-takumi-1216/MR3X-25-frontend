@@ -29,16 +29,6 @@ import { Badge } from '../../components/ui/badge';
 import { Card, CardContent } from '../../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '../../components/ui/alert-dialog';
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -920,29 +910,24 @@ export function Contracts() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="propertyId">Imóvel</Label>
-                  <select
-                    id="propertyId"
-                    name="propertyId"
+                  <Select
                     value={newContract.propertyId}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-input rounded-md"
-                    required
+                    onValueChange={(value) => setNewContract(prev => ({ ...prev, propertyId: value }))}
                   >
-                    <option value="">Selecione um imóvel</option>
-                    {properties.map((property) => {
-                      const propId = property.id?.toString() || String(property.id);
-                      return (
-                        <option
-                          key={propId}
-                          value={propId}
-                          disabled={property.isFrozen}
-                        >
-                          {property.name || property.address}
-                          {property.isFrozen ? ' (Congelado - Faça upgrade)' : ''}
-                        </option>
-                      );
-                    })}
-                  </select>
+                    <SelectTrigger className="[&>span]:text-left [&>span]:truncate">
+                      <SelectValue placeholder="Selecione um imóvel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {properties.filter(p => !p.isFrozen).map((property) => {
+                        const propId = property.id?.toString() || String(property.id);
+                        return (
+                          <SelectItem key={propId} value={propId}>
+                            {property.name || property.address}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                   {properties.some(p => p.isFrozen) && (
                     <p className="text-xs text-amber-600 mt-1">
                       Imóveis congelados não podem ter novos contratos. Faça upgrade do plano para desbloquear.
@@ -951,24 +936,24 @@ export function Contracts() {
                 </div>
                 <div>
                   <Label htmlFor="tenantId">Inquilino</Label>
-                  <select
-                    id="tenantId"
-                    name="tenantId"
+                  <Select
                     value={newContract.tenantId}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-input rounded-md"
-                    required
+                    onValueChange={(value) => setNewContract(prev => ({ ...prev, tenantId: value }))}
                   >
-                    <option value="">Selecione um inquilino</option>
-                    {tenants.map((tenant) => {
-                      const tenantId = tenant.id?.toString() || String(tenant.id);
-                      return (
-                        <option key={tenantId} value={tenantId}>
-                          {tenant.name || tenant.email || 'Sem nome'}
-                        </option>
-                      );
-                    })}
-                  </select>
+                    <SelectTrigger className="[&>span]:text-left [&>span]:truncate">
+                      <SelectValue placeholder="Selecione um inquilino" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {tenants.map((tenant) => {
+                        const tenantId = tenant.id?.toString() || String(tenant.id);
+                        return (
+                          <SelectItem key={tenantId} value={tenantId}>
+                            {tenant.name || tenant.email || 'Sem nome'}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -1184,45 +1169,45 @@ export function Contracts() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit-propertyId">Imóvel</Label>
-                  <select
-                    id="edit-propertyId"
-                    name="propertyId"
+                  <Select
                     value={editForm.propertyId}
-                    onChange={handleEditInputChange}
-                    className="w-full p-2 border border-input rounded-md"
-                    required
+                    onValueChange={(value) => setEditForm(prev => ({ ...prev, propertyId: value }))}
                   >
-                    <option value="">Selecione um imóvel</option>
-                    {properties.map((property) => {
-                      const propId = property.id?.toString() || String(property.id);
-                      return (
-                        <option key={propId} value={propId}>
-                          {property.name || property.address}
-                        </option>
-                      );
-                    })}
-                  </select>
+                    <SelectTrigger className="[&>span]:text-left [&>span]:truncate">
+                      <SelectValue placeholder="Selecione um imóvel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {properties.map((property) => {
+                        const propId = property.id?.toString() || String(property.id);
+                        return (
+                          <SelectItem key={propId} value={propId}>
+                            {property.name || property.address}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="edit-tenantId">Inquilino</Label>
-                  <select
-                    id="edit-tenantId"
-                    name="tenantId"
+                  <Select
                     value={editForm.tenantId}
-                    onChange={handleEditInputChange}
-                    className="w-full p-2 border border-input rounded-md"
-                    required
+                    onValueChange={(value) => setEditForm(prev => ({ ...prev, tenantId: value }))}
                   >
-                    <option value="">Selecione um inquilino</option>
-                    {tenants.map((tenant) => {
-                      const tenantId = tenant.id?.toString() || String(tenant.id);
-                      return (
-                        <option key={tenantId} value={tenantId}>
-                          {tenant.name || tenant.email || 'Sem nome'}
-                        </option>
-                      );
-                    })}
-                  </select>
+                    <SelectTrigger className="[&>span]:text-left [&>span]:truncate">
+                      <SelectValue placeholder="Selecione um inquilino" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {tenants.map((tenant) => {
+                        const tenantId = tenant.id?.toString() || String(tenant.id);
+                        return (
+                          <SelectItem key={tenantId} value={tenantId}>
+                            {tenant.name || tenant.email || 'Sem nome'}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -1393,26 +1378,33 @@ export function Contracts() {
         </Dialog>
 
         {}
-        <AlertDialog open={!!contractToDelete} onOpenChange={() => setContractToDelete(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Excluir contrato</AlertDialogTitle>
-              <AlertDialogDescription>
+        <Dialog open={!!contractToDelete} onOpenChange={() => setContractToDelete(null)}>
+          <DialogContent className="w-[calc(100%-2rem)] sm:max-w-lg rounded-xl">
+            <DialogHeader>
+              <DialogTitle>Excluir contrato</DialogTitle>
+              <DialogDescription>
                 Tem certeza que deseja excluir este contrato? Esta ação não poderá ser desfeita.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-row gap-2 mt-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setContractToDelete(null)}
+                disabled={deleting}
+              >
+                Cancelar
+              </Button>
+              <Button
                 onClick={confirmDelete}
                 disabled={deleting}
-                className="bg-destructive hover:bg-destructive/90"
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               >
                 {deleting ? 'Excluindo...' : 'Excluir'}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   );

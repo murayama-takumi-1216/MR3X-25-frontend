@@ -15,7 +15,8 @@ import { chatAPI, notificationsAPI } from '../api';
 
 const baseNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home, perm: undefined },
-  
+  { name: 'Pagamentos Plataforma', href: '/dashboard/ceo-payments', icon: DollarSign, perm: undefined, roles: ['CEO'] },
+
   { name: 'Meu Contrato', href: '/dashboard/tenant-contract', icon: FileText, perm: undefined, roles: ['INQUILINO'] },
   { name: 'Meus Pagamentos', href: '/dashboard/tenant-payments', icon: DollarSign, perm: undefined, roles: ['INQUILINO'] },
   { name: 'Meu Perfil', href: '/dashboard/tenant-profile', icon: User, perm: undefined, roles: ['INQUILINO'] },
@@ -151,17 +152,18 @@ export function DashboardLayout() {
 
     if (user?.role === 'CEO') {
       const allowedForCEO = [
-        '/dashboard',              
-        '/dashboard/users',        
-        '/dashboard/agencies',     
-        '/dashboard/plans',        
-        '/dashboard/billing',      
-        '/dashboard/integrations', 
-        '/dashboard/audit',        
-        '/dashboard/settings',     
-        '/dashboard/chat',         
-        '/dashboard/notifications', 
-        '/dashboard/change-password', 
+        '/dashboard',
+        '/dashboard/ceo-payments',
+        '/dashboard/users',
+        '/dashboard/agencies',
+        '/dashboard/plans',
+        '/dashboard/billing',
+        '/dashboard/integrations',
+        '/dashboard/audit',
+        '/dashboard/settings',
+        '/dashboard/chat',
+        '/dashboard/notifications',
+        '/dashboard/change-password',
       ];
       if (!allowedForCEO.includes(item.href)) return false;
     }

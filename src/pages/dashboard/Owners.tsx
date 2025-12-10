@@ -13,7 +13,10 @@ import {
   MoreHorizontal,
   MapPin,
   Grid3X3,
-  List
+  List,
+  CheckCircle,
+  XCircle,
+  Loader2
 } from 'lucide-react'
 import { DocumentInput } from '@/components/ui/document-input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
@@ -89,28 +92,43 @@ export function Owners() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showEditPassword, setShowEditPassword] = useState(false)
   const [emailError, setEmailError] = useState('')
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [checkingEmail, setCheckingEmail] = useState(false)
 
   const checkEmailExists = useCallback(async (email: string, currentEmail?: string) => {
+    setEmailVerified(false)
+
     if (!email || email === currentEmail) {
       setEmailError('')
-      return
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      setEmailError('')
+      if (email === currentEmail) {
+        setEmailVerified(true)
+      }
       return
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setEmailError('Formato de email inválido')
+      return
+    }
+
+    setCheckingEmail(true)
     try {
       const result = await usersAPI.checkEmailExists(email)
       if (result.exists) {
         setEmailError('Este email já está em uso, por favor altere o email')
+        setEmailVerified(false)
         toast.error('Este email já está em uso, por favor altere o email')
       } else {
         setEmailError('')
+        setEmailVerified(true)
       }
     } catch (error) {
       console.error('Error checking email:', error)
+      setEmailError('Erro ao verificar email')
+      setEmailVerified(false)
+    } finally {
+      setCheckingEmail(false)
     }
   }, [])
 
@@ -144,6 +162,9 @@ export function Owners() {
     setShowDetailModal(false)
     setSelectedOwner(null)
     setOwnerToDelete(null)
+    setEmailError('')
+    setEmailVerified(false)
+    setCheckingEmail(false)
   }
 
   const createOwnerMutation = useMutation({
@@ -309,6 +330,7 @@ export function Owners() {
         city: fullOwnerDetails.city || '',
         state: fullOwnerDetails.state || '',
       })
+      setEmailVerified(true) // Current email is valid
       setShowEditModal(true)
     } catch {
       toast.error('Erro ao carregar detalhes do imóvel')
@@ -597,8 +619,26 @@ export function Owners() {
                   </div>
                   <div>
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" value={newOwner.email} onChange={handleInputChange} onBlur={(e) => checkEmailExists(e.target.value)} placeholder="email@exemplo.com" required className={emailError ? 'border-red-500' : ''} />
+                    <div className="relative">
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={newOwner.email}
+                        onChange={handleInputChange}
+                        onBlur={(e) => checkEmailExists(e.target.value)}
+                        placeholder="email@exemplo.com"
+                        required
+                        className={`pr-10 ${emailError ? 'border-red-500' : emailVerified ? 'border-green-500' : ''}`}
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {checkingEmail && <Loader2 className="w-4 h-4 animate-spin text-gray-400" />}
+                        {!checkingEmail && emailVerified && <CheckCircle className="w-4 h-4 text-green-500" />}
+                        {!checkingEmail && emailError && <XCircle className="w-4 h-4 text-red-500" />}
+                      </div>
+                    </div>
                     {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+                    {emailVerified && !emailError && <p className="text-green-500 text-sm mt-1">Email disponível</p>}
                   </div>
                 </div>
 
@@ -706,8 +746,26 @@ export function Owners() {
                   </div>
                   <div>
                     <Label htmlFor="edit-email">Email</Label>
-                    <Input id="edit-email" name="email" type="email" value={editForm.email} onChange={handleEditInputChange} onBlur={(e) => checkEmailExists(e.target.value, selectedOwner?.email)} placeholder="email@exemplo.com" required className={emailError ? 'border-red-500' : ''} />
+                    <div className="relative">
+                      <Input
+                        id="edit-email"
+                        name="email"
+                        type="email"
+                        value={editForm.email}
+                        onChange={handleEditInputChange}
+                        onBlur={(e) => checkEmailExists(e.target.value, selectedOwner?.email)}
+                        placeholder="email@exemplo.com"
+                        required
+                        className={`pr-10 ${emailError ? 'border-red-500' : emailVerified ? 'border-green-500' : ''}`}
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {checkingEmail && <Loader2 className="w-4 h-4 animate-spin text-gray-400" />}
+                        {!checkingEmail && emailVerified && <CheckCircle className="w-4 h-4 text-green-500" />}
+                        {!checkingEmail && emailError && <XCircle className="w-4 h-4 text-red-500" />}
+                      </div>
+                    </div>
                     {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+                    {emailVerified && !emailError && <p className="text-green-500 text-sm mt-1">Email disponível</p>}
                   </div>
                 </div>
 
