@@ -142,21 +142,21 @@ export default function BillingPage() {
 
         <TabsContent value="invoices" className="space-y-4">
           <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <CardTitle>Faturas</CardTitle>
                   <CardDescription>Lista de todas as faturas emitidas</CardDescription>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <Input
                     placeholder="Buscar..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-64"
+                    className="w-full sm:w-64"
                   />
                   <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-full sm:w-40">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -169,41 +169,84 @@ export default function BillingPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID Fatura</TableHead>
-                    <TableHead>Agência</TableHead>
-                    <TableHead>Plano</TableHead>
-                    <TableHead>Valor</TableHead>
-                    <TableHead>Emissão</TableHead>
-                    <TableHead>Vencimento</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {invoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                      <TableCell className="font-medium">{invoice.id}</TableCell>
-                      <TableCell>{invoice.agencyName}</TableCell>
-                      <TableCell>
+            <CardContent className="p-0 sm:p-6">
+              {/* Mobile Card View */}
+              <div className="block sm:hidden divide-y divide-border">
+                {invoices.map((invoice) => (
+                  <div key={invoice.id} className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-sm">{invoice.id}</span>
+                      {getStatusBadge(invoice.status)}
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Agência</span>
+                        <span className="font-medium">{invoice.agencyName}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Plano</span>
                         <Badge variant="outline">{invoice.plan}</Badge>
-                      </TableCell>
-                      <TableCell>{formatCurrency(invoice.amount)}</TableCell>
-                      <TableCell>{invoice.issueDate.toLocaleDateString('pt-BR')}</TableCell>
-                      <TableCell>{invoice.dueDate.toLocaleDateString('pt-BR')}</TableCell>
-                      <TableCell>{getStatusBadge(invoice.status)}</TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Valor</span>
+                        <span className="font-semibold">{formatCurrency(invoice.amount)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Emissão</span>
+                        <span>{invoice.issueDate.toLocaleDateString('pt-BR')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Vencimento</span>
+                        <span>{invoice.dueDate.toLocaleDateString('pt-BR')}</span>
+                      </div>
+                    </div>
+                    <div className="pt-2">
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Download className="w-4 h-4 mr-2" />
+                        Baixar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden sm:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID Fatura</TableHead>
+                      <TableHead>Agência</TableHead>
+                      <TableHead>Plano</TableHead>
+                      <TableHead>Valor</TableHead>
+                      <TableHead>Emissão</TableHead>
+                      <TableHead>Vencimento</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Ações</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {invoices.map((invoice) => (
+                      <TableRow key={invoice.id}>
+                        <TableCell className="font-medium">{invoice.id}</TableCell>
+                        <TableCell>{invoice.agencyName}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{invoice.plan}</Badge>
+                        </TableCell>
+                        <TableCell>{formatCurrency(invoice.amount)}</TableCell>
+                        <TableCell>{invoice.issueDate.toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell>{invoice.dueDate.toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell>{getStatusBadge(invoice.status)}</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm">
+                            <Download className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
