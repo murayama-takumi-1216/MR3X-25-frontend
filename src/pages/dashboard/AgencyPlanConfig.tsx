@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 import { agenciesAPI, plansAPI } from '../../api';
@@ -16,12 +16,16 @@ import {
   Crown,
   Zap,
   Star,
+  Save,
+  FileCheck,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Progress } from '../../components/ui/progress';
 import { Alert, AlertDescription } from '../../components/ui/alert';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -89,11 +93,15 @@ const getPlanColor = (name: string) => {
 
 export function AgencyPlanConfig() {
   const { user, hasPermission } = useAuth();
+  const queryClient = useQueryClient();
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [previewData, setPreviewData] = useState<PlanChangePreview | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [creci, setCreci] = useState('');
+  const [creciState, setCreciState] = useState('');
+  const [savingCreci, setSavingCreci] = useState(false);
 
   const canViewPlan = hasPermission('agencies:read') || user?.role === 'AGENCY_ADMIN';
   const agencyId = user?.agencyId;
@@ -128,6 +136,35 @@ export function AgencyPlanConfig() {
     },
     enabled: canViewPlan,
   });
+
+  // Load CRECI from agency data when available
+  useEffect(() => {
+    if (agency?.creci) {
+      setCreci(agency.creci);
+    }
+    if (agency?.creciState) {
+      setCreciState(agency.creciState);
+    }
+  }, [agency?.creci, agency?.creciState]);
+
+  // Save CRECI function
+  const handleSaveCreci = async () => {
+    if (!agencyId || !creci.trim()) {
+      toast.error('CRECI é obrigatório');
+      return;
+    }
+
+    setSavingCreci(true);
+    try {
+      await agenciesAPI.updateAgency(agencyId, { creci, creciState });
+      queryClient.invalidateQueries({ queryKey: ['agency', agencyId] });
+      toast.success('CRECI salvo com sucesso!');
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao salvar CRECI');
+    } finally {
+      setSavingCreci(false);
+    }
+  };
 
   if (!canViewPlan || !agencyId) {
     return (
@@ -255,6 +292,70 @@ export function AgencyPlanConfig() {
                 </div>
               ))}
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* CRECI Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <FileCheck className="w-5 h-5" />
+            CRECI da Imobiliária
+          </CardTitle>
+          <CardDescription>
+            Configure o CRECI da sua imobiliária para uso automático nos contratos
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2">
+              <Label htmlFor="creci" className="flex items-center gap-1">
+                Número do CRECI
+                <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="creci"
+                value={creci}
+                onChange={(e) => setCreci(e.target.value)}
+                placeholder="Ex: 123456 ou CRECI-SP 123456-J"
+                className={!creci ? 'border-amber-300' : ''}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Obrigatório por lei (Lei 6.530/78) para validade dos contratos
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="creciState">Estado</Label>
+              <Input
+                id="creciState"
+                value={creciState}
+                onChange={(e) => setCreciState(e.target.value.toUpperCase())}
+                placeholder="SP"
+                maxLength={2}
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between mt-4">
+            <div>
+              {agency?.creci ? (
+                <Badge variant="outline" className="text-green-600 border-green-600">
+                  <Check className="w-3 h-3 mr-1" /> CRECI Configurado
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-amber-600 border-amber-600">
+                  <AlertTriangle className="w-3 h-3 mr-1" /> CRECI Pendente
+                </Badge>
+              )}
+            </div>
+            <Button onClick={handleSaveCreci} disabled={savingCreci || !creci.trim()}>
+              {savingCreci ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              Salvar CRECI
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { contractsAPI, propertiesAPI, usersAPI, contractTemplatesAPI } from '../../api';
+import { contractsAPI, propertiesAPI, usersAPI, contractTemplatesAPI, agenciesAPI } from '../../api';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
@@ -63,11 +63,23 @@ export function Contracts() {
     endDate: '',
     monthlyRent: '',
     deposit: '',
-    dueDay: '',
+    dueDay: '5',
     description: '',
     templateId: '',
     templateType: 'CTR' as 'CTR' | 'ACD' | 'VST',
     creci: '',
+    // Legal required fields
+    readjustmentIndex: 'IGPM' as 'IGPM' | 'IPCA' | 'INPC' | 'IGP-DI' | 'OUTRO',
+    customReadjustmentIndex: '',
+    latePaymentPenaltyPercent: '10',
+    monthlyInterestPercent: '1',
+    earlyTerminationPenaltyMonths: '3',
+    earlyTerminationFixedValue: '',
+    useFixedTerminationValue: false,
+    jurisdiction: '',
+    contractDate: new Date().toISOString().split('T')[0],
+    propertyCharacteristics: '',
+    guaranteeType: 'CAUCAO' as 'CAUCAO' | 'FIADOR' | 'SEGURO' | 'TITULO' | 'NENHUMA',
   });
 
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -97,6 +109,16 @@ export function Contracts() {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [previewContent, setPreviewContent] = useState<string>('');
+  const [previewToken, setPreviewToken] = useState<string>('');
+
+  // Generate preview token function
+  const generatePreviewToken = (templateType: string) => {
+    const year = new Date().getFullYear();
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const random1 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    const random2 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    return `MR3X-${templateType || 'CTR'}-${year}-${random1}-${random2}`;
+  };
 
   if (!canViewContracts) {
     return (
@@ -121,6 +143,13 @@ export function Contracts() {
     enabled: canCreateContracts,
   });
 
+  // Fetch agency data for CRECI auto-fill
+  const { data: agencyData } = useQuery({
+    queryKey: ['agency', user?.agencyId],
+    queryFn: () => agenciesAPI.getAgencyById(user!.agencyId!),
+    enabled: !!user?.agencyId && canCreateContracts,
+  });
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -139,6 +168,16 @@ export function Contracts() {
       loadData();
     }
   }, [canCreateContracts, canUpdateContracts]);
+
+  // Auto-fill CRECI from user's agency when available
+  useEffect(() => {
+    if (agencyData?.creci && !newContract.creci) {
+      setNewContract(prev => ({
+        ...prev,
+        creci: agencyData.creci,
+      }));
+    }
+  }, [agencyData?.creci]);
 
   const closeAllModals = () => {
     setShowCreateModal(false);
@@ -213,8 +252,19 @@ export function Contracts() {
       closeAllModals();
       setNewContract({
         propertyId: '', tenantId: '', startDate: '', endDate: '',
-        monthlyRent: '', deposit: '', dueDay: '', description: '',
-        templateId: '', templateType: 'CTR', creci: ''
+        monthlyRent: '', deposit: '', dueDay: '5', description: '',
+        templateId: '', templateType: 'CTR', creci: '',
+        readjustmentIndex: 'IGPM',
+        customReadjustmentIndex: '',
+        latePaymentPenaltyPercent: '10',
+        monthlyInterestPercent: '1',
+        earlyTerminationPenaltyMonths: '3',
+        earlyTerminationFixedValue: '',
+        useFixedTerminationValue: false,
+        jurisdiction: '',
+        contractDate: new Date().toISOString().split('T')[0],
+        propertyCharacteristics: '',
+        guaranteeType: 'CAUCAO',
       });
       setPdfFile(null);
       setSelectedTemplate(null);
@@ -276,10 +326,16 @@ export function Contracts() {
   };
 
   const handleEditContract = async (contract: any) => {
+    // Check immutability before opening edit modal
+    if (!canEditContract(contract)) {
+      toast.error(getImmutabilityMessage(contract) || 'Este contrato não pode ser editado');
+      return;
+    }
+
     closeAllModals();
     setLoading(true);
     try {
-      
+
       const fullContractDetails = await contractsAPI.getContractById(contract.id.toString());
       console.log('[handleEditContract] Full contract details:', fullContractDetails);
 
@@ -347,6 +403,37 @@ export function Contracts() {
     }
   };
 
+  // Immutability check: Only PENDENTE contracts can be edited
+  // AGUARDANDO_ASSINATURAS, ASSINADO, ATIVO, REVOGADO, ENCERRADO are immutable
+  const canEditContract = (contract: any): boolean => {
+    const immutableStatuses = ['AGUARDANDO_ASSINATURAS', 'ASSINADO', 'ATIVO', 'REVOGADO', 'ENCERRADO'];
+    return !immutableStatuses.includes(contract.status);
+  };
+
+  // Check if contract can be deleted (not archived statuses)
+  const canDeleteContract = (contract: any): boolean => {
+    const nonDeletableStatuses = ['REVOGADO', 'ENCERRADO'];
+    return !nonDeletableStatuses.includes(contract.status);
+  };
+
+  // Get immutability message for tooltip
+  const getImmutabilityMessage = (contract: any): string => {
+    switch (contract.status) {
+      case 'AGUARDANDO_ASSINATURAS':
+        return 'Contrato aguardando assinaturas - cláusulas congeladas';
+      case 'ASSINADO':
+        return 'Contrato assinado - documento imutável';
+      case 'ATIVO':
+        return 'Contrato ativo - documento imutável';
+      case 'REVOGADO':
+        return 'Contrato revogado - documento arquivado';
+      case 'ENCERRADO':
+        return 'Contrato encerrado - documento arquivado';
+      default:
+        return '';
+    }
+  };
+
   const generatePreview = (template: any) => {
     if (!template) return;
 
@@ -372,37 +459,172 @@ export function Contracts() {
 
     let content = template.content;
 
+    // Format address helper
+    const formatAddress = (obj: any) => {
+      if (!obj) return '';
+      const parts = [obj.address, obj.number, obj.complement, obj.neighborhood, obj.city, obj.state, obj.cep].filter(Boolean);
+      return parts.join(', ');
+    };
+
+    // Format CPF/CNPJ helper
+    const formatDocument = (doc: string | null | undefined) => {
+      if (!doc) return '';
+      const cleaned = doc.replace(/\D/g, '');
+      if (cleaned.length === 11) {
+        return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+      } else if (cleaned.length === 14) {
+        return cleaned.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+      }
+      return doc;
+    };
+
+    // Get agency data for broker/agency fields (agencyData is from the useQuery hook)
+
     const replacements: Record<string, string> = {
-      NOME_CORRETOR: user?.name || '',
-      CRECI_CORRETOR: newContract.creci || '',
+      // Corretor/Broker
+      NOME_CORRETOR: agencyData?.name || user?.name || '',
+      CRECI_CORRETOR: newContract.creci || agencyData?.creci || '',
+
+      // Locador (Owner) - PF
       NOME_LOCADOR: owner?.name || '',
-      CPF_LOCADOR: owner?.document || '',
-      ENDERECO_LOCADOR: owner?.address || '',
+      CPF_LOCADOR: formatDocument(owner?.document) || '',
+      ENDERECO_LOCADOR: formatAddress(owner) || '',
       EMAIL_LOCADOR: owner?.email || '',
-      TELEFONE_LOCADOR: owner?.phone || '',
+      TELEFONE_LOCADOR: owner?.phone || owner?.mobilePhone || '',
+
+      // Locador (Owner) - PJ
+      RAZAO_SOCIAL_LOCADOR: owner?.companyName || owner?.name || '',
+      CNPJ_LOCADOR: formatDocument(owner?.cnpj || owner?.document) || '',
+      REPRESENTANTE_LOCADOR: owner?.representativeName || owner?.name || '',
+      CPF_REPRESENTANTE_LOCADOR: formatDocument(owner?.representativeDocument || owner?.document) || '',
+      CARGO_LOCADOR: owner?.representativePosition || '',
+
+      // Locatário (Tenant) - PF
       NOME_LOCATARIO: selectedTenant?.name || '',
-      CPF_LOCATARIO: selectedTenant?.document || '',
-      ENDERECO_LOCATARIO: selectedTenant?.address || '',
+      CPF_LOCATARIO: formatDocument(selectedTenant?.document) || '',
+      ENDERECO_LOCATARIO: formatAddress(selectedTenant) || '',
       EMAIL_LOCATARIO: selectedTenant?.email || '',
-      TELEFONE_LOCATARIO: selectedTenant?.phone || '',
-      ENDERECO_IMOVEL: selectedProperty?.address || '',
-      DESCRICAO_IMOVEL: selectedProperty?.name || '',
+      TELEFONE_LOCATARIO: selectedTenant?.phone || selectedTenant?.mobilePhone || '',
+
+      // Locatário (Tenant) - PJ
+      RAZAO_SOCIAL_LOCATARIO: selectedTenant?.companyName || selectedTenant?.name || '',
+      CNPJ_LOCATARIO: formatDocument(selectedTenant?.cnpj || selectedTenant?.document) || '',
+      REPRESENTANTE_LOCATARIO: selectedTenant?.representativeName || selectedTenant?.name || '',
+      CPF_REPRESENTANTE_LOCATARIO: formatDocument(selectedTenant?.representativeDocument || selectedTenant?.document) || '',
+      CARGO_LOCATARIO: selectedTenant?.representativePosition || '',
+
+      // Imóvel (Property)
+      ENDERECO_IMOVEL: formatAddress(selectedProperty) || selectedProperty?.address || '',
+      DESCRICAO_IMOVEL: selectedProperty?.description || selectedProperty?.name || '',
+      MATRICULA: selectedProperty?.registrationNumber || '',
+
+      // Imobiliária (Agency)
+      RAZAO_SOCIAL_IMOBILIARIA: agencyData?.name || '',
+      CNPJ_IMOBILIARIA: formatDocument(agencyData?.cnpj) || '',
+      NUMERO_CRECI: agencyData?.creci || newContract.creci || '',
+      ENDERECO_IMOBILIARIA: formatAddress(agencyData) || '',
+      EMAIL_IMOBILIARIA: agencyData?.email || '',
+      TELEFONE_IMOBILIARIA: agencyData?.phone || '',
+      REPRESENTANTE_IMOBILIARIA: agencyData?.representativeName || '',
+      CPF_REPRESENTANTE_IMOBILIARIA: formatDocument(agencyData?.representativeDocument) || '',
+
+      // Contrato (Contract)
       PRAZO_MESES: calculateMonths(newContract.startDate, newContract.endDate),
       DATA_INICIO: newContract.startDate ? new Date(newContract.startDate).toLocaleDateString('pt-BR') : '',
       DATA_FIM: newContract.endDate ? new Date(newContract.endDate).toLocaleDateString('pt-BR') : '',
-      VALOR_ALUGUEL: newContract.monthlyRent || '0',
-      DIA_VENCIMENTO: newContract.dueDay || '',
-      INDICE_REAJUSTE: 'IGPM',
-      TIPO_GARANTIA: 'Caução',
-      COMARCA: selectedProperty?.city || '',
+      VALOR_ALUGUEL: newContract.monthlyRent ? `R$ ${parseFloat(newContract.monthlyRent).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '',
+      DIA_VENCIMENTO: newContract.dueDay || '5',
+      DEPOSITO_CAUCAO: newContract.deposit ? `R$ ${parseFloat(newContract.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '',
+
+      // Índice de Reajuste (Cláusula 3)
+      INDICE_REAJUSTE: newContract.readjustmentIndex === 'OUTRO'
+        ? newContract.customReadjustmentIndex
+        : getIndexName(newContract.readjustmentIndex),
+
+      // Tipo de Garantia
+      TIPO_GARANTIA: getGuaranteeTypeName(newContract.guaranteeType),
+
+      // Multas e Juros (editáveis pelas partes)
+      MULTA_ATRASO: `${newContract.latePaymentPenaltyPercent || '10'}%`,
+      JUROS_MORA: `${newContract.monthlyInterestPercent || '1'}%`,
+      PERCENTUAL_MULTA_ATRASO: newContract.latePaymentPenaltyPercent || '10',
+      PERCENTUAL_JUROS_MORA: newContract.monthlyInterestPercent || '1',
+
+      // Multa por Rescisão (Cláusula 7)
+      MULTA_RESCISAO: calculateTerminationPenalty(),
+      MESES_MULTA_RESCISAO: newContract.earlyTerminationPenaltyMonths || '3',
+
+      // Características do Imóvel (Cláusula 3)
+      CARACTERISTICAS_IMOVEL: newContract.propertyCharacteristics || '',
+      DESCRICAO_VISTORIA: newContract.propertyCharacteristics || '',
+
+      // Localização e Jurisdição
+      COMARCA: newContract.jurisdiction || selectedProperty?.city || '',
+      FORO: newContract.jurisdiction || selectedProperty?.city || '',
       CIDADE: selectedProperty?.city || '',
-      DATA_ASSINATURA: new Date().toLocaleDateString('pt-BR'),
+
+      // Datas
+      DATA_CONTRATO: newContract.contractDate ? new Date(newContract.contractDate).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'),
+      DATA_ASSINATURA: newContract.contractDate ? new Date(newContract.contractDate).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'),
+      DATA_ACEITE: new Date().toLocaleDateString('pt-BR'),
+      DATA_EXTENSO: formatDateExtensive(newContract.contractDate || new Date().toISOString().split('T')[0]),
     };
+
+    // Helper function to get readable index name
+    function getIndexName(index: string): string {
+      const names: Record<string, string> = {
+        'IGPM': 'IGP-M (Índice Geral de Preços - Mercado)',
+        'IPCA': 'IPCA (Índice Nacional de Preços ao Consumidor Amplo)',
+        'INPC': 'INPC (Índice Nacional de Preços ao Consumidor)',
+        'IGP-DI': 'IGP-DI (Índice Geral de Preços - Disponibilidade Interna)',
+      };
+      return names[index] || index;
+    }
+
+    // Helper function to get readable guarantee type name
+    function getGuaranteeTypeName(type: string): string {
+      const names: Record<string, string> = {
+        'CAUCAO': 'Caução em dinheiro',
+        'FIADOR': 'Fiador',
+        'SEGURO': 'Seguro-fiança',
+        'TITULO': 'Título de capitalização',
+        'NENHUMA': 'Sem garantia',
+      };
+      return names[type] || type;
+    }
+
+    // Helper function to calculate termination penalty
+    function calculateTerminationPenalty(): string {
+      if (newContract.useFixedTerminationValue && newContract.earlyTerminationFixedValue) {
+        return `R$ ${parseFloat(newContract.earlyTerminationFixedValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      }
+      if (newContract.monthlyRent && newContract.earlyTerminationPenaltyMonths) {
+        const value = parseFloat(newContract.monthlyRent) * parseFloat(newContract.earlyTerminationPenaltyMonths);
+        return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      }
+      return '';
+    }
+
+    // Helper function to format date in extensive format (por extenso)
+    function formatDateExtensive(dateStr: string): string {
+      const months = [
+        'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+        'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+      ];
+      const date = new Date(dateStr);
+      const day = date.getDate();
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+      return `${day} de ${month} de ${year}`;
+    }
 
     for (const [key, value] of Object.entries(replacements)) {
       content = content.replace(new RegExp(`\\[${key}\\]`, 'g'), value || '');
     }
 
+    // Generate preview token
+    const token = generatePreviewToken(newContract.templateType || 'CTR');
+    setPreviewToken(token);
     setPreviewContent(content);
   };
 
@@ -617,14 +839,26 @@ export function Contracts() {
                             >
                               Detalhes
                             </Button>
-                            {canUpdateContracts && (
+                            {canUpdateContracts && canEditContract(contract) && (
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleEditContract(contract)}
                                 className="text-orange-600 border-orange-600 hover:bg-orange-50"
+                                title="Editar contrato"
                               >
                                 Editar
+                              </Button>
+                            )}
+                            {canUpdateContracts && !canEditContract(contract) && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled
+                                className="text-gray-400 border-gray-300 cursor-not-allowed"
+                                title={getImmutabilityMessage(contract)}
+                              >
+                                Imutável
                               </Button>
                             )}
                             {contract.pdfPath && (
@@ -637,7 +871,7 @@ export function Contracts() {
                                 <Download className="w-4 h-4" />
                               </Button>
                             )}
-                            {canDeleteContracts && (
+                            {canDeleteContracts && canDeleteContract(contract) && (
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -690,14 +924,26 @@ export function Contracts() {
                       >
                         Detalhes
                       </Button>
-                      {canUpdateContracts && (
+                      {canUpdateContracts && canEditContract(contract) && (
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleEditContract(contract)}
                           className="text-orange-600 border-orange-600 hover:bg-orange-50 flex-1"
+                          title="Editar contrato"
                         >
                           Editar
+                        </Button>
+                      )}
+                      {canUpdateContracts && !canEditContract(contract) && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled
+                          className="text-gray-400 border-gray-300 cursor-not-allowed flex-1"
+                          title={getImmutabilityMessage(contract)}
+                        >
+                          Imutável
                         </Button>
                       )}
                       {contract.pdfPath && (
@@ -710,7 +956,7 @@ export function Contracts() {
                           <Download className="w-4 h-4" />
                         </Button>
                       )}
-                      {canDeleteContracts && (
+                      {canDeleteContracts && canDeleteContract(contract) && (
                         <Button
                           size="sm"
                           variant="outline"
@@ -784,10 +1030,16 @@ export function Contracts() {
                                 <Eye className="w-4 h-4 mr-2" />
                                 Visualizar
                               </DropdownMenuItem>
-                              {canUpdateContracts && (
+                              {canUpdateContracts && canEditContract(contract) && (
                                 <DropdownMenuItem onClick={() => handleEditContract(contract)}>
                                   <Edit className="w-4 h-4 mr-2" />
                                   Editar contrato
+                                </DropdownMenuItem>
+                              )}
+                              {canUpdateContracts && !canEditContract(contract) && (
+                                <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed">
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  {getImmutabilityMessage(contract)}
                                 </DropdownMenuItem>
                               )}
                               {contract.pdfPath && (
@@ -796,7 +1048,7 @@ export function Contracts() {
                                   Baixar PDF
                                 </DropdownMenuItem>
                               )}
-                              {canDeleteContracts && (
+                              {canDeleteContracts && canDeleteContract(contract) && (
                                 <DropdownMenuItem onClick={() => handleDeleteContract(contract)} className="text-red-600 focus:text-red-700">
                                   <Trash2 className="w-4 h-4 mr-2" />
                                   Excluir contrato
@@ -890,22 +1142,24 @@ export function Contracts() {
               </div>
 
               {}
-              {(user?.role === 'BROKER' || user?.role === 'AGENCY_MANAGER' || user?.role === 'AGENCY_ADMIN') && (
-                <div>
-                  <Label htmlFor="creci">CRECI (Opcional)</Label>
-                  <Input
-                    id="creci"
-                    name="creci"
-                    value={newContract.creci}
-                    onChange={handleInputChange}
-                    placeholder="123456/SP-F ou 123456/SP-J"
-                    pattern="[0-9]{6}/[A-Z]{2}-[FJ]"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Formato: 123456/SP-F (pessoa física) ou 123456/SP-J (pessoa jurídica)
-                  </p>
-                </div>
-              )}
+              <div>
+                <Label htmlFor="creci" className="flex items-center gap-1">
+                  CRECI do Corretor
+                  <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="creci"
+                  name="creci"
+                  value={newContract.creci}
+                  onChange={handleInputChange}
+                  placeholder="Ex: 123456/SP ou CRECI/SP 123456"
+                  className={!newContract.creci ? 'border-red-300' : ''}
+                  required
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Obrigatório por lei (Lei 6.530/78). Formato: 123456/SP ou CRECI/SP 123456
+                </p>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -1012,7 +1266,7 @@ export function Contracts() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="dueDay">Dia de vencimento</Label>
+                  <Label htmlFor="dueDay">Dia de Vencimento <span className="text-red-500">*</span></Label>
                   <Input
                     id="dueDay"
                     name="dueDay"
@@ -1025,10 +1279,210 @@ export function Contracts() {
                     required
                   />
                 </div>
+                <div>
+                  <Label htmlFor="contractDate">Data do Contrato <span className="text-red-500">*</span></Label>
+                  <Input
+                    id="contractDate"
+                    name="contractDate"
+                    type="date"
+                    value={newContract.contractDate}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Cláusula 3 - Índice de Reajuste */}
+              <div className="p-4 border rounded-lg bg-muted/30">
+                <h4 className="font-semibold mb-3 text-sm">Cláusula 3 - Índice de Reajuste Anual</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="readjustmentIndex">Índice de Reajuste <span className="text-red-500">*</span></Label>
+                    <Select
+                      value={newContract.readjustmentIndex}
+                      onValueChange={(value) => setNewContract(prev => ({ ...prev, readjustmentIndex: value as any }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o índice" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="IGPM">IGP-M (Índice Geral de Preços - Mercado)</SelectItem>
+                        <SelectItem value="IPCA">IPCA (Índice Nacional de Preços ao Consumidor Amplo)</SelectItem>
+                        <SelectItem value="INPC">INPC (Índice Nacional de Preços ao Consumidor)</SelectItem>
+                        <SelectItem value="IGP-DI">IGP-DI (Índice Geral de Preços - Disponibilidade Interna)</SelectItem>
+                        <SelectItem value="OUTRO">Outro (especificar)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {newContract.readjustmentIndex === 'OUTRO' && (
+                    <div>
+                      <Label htmlFor="customReadjustmentIndex">Especificar Índice</Label>
+                      <Input
+                        id="customReadjustmentIndex"
+                        name="customReadjustmentIndex"
+                        value={newContract.customReadjustmentIndex}
+                        onChange={handleInputChange}
+                        placeholder="Ex: Taxa Referencial"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Multas e Juros */}
+              <div className="p-4 border rounded-lg bg-muted/30">
+                <h4 className="font-semibold mb-3 text-sm">Multas e Juros por Atraso</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="latePaymentPenaltyPercent">Multa por Atraso (%) <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="latePaymentPenaltyPercent"
+                      name="latePaymentPenaltyPercent"
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      value={newContract.latePaymentPenaltyPercent}
+                      onChange={handleInputChange}
+                      placeholder="10"
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Máximo legal: 10% (Lei 8.245/91)</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="monthlyInterestPercent">Juros de Mora Mensal (%) <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="monthlyInterestPercent"
+                      name="monthlyInterestPercent"
+                      type="number"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={newContract.monthlyInterestPercent}
+                      onChange={handleInputChange}
+                      placeholder="1"
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Máximo legal: 1% ao mês</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Cláusula 7 - Rescisão Antecipada */}
+              <div className="p-4 border rounded-lg bg-muted/30">
+                <h4 className="font-semibold mb-3 text-sm">Cláusula 7 - Multa por Rescisão Antecipada</h4>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="terminationType"
+                        checked={!newContract.useFixedTerminationValue}
+                        onChange={() => setNewContract(prev => ({ ...prev, useFixedTerminationValue: false }))}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm">Baseada em meses de aluguel</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="terminationType"
+                        checked={newContract.useFixedTerminationValue}
+                        onChange={() => setNewContract(prev => ({ ...prev, useFixedTerminationValue: true }))}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm">Valor fixo</span>
+                    </label>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {!newContract.useFixedTerminationValue ? (
+                      <div>
+                        <Label htmlFor="earlyTerminationPenaltyMonths">Quantidade de Meses de Aluguel</Label>
+                        <Input
+                          id="earlyTerminationPenaltyMonths"
+                          name="earlyTerminationPenaltyMonths"
+                          type="number"
+                          min="1"
+                          max="12"
+                          value={newContract.earlyTerminationPenaltyMonths}
+                          onChange={handleInputChange}
+                          placeholder="3"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Valor: R$ {newContract.monthlyRent && newContract.earlyTerminationPenaltyMonths
+                            ? (parseFloat(newContract.monthlyRent) * parseFloat(newContract.earlyTerminationPenaltyMonths)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+                            : '0,00'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <Label htmlFor="earlyTerminationFixedValue">Valor Fixo da Multa (R$)</Label>
+                        <Input
+                          id="earlyTerminationFixedValue"
+                          name="earlyTerminationFixedValue"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={newContract.earlyTerminationFixedValue}
+                          onChange={handleInputChange}
+                          placeholder="5000.00"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Tipo de Garantia */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="guaranteeType">Tipo de Garantia <span className="text-red-500">*</span></Label>
+                  <Select
+                    value={newContract.guaranteeType}
+                    onValueChange={(value) => setNewContract(prev => ({ ...prev, guaranteeType: value as any }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="CAUCAO">Caução em dinheiro</SelectItem>
+                      <SelectItem value="FIADOR">Fiador</SelectItem>
+                      <SelectItem value="SEGURO">Seguro-fiança</SelectItem>
+                      <SelectItem value="TITULO">Título de capitalização</SelectItem>
+                      <SelectItem value="NENHUMA">Sem garantia</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="jurisdiction">Foro (Comarca) <span className="text-red-500">*</span></Label>
+                  <Input
+                    id="jurisdiction"
+                    name="jurisdiction"
+                    value={newContract.jurisdiction}
+                    onChange={handleInputChange}
+                    placeholder="Ex: São Paulo - SP"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Cidade onde serão resolvidas questões legais</p>
+                </div>
+              </div>
+
+              {/* Características do Imóvel */}
+              <div>
+                <Label htmlFor="propertyCharacteristics">Características do Imóvel (Cláusula 3)</Label>
+                <textarea
+                  id="propertyCharacteristics"
+                  name="propertyCharacteristics"
+                  className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={newContract.propertyCharacteristics}
+                  onChange={(e) => setNewContract(prev => ({ ...prev, propertyCharacteristics: e.target.value }))}
+                  placeholder="Descreva as condições e características do imóvel conforme vistoria: estado de conservação, instalações, equipamentos, mobília, etc."
+                />
+                <p className="text-xs text-muted-foreground mt-1">Dados da vistoria do imóvel que serão incluídos no contrato</p>
               </div>
 
               <div>
-                <Label htmlFor="description">Descrição</Label>
+                <Label htmlFor="description">Observações Adicionais</Label>
                 <Input
                   id="description"
                   name="description"
@@ -1092,30 +1546,38 @@ export function Contracts() {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <span className="font-medium">Token:</span>{' '}
-                      <span className="font-mono text-xs">MR3X-{newContract.templateType}-{new Date().getFullYear()}-XXXXX-XXXXX</span>
+                      <span className="font-mono text-xs">{previewToken}</span>
                     </div>
                     <div>
-                      <span className="font-medium">CRECI:</span> {newContract.creci || 'Não informado'}
+                      <span className="font-medium">CRECI:</span>{' '}
+                      <span className={!newContract.creci ? 'text-red-500 font-semibold' : ''}>
+                        {newContract.creci || '⚠️ OBRIGATÓRIO'}
+                      </span>
                     </div>
                   </div>
+                  {!newContract.creci && (
+                    <p className="text-red-500 text-xs mt-2">
+                      * O CRECI do corretor é obrigatório por lei para validade do contrato
+                    </p>
+                  )}
                 </div>
 
                 {}
                 <div className="flex items-center justify-between p-4 bg-white border rounded-lg">
                   <div className="flex items-center gap-4">
-                    {newContract.creci && (
+                    {previewToken && (
                       <div>
                         <QRCodeSVG
-                          value={`https://mr3x.com.br/verify/MR3X-${newContract.templateType}-${new Date().getFullYear()}-XXXXX`}
+                          value={`https://mr3x.com.br/verify/${previewToken}`}
                           size={80}
                           level="H"
                         />
                       </div>
                     )}
-                    {newContract.templateId && (
+                    {previewToken && (
                       <div>
                         <Barcode
-                          value={`MR3X-${newContract.templateType}-${new Date().getFullYear()}-XXXXX`}
+                          value={previewToken}
                           format="CODE128"
                           width={2}
                           height={40}
