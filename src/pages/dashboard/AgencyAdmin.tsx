@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   Users,
   AlertTriangle,
@@ -16,7 +17,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  RefreshCw,
   Building,
   FileText,
 } from 'lucide-react'
@@ -29,16 +29,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { CEPInput } from '@/components/ui/cep-input'
 import { isValidCEPFormat } from '@/lib/validation'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -137,8 +127,8 @@ export function AgencyAdmin() {
       return
     }
 
-    if (selectedAgency.zipCode && selectedAgency.zipCode.trim() !== '') {
-      if (!isValidCEPFormat(selectedAgency.zipCode)) {
+    if (selectedAgency.cep && selectedAgency.cep.trim() !== '') {
+      if (!isValidCEPFormat(selectedAgency.cep)) {
         toast.error('CEP invalido. Por favor, insira um CEP valido (00000-000)')
         return
       }
@@ -152,9 +142,10 @@ export function AgencyAdmin() {
         document: selectedAgency.document,
         phone: selectedAgency.phone,
         address: selectedAgency.address,
+        neighborhood: selectedAgency.neighborhood,
         city: selectedAgency.city,
         state: selectedAgency.state,
-        zipCode: selectedAgency.zipCode || undefined,
+        cep: selectedAgency.cep || undefined,
         plan: selectedAgency.plan,
         status: selectedAgency.status,
       }
@@ -353,7 +344,7 @@ export function AgencyAdmin() {
           </div>
         )}
 
-        {}
+        { }
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-xl">
             <DialogHeader>
@@ -381,8 +372,16 @@ export function AgencyAdmin() {
                   <div className="text-sm text-foreground mt-1">{agencyDetail.phone || '-'}</div>
                 </div>
                 <div className="md:col-span-2">
+                  <Label>CEP</Label>
+                  <div className="text-sm text-foreground mt-1">{agencyDetail.cep || '-'}</div>
+                </div>
+                <div className="md:col-span-2">
                   <Label>Endereco</Label>
                   <div className="text-sm text-foreground mt-1">{agencyDetail.address || '-'}</div>
+                </div>
+                <div>
+                  <Label>Bairro</Label>
+                  <div className="text-sm text-foreground mt-1">{agencyDetail.neighborhood || '-'}</div>
                 </div>
                 <div>
                   <Label>Cidade</Label>
@@ -391,10 +390,6 @@ export function AgencyAdmin() {
                 <div>
                   <Label>Estado</Label>
                   <div className="text-sm text-foreground mt-1">{agencyDetail.state || '-'}</div>
-                </div>
-                <div>
-                  <Label>CEP</Label>
-                  <div className="text-sm text-foreground mt-1">{agencyDetail.zipCode || '-'}</div>
                 </div>
                 <div>
                   <Label>Plano</Label>
@@ -415,7 +410,7 @@ export function AgencyAdmin() {
           </DialogContent>
         </Dialog>
 
-        {}
+        { }
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -444,21 +439,46 @@ export function AgencyAdmin() {
                     <Input id="edit-phone" value={selectedAgency.phone || ''} onChange={(e) => setSelectedAgency({ ...selectedAgency, phone: e.target.value })} />
                   </div>
                   <div>
-                    <Label htmlFor="edit-status">Status</Label>
-                    <select
-                      id="edit-status"
-                      className="w-full px-3 py-2 border border-input rounded-md bg-background"
-                      value={selectedAgency.status || 'ACTIVE'}
-                      onChange={(e) => setSelectedAgency({ ...selectedAgency, status: e.target.value })}
-                    >
-                      <option value="ACTIVE">Ativo</option>
-                      <option value="SUSPENDED">Suspenso</option>
-                      <option value="PENDING">Pendente</option>
-                    </select>
+                    <CEPInput
+                      value={selectedAgency.cep || ''}
+                      onChange={(value) => setSelectedAgency({ ...selectedAgency, cep: value })}
+                      onCEPData={(data) => {
+                        setSelectedAgency({
+                          ...selectedAgency,
+                          address: data.street || selectedAgency.address,
+                          neighborhood: data.neighborhood || selectedAgency.neighborhood,
+                          city: data.city || selectedAgency.city,
+                          state: data.state || selectedAgency.state,
+                        })
+                      }}
+                      label="CEP"
+                      placeholder="00000-000"
+                    />
                   </div>
+                  <div>
+                    <Label>Status</Label>
+                    <Select
+                      value={selectedAgency.status || 'ACTIVE'}
+                      onValueChange={(value) => setSelectedAgency({ ...selectedAgency, status: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ACTIVE">Ativo</SelectItem>
+                        <SelectItem value="SUSPENDED">Suspenso</SelectItem>
+                        <SelectItem value="PENDING">Pendente</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <div className="md:col-span-2">
                     <Label htmlFor="edit-address">Endereco</Label>
                     <Input id="edit-address" value={selectedAgency.address || ''} onChange={(e) => setSelectedAgency({ ...selectedAgency, address: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-neighborhood">Bairro</Label>
+                    <Input id="edit-neighborhood" value={selectedAgency.neighborhood || ''} onChange={(e) => setSelectedAgency({ ...selectedAgency, neighborhood: e.target.value })} />
                   </div>
                   <div>
                     <Label htmlFor="edit-city">Cidade</Label>
@@ -469,34 +489,21 @@ export function AgencyAdmin() {
                     <Input id="edit-state" value={selectedAgency.state || ''} onChange={(e) => setSelectedAgency({ ...selectedAgency, state: e.target.value })} />
                   </div>
                   <div>
-                    <CEPInput
-                      value={selectedAgency.zipCode || ''}
-                      onChange={(value) => setSelectedAgency({ ...selectedAgency, zipCode: value })}
-                      onCEPData={(data) => {
-                        setSelectedAgency({
-                          ...selectedAgency,
-                          address: data.street || selectedAgency.address,
-                          city: data.city || selectedAgency.city,
-                          state: data.state || selectedAgency.state,
-                        })
-                      }}
-                      label="CEP"
-                      placeholder="00000-000"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-plan">Plano</Label>
-                    <select
-                      id="edit-plan"
-                      className="w-full px-3 py-2 border border-input rounded-md bg-background"
+                    <Label>Plano</Label>
+                    <Select
                       value={selectedAgency.plan || 'FREE'}
-                      onChange={(e) => setSelectedAgency({ ...selectedAgency, plan: e.target.value })}
+                      onValueChange={(value) => setSelectedAgency({ ...selectedAgency, plan: value })}
                     >
-                      <option value="FREE">Gratuito</option>
-                      <option value="ESSENTIAL">Essencial</option>
-                      <option value="PROFESSIONAL">Profissional</option>
-                      <option value="ENTERPRISE">Empresarial</option>
-                    </select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o plano" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="FREE">Gratuito</SelectItem>
+                        <SelectItem value="ESSENTIAL">Essencial</SelectItem>
+                        <SelectItem value="PROFESSIONAL">Profissional</SelectItem>
+                        <SelectItem value="ENTERPRISE">Empresarial</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
@@ -510,28 +517,34 @@ export function AgencyAdmin() {
           </DialogContent>
         </Dialog>
 
-        {}
-        <AlertDialog open={!!agencyToDelete} onOpenChange={() => setAgencyToDelete(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Confirmar Exclusao</AlertDialogTitle>
-              <AlertDialogDescription>
+        { }
+        <Dialog open={!!agencyToDelete} onOpenChange={() => setAgencyToDelete(null)}>
+          <DialogContent className="w-[calc(100%-2rem)] sm:max-w-lg rounded-xl">
+            <DialogHeader>
+              <DialogTitle>Confirmar Exclusao</DialogTitle>
+              <DialogDescription>
                 Tem certeza que deseja excluir o diretor de agencia "{agencyToDelete?.name}"?
                 Esta acao nao pode ser desfeita e todos os dados relacionados serao perdidos.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-row gap-2 mt-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setAgencyToDelete(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
                 onClick={handleDeleteAgencyAdmin}
                 disabled={deleting}
-                className="bg-red-600 hover:bg-red-700"
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               >
                 {deleting ? 'Excluindo...' : 'Excluir'}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   )
