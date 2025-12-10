@@ -87,17 +87,19 @@ export function Settings() {
       </div>
 
       {}
-      <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="flex w-full overflow-x-auto no-scrollbar">
-          <TabsTrigger value="general" className="flex-shrink-0">Geral</TabsTrigger>
-          <TabsTrigger value="payment" className="flex-shrink-0">Pagamento</TabsTrigger>
-          <TabsTrigger value="email" className="flex-shrink-0">E-mail</TabsTrigger>
-          <TabsTrigger value="security" className="flex-shrink-0">Segurança</TabsTrigger>
-          <TabsTrigger value="api" className="flex-shrink-0">API</TabsTrigger>
+      <Tabs defaultValue="general" className="flex flex-col md:flex-row gap-6">
+        <TabsList className="justify-start flex flex-row md:flex-col items-start h-auto w-full md:w-48 overflow-x-auto md:overflow-x-visible no-scrollbar bg-transparent md:bg-muted/30 p-1 md:p-2 rounded-lg md:border">
+          <TabsTrigger value="general" className="flex-shrink-0 md:w-full justify-start text-sm md:text-lg px-3 py-2">Geral</TabsTrigger>
+          <TabsTrigger value="payment" className="flex-shrink-0 md:w-full justify-start text-sm md:text-lg px-3 py-2">Pagamento</TabsTrigger>
+          <TabsTrigger value="email" className="flex-shrink-0 md:w-full justify-start text-sm md:text-lg px-3 py-2">E-mail</TabsTrigger>
+          <TabsTrigger value="security" className="flex-shrink-0 md:w-full justify-start text-sm md:text-lg px-3 py-2">Segurança</TabsTrigger>
+          <TabsTrigger value="api" className="flex-shrink-0 md:w-full justify-start text-sm md:text-lg px-3 py-2">API</TabsTrigger>
         </TabsList>
 
+        <div className="flex-1">
+
         {}
-        <TabsContent value="general" className="space-y-6">
+        <TabsContent value="general" className="space-y-6 mt-0">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -211,12 +213,12 @@ export function Settings() {
         </TabsContent>
 
         {}
-        <TabsContent value="payment" className="space-y-6">
+        <TabsContent value="payment" className="space-y-6 mt-0">
           <PaymentConfigurationTab canUpdateSettings={canUpdateSettings} />
         </TabsContent>
 
         {}
-        <TabsContent value="email" className="space-y-6">
+        <TabsContent value="email" className="space-y-6 mt-0">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -322,7 +324,7 @@ export function Settings() {
         </TabsContent>
 
         {}
-        <TabsContent value="security" className="space-y-6">
+        <TabsContent value="security" className="space-y-6 mt-0">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -396,7 +398,7 @@ export function Settings() {
         </TabsContent>
 
         {}
-        <TabsContent value="api" className="space-y-6">
+        <TabsContent value="api" className="space-y-6 mt-0">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -463,6 +465,7 @@ export function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+        </div>
       </Tabs>
     </div>
   )
