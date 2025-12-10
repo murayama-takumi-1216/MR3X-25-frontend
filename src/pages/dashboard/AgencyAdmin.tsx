@@ -240,20 +240,9 @@ export function AgencyAdmin() {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Diretor Agencia</h1>
-            <p className="text-muted-foreground">Visualize e gerencie os diretores de agencias imobiliarias</p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => queryClient.invalidateQueries({ queryKey: ['agency-admins'] })}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Atualizar
-          </Button>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Diretor Agencia</h1>
+          <p className="text-muted-foreground">Visualize e gerencie os diretores de agencias imobiliarias</p>
         </div>
 
         {isLoading ? (
