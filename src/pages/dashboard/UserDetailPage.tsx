@@ -158,16 +158,12 @@ export function UserDetailPage() {
     <div className="space-y-6">
       {}
       <div className="space-y-4">
-        <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-2">
-          <ArrowLeft className="w-4 h-4" />
-          Voltar
-        </Button>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold break-words">{user.name}</h1>
-            <p className="text-sm text-muted-foreground">Detalhes do Perfil do Usuário</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Voltar
+          </Button>
+          <div className="flex items-center gap-2">
             {canEditUsers && (
               <Button variant="outline" size="sm" onClick={() => navigate(`/dashboard/users/${user.id}/edit`)} className="flex items-center gap-2">
                 <Edit className="w-4 h-4" />
@@ -187,6 +183,10 @@ export function UserDetailPage() {
                 </Button>
               ))}
           </div>
+        </div>
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold break-words">{user.name}</h1>
+          <p className="text-sm text-muted-foreground">Detalhes do Perfil do Usuário</p>
         </div>
       </div>
 
