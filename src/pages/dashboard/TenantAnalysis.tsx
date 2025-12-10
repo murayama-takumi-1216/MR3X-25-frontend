@@ -1020,12 +1020,12 @@ export function TenantAnalysis() {
         <CardHeader className="pb-3 sm:pb-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="text-lg sm:text-xl">Histórico de Análises</CardTitle>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex">
               <Select
                 value={filters.riskLevel || 'all'}
                 onValueChange={(value) => setFilters({ ...filters, riskLevel: value === 'all' ? '' : value, page: 1 })}
               >
-                <SelectTrigger className="w-[120px] sm:w-[150px] text-xs sm:text-sm">
+                <SelectTrigger className="w-full sm:w-[150px] text-xs sm:text-sm">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1040,7 +1040,7 @@ export function TenantAnalysis() {
                 value={filters.status || 'all'}
                 onValueChange={(value) => setFilters({ ...filters, status: value === 'all' ? '' : value, page: 1 })}
               >
-                <SelectTrigger className="w-[120px] sm:w-[150px] text-xs sm:text-sm">
+                <SelectTrigger className="w-full sm:w-[150px] text-xs sm:text-sm">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
