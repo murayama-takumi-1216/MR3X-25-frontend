@@ -11,27 +11,45 @@ import { toast } from 'sonner';
 import { usersAPI } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
 
-const ALL_ROLES = [
-  { value: 'CEO', label: 'CEO - Administrador MR3X' },
-  { value: 'ADMIN', label: 'Admin - Administrador Sistema' },
-  { value: 'AGENCY_MANAGER', label: 'Gestor - Gerente de Agência' },
-  { value: 'BROKER', label: 'Corretor - Agente Imobiliário' },
-  { value: 'PROPRIETARIO', label: 'Imóvel - Dono de Imóvel' },
-  { value: 'INDEPENDENT_OWNER', label: 'Imóvel Independente - Sem Agência' },
-  { value: 'INQUILINO', label: 'Inquilino - Locatário' },
-  { value: 'BUILDING_MANAGER', label: 'Síndico - Administrador de Condomínio' },
-  { value: 'LEGAL_AUDITOR', label: 'Auditor - Auditoria Legal' },
-  { value: 'REPRESENTATIVE', label: 'Representante - Afiliado' },
-  { value: 'API_CLIENT', label: 'Cliente API - Integração' },
-];
+const ROLE_LABELS: Record<string, string> = {
+  'CEO': 'CEO - Administrador MR3X',
+  'ADMIN': 'Admin - Administrador Sistema',
+  'PLATFORM_MANAGER': 'Gerente Interno MR3X - Suporte e Estatísticas',
+  'AGENCY_ADMIN': 'Diretor de Agência - Dono de Imobiliária',
+  'AGENCY_MANAGER': 'Gestor de Agência - Gerente Operacional',
+  'BROKER': 'Corretor - Agente Imobiliário',
+  'PROPRIETARIO': 'Imóvel - Dono de Imóvel',
+  'INDEPENDENT_OWNER': 'Imóvel Independente - Sem Agência',
+  'INQUILINO': 'Inquilino - Locatário',
+  'BUILDING_MANAGER': 'Síndico - Administrador de Condomínio',
+  'LEGAL_AUDITOR': 'Auditor - Auditoria Legal',
+  'REPRESENTATIVE': 'Representante - Afiliado',
+  'API_CLIENT': 'Cliente API - Integração',
+};
+
+const ROLE_CREATION_ALLOWED: Record<string, string[]> = {
+  'CEO': ['ADMIN'],
+  'ADMIN': ['PLATFORM_MANAGER', 'LEGAL_AUDITOR', 'REPRESENTATIVE', 'API_CLIENT'],
+  'PLATFORM_MANAGER': [],
+  'AGENCY_ADMIN': ['AGENCY_MANAGER', 'BROKER', 'PROPRIETARIO'],
+  'AGENCY_MANAGER': ['BROKER', 'PROPRIETARIO'],
+  'INDEPENDENT_OWNER': ['INQUILINO', 'BUILDING_MANAGER'],
+  'BROKER': [],
+  'PROPRIETARIO': [],
+  'INQUILINO': [],
+  'BUILDING_MANAGER': [],
+  'LEGAL_AUDITOR': [],
+  'REPRESENTATIVE': [],
+  'API_CLIENT': [],
+};
 
 const getAvailableRoles = (userRole: string | undefined) => {
-  
-  if (userRole === 'CEO') {
-    return ALL_ROLES.filter(role => role.value === 'ADMIN');
-  }
-  
-  return ALL_ROLES.filter(role => role.value !== 'CEO' && role.value !== 'ADMIN');
+  if (!userRole) return [];
+  const allowedRoles = ROLE_CREATION_ALLOWED[userRole] || [];
+  return allowedRoles.map(role => ({
+    value: role,
+    label: ROLE_LABELS[role] || role,
+  }));
 };
 
 const STATUS_OPTIONS = [
@@ -64,7 +82,14 @@ export function UserEditPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const availableRoles = getAvailableRoles(user?.role);
+  const [currentUserRole, setCurrentUserRole] = useState<string>('');
+  const baseAvailableRoles = getAvailableRoles(user?.role);
+
+  // Include current user's role in the list if not already present
+  const availableRoles = currentUserRole && !baseAvailableRoles.some(r => r.value === currentUserRole)
+    ? [...baseAvailableRoles, { value: currentUserRole, label: ROLE_LABELS[currentUserRole] || currentUserRole }]
+    : baseAvailableRoles;
+
   const [formData, setFormData] = useState<UserData>({
     id: '',
     name: '',
@@ -102,6 +127,7 @@ export function UserEditPage() {
 
     try {
       const userData = await usersAPI.getUserById(id);
+      setCurrentUserRole(userData.role || '');
       setFormData({
         id: userData.id,
         name: userData.name || '',
@@ -273,7 +299,7 @@ export function UserEditPage() {
               <div className="space-y-2">
                 <Label htmlFor="role">Função *</Label>
                 <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="[&>span]:text-left [&>span]:truncate">
                     <SelectValue placeholder="Selecione a função" />
                   </SelectTrigger>
                   <SelectContent>
