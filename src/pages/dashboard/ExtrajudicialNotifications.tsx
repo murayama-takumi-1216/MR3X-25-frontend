@@ -855,31 +855,31 @@ export default function ExtrajudicialNotifications() {
 
       {/* Create Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto p-3 sm:p-6">
           <DialogHeader>
-            <DialogTitle>Nova Notificacao Extrajudicial</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-base sm:text-lg">Nova Notificacao Extrajudicial</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
               Crie uma notificacao extrajudicial com valor juridico
             </DialogDescription>
           </DialogHeader>
 
           <Tabs defaultValue="parties">
-            <TabsList className="grid grid-cols-4 w-full">
-              <TabsTrigger value="parties">Partes</TabsTrigger>
-              <TabsTrigger value="content">Conteudo</TabsTrigger>
-              <TabsTrigger value="financial">Financeiro</TabsTrigger>
-              <TabsTrigger value="deadline">Prazo</TabsTrigger>
+            <TabsList className="grid grid-cols-4 w-full h-auto">
+              <TabsTrigger value="parties" className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-2">Partes</TabsTrigger>
+              <TabsTrigger value="content" className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-2">Conteudo</TabsTrigger>
+              <TabsTrigger value="financial" className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-2">Financeiro</TabsTrigger>
+              <TabsTrigger value="deadline" className="text-xs sm:text-sm px-1 sm:px-3 py-1.5 sm:py-2">Prazo</TabsTrigger>
             </TabsList>
 
             <TabsContent value="parties" className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <h3 className="font-semibold flex items-center gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-3 sm:space-y-4">
+                  <h3 className="font-semibold flex items-center gap-2 text-sm sm:text-base">
                     <User className="h-4 w-4" />
                     Notificante (Credor)
                   </h3>
                   <div>
-                    <Label>Proprietario</Label>
+                    <Label className="text-xs sm:text-sm">Proprietario</Label>
                     <Select
                       value={formData.creditorId}
                       onValueChange={(v) => {
@@ -894,7 +894,7 @@ export default function ExtrajudicialNotifications() {
                         }));
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="text-xs sm:text-sm">
                         <SelectValue placeholder="Selecione o proprietario" />
                       </SelectTrigger>
                       <SelectContent>
@@ -905,35 +905,38 @@ export default function ExtrajudicialNotifications() {
                     </Select>
                   </div>
                   <div>
-                    <Label>Nome</Label>
+                    <Label className="text-xs sm:text-sm">Nome</Label>
                     <Input
                       value={formData.creditorName}
                       onChange={(e) => setFormData({ ...formData, creditorName: e.target.value })}
+                      className="text-xs sm:text-sm"
                     />
                   </div>
                   <div>
-                    <Label>CPF/CNPJ</Label>
+                    <Label className="text-xs sm:text-sm">CPF/CNPJ</Label>
                     <Input
                       value={formData.creditorDocument}
                       onChange={(e) => setFormData({ ...formData, creditorDocument: e.target.value })}
+                      className="text-xs sm:text-sm"
                     />
                   </div>
                   <div>
-                    <Label>Email</Label>
+                    <Label className="text-xs sm:text-sm">Email</Label>
                     <Input
                       value={formData.creditorEmail}
                       onChange={(e) => setFormData({ ...formData, creditorEmail: e.target.value })}
+                      className="text-xs sm:text-sm"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="font-semibold flex items-center gap-2">
+                <div className="space-y-3 sm:space-y-4">
+                  <h3 className="font-semibold flex items-center gap-2 text-sm sm:text-base">
                     <User className="h-4 w-4" />
                     Notificado (Devedor)
                   </h3>
                   <div>
-                    <Label>Inquilino</Label>
+                    <Label className="text-xs sm:text-sm">Inquilino</Label>
                     <Select
                       value={formData.debtorId}
                       onValueChange={(v) => {
@@ -948,7 +951,7 @@ export default function ExtrajudicialNotifications() {
                         }));
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="text-xs sm:text-sm">
                         <SelectValue placeholder="Selecione o inquilino" />
                       </SelectTrigger>
                       <SelectContent>
@@ -959,37 +962,40 @@ export default function ExtrajudicialNotifications() {
                     </Select>
                   </div>
                   <div>
-                    <Label>Nome</Label>
+                    <Label className="text-xs sm:text-sm">Nome</Label>
                     <Input
                       value={formData.debtorName}
                       onChange={(e) => setFormData({ ...formData, debtorName: e.target.value })}
+                      className="text-xs sm:text-sm"
                     />
                   </div>
                   <div>
-                    <Label>CPF/CNPJ</Label>
+                    <Label className="text-xs sm:text-sm">CPF/CNPJ</Label>
                     <Input
                       value={formData.debtorDocument}
                       onChange={(e) => setFormData({ ...formData, debtorDocument: e.target.value })}
+                      className="text-xs sm:text-sm"
                     />
                   </div>
                   <div>
-                    <Label>Email</Label>
+                    <Label className="text-xs sm:text-sm">Email</Label>
                     <Input
                       value={formData.debtorEmail}
                       onChange={(e) => setFormData({ ...formData, debtorEmail: e.target.value })}
+                      className="text-xs sm:text-sm"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <Label>Imovel</Label>
+                  <Label className="text-xs sm:text-sm">Imovel</Label>
                   <Select
                     value={formData.propertyId}
                     onValueChange={(v) => setFormData({ ...formData, propertyId: v })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="text-xs sm:text-sm">
                       <SelectValue placeholder="Selecione o imovel" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1001,12 +1007,12 @@ export default function ExtrajudicialNotifications() {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label>Tipo</Label>
+                    <Label className="text-xs sm:text-sm">Tipo</Label>
                     <Select
                       value={formData.type}
                       onValueChange={(v) => setFormData({ ...formData, type: v })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="text-xs sm:text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -1017,12 +1023,12 @@ export default function ExtrajudicialNotifications() {
                     </Select>
                   </div>
                   <div>
-                    <Label>Prioridade</Label>
+                    <Label className="text-xs sm:text-sm">Prioridade</Label>
                     <Select
                       value={formData.priority}
                       onValueChange={(v) => setFormData({ ...formData, priority: v })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="text-xs sm:text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -1036,156 +1042,170 @@ export default function ExtrajudicialNotifications() {
               </div>
             </TabsContent>
 
-            <TabsContent value="content" className="space-y-4 mt-4">
+            <TabsContent value="content" className="space-y-3 sm:space-y-4 mt-4">
               <div>
-                <Label>Titulo</Label>
+                <Label className="text-xs sm:text-sm">Titulo</Label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Ex: Notificacao de Cobranca de Aluguel em Atraso"
+                  className="text-xs sm:text-sm"
                 />
               </div>
               <div>
-                <Label>Objeto/Assunto</Label>
+                <Label className="text-xs sm:text-sm">Objeto/Assunto</Label>
                 <Input
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   placeholder="Ex: Cobranca referente aos alugueis vencidos"
+                  className="text-xs sm:text-sm"
                 />
               </div>
               <div>
-                <Label>Descricao Detalhada</Label>
+                <Label className="text-xs sm:text-sm">Descricao Detalhada</Label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={4}
+                  rows={3}
                   placeholder="Descreva detalhadamente o objeto da notificacao..."
+                  className="text-xs sm:text-sm"
                 />
               </div>
               <div>
-                <Label>Fundamentacao Legal</Label>
+                <Label className="text-xs sm:text-sm">Fundamentacao Legal</Label>
                 <Textarea
                   value={formData.legalBasis}
                   onChange={(e) => setFormData({ ...formData, legalBasis: e.target.value })}
                   rows={2}
                   placeholder="Ex: Art. 389 e 395 do Codigo Civil; Lei 8.245/91 (Lei do Inquilinato)"
+                  className="text-xs sm:text-sm"
                 />
               </div>
               <div>
-                <Label>Acao Requerida</Label>
+                <Label className="text-xs sm:text-sm">Acao Requerida</Label>
                 <Textarea
                   value={formData.demandedAction}
                   onChange={(e) => setFormData({ ...formData, demandedAction: e.target.value })}
                   rows={2}
                   placeholder="Ex: Pagamento integral do debito ou desocupacao do imovel"
+                  className="text-xs sm:text-sm"
                 />
               </div>
             </TabsContent>
 
-            <TabsContent value="financial" className="space-y-4 mt-4">
-              <div className="grid grid-cols-3 gap-4">
+            <TabsContent value="financial" className="space-y-3 sm:space-y-4 mt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
                 <div>
-                  <Label>Valor Principal (R$)</Label>
+                  <Label className="text-xs sm:text-sm">Valor Principal (R$)</Label>
                   <Input
                     type="number"
                     step="0.01"
                     value={formData.principalAmount}
                     onChange={(e) => setFormData({ ...formData, principalAmount: e.target.value })}
+                    className="text-xs sm:text-sm"
                   />
                 </div>
                 <div>
-                  <Label>Multa (R$)</Label>
+                  <Label className="text-xs sm:text-sm">Multa (R$)</Label>
                   <Input
                     type="number"
                     step="0.01"
                     value={formData.fineAmount}
                     onChange={(e) => setFormData({ ...formData, fineAmount: e.target.value })}
+                    className="text-xs sm:text-sm"
                   />
                 </div>
                 <div>
-                  <Label>Juros (R$)</Label>
+                  <Label className="text-xs sm:text-sm">Juros (R$)</Label>
                   <Input
                     type="number"
                     step="0.01"
                     value={formData.interestAmount}
                     onChange={(e) => setFormData({ ...formData, interestAmount: e.target.value })}
+                    className="text-xs sm:text-sm"
                   />
                 </div>
                 <div>
-                  <Label>Correcao Monetaria (R$)</Label>
+                  <Label className="text-xs sm:text-sm">Correcao Monetaria (R$)</Label>
                   <Input
                     type="number"
                     step="0.01"
                     value={formData.correctionAmount}
                     onChange={(e) => setFormData({ ...formData, correctionAmount: e.target.value })}
+                    className="text-xs sm:text-sm"
                   />
                 </div>
                 <div>
-                  <Label>Honorarios (R$)</Label>
+                  <Label className="text-xs sm:text-sm">Honorarios (R$)</Label>
                   <Input
                     type="number"
                     step="0.01"
                     value={formData.lawyerFees}
                     onChange={(e) => setFormData({ ...formData, lawyerFees: e.target.value })}
+                    className="text-xs sm:text-sm"
                   />
                 </div>
                 <div>
-                  <Label>Total Devido (R$) *</Label>
+                  <Label className="text-xs sm:text-sm">Total Devido (R$) *</Label>
                   <Input
                     type="number"
                     step="0.01"
                     value={formData.totalAmount}
                     onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
-                    className="font-bold"
+                    className="font-bold text-xs sm:text-sm"
                   />
                 </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="deadline" className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
+            <TabsContent value="deadline" className="space-y-3 sm:space-y-4 mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <Label>Prazo para Cumprimento (dias) *</Label>
+                  <Label className="text-xs sm:text-sm">Prazo para Cumprimento (dias) *</Label>
                   <Input
                     type="number"
                     value={formData.deadlineDays}
                     onChange={(e) => setFormData({ ...formData, deadlineDays: e.target.value })}
+                    className="text-xs sm:text-sm"
                   />
                 </div>
                 <div>
-                  <Label>Periodo de Carencia (dias)</Label>
+                  <Label className="text-xs sm:text-sm">Periodo de Carencia (dias)</Label>
                   <Input
                     type="number"
                     value={formData.gracePeriodDays}
                     onChange={(e) => setFormData({ ...formData, gracePeriodDays: e.target.value })}
+                    className="text-xs sm:text-sm"
                   />
                 </div>
               </div>
               <div>
-                <Label>Consequencias do Nao Cumprimento</Label>
+                <Label className="text-xs sm:text-sm">Consequencias do Nao Cumprimento</Label>
                 <Textarea
                   value={formData.consequencesText}
                   onChange={(e) => setFormData({ ...formData, consequencesText: e.target.value })}
                   rows={3}
                   placeholder="Ex: O nao cumprimento acarretara no ajuizamento de acao judicial..."
+                  className="text-xs sm:text-sm"
                 />
               </div>
               <div>
-                <Label>Observacoes Adicionais</Label>
+                <Label className="text-xs sm:text-sm">Observacoes Adicionais</Label>
                 <Textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={2}
+                  className="text-xs sm:text-sm"
                 />
               </div>
             </TabsContent>
           </Tabs>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateModal(false)}>
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowCreateModal(false)} className="w-full sm:w-auto order-2 sm:order-1">
               Cancelar
             </Button>
-            <Button onClick={handleCreate} disabled={saving}>
+            <Button onClick={handleCreate} disabled={saving} className="w-full sm:w-auto order-1 sm:order-2">
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Criar Notificacao
             </Button>
@@ -1195,16 +1215,16 @@ export default function ExtrajudicialNotifications() {
 
       {/* Details Modal */}
       <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto p-3 sm:p-6">
           <DialogHeader>
-            <DialogTitle>Detalhes da Notificacao</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg">Detalhes da Notificacao</DialogTitle>
           </DialogHeader>
 
           {selectedNotification && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-start">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-4 text-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm">
                     <span><strong>N:</strong> {selectedNotification.notificationNumber}</span>
                     <span><strong>Protocolo:</strong> {selectedNotification.protocolNumber}</span>
                     <span><strong>Data:</strong> {formatDate(selectedNotification.createdAt)}</span>
@@ -1217,89 +1237,90 @@ export default function ExtrajudicialNotifications() {
               </div>
 
               {/* QR Code and Barcode */}
-              <div className="flex items-center justify-center gap-6 p-4 bg-gray-50 border rounded-lg">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 p-3 sm:p-4 bg-gray-50 border rounded-lg">
                 <div className="flex flex-col items-center">
                   <QRCodeSVG
                     value={`https://mr3x.com.br/verify/notification/${selectedNotification.notificationToken}`}
-                    size={80}
+                    size={60}
                     level="H"
+                    className="sm:w-20 sm:h-20"
                   />
                 </div>
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center overflow-x-auto max-w-full">
                   <Barcode
                     value={selectedNotification.notificationToken || selectedNotification.notificationNumber}
                     format="CODE128"
-                    width={2}
-                    height={40}
+                    width={1.5}
+                    height={30}
                     displayValue={true}
-                    fontSize={12}
+                    fontSize={10}
                   />
                 </div>
               </div>
 
               <Separator />
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <h4 className="font-semibold">Notificante (Credor)</h4>
-                  <p className="font-medium">{selectedNotification.creditorName}</p>
-                  <p className="text-sm text-muted-foreground">{selectedNotification.creditorDocument}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1 sm:space-y-2">
+                  <h4 className="font-semibold text-sm sm:text-base">Notificante (Credor)</h4>
+                  <p className="font-medium text-sm">{selectedNotification.creditorName}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{selectedNotification.creditorDocument}</p>
                   {selectedNotification.creditorEmail && (
-                    <p className="text-sm">{selectedNotification.creditorEmail}</p>
+                    <p className="text-xs sm:text-sm">{selectedNotification.creditorEmail}</p>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <h4 className="font-semibold">Notificado (Devedor)</h4>
-                  <p className="font-medium">{selectedNotification.debtorName}</p>
-                  <p className="text-sm text-muted-foreground">{selectedNotification.debtorDocument}</p>
+                <div className="space-y-1 sm:space-y-2">
+                  <h4 className="font-semibold text-sm sm:text-base">Notificado (Devedor)</h4>
+                  <p className="font-medium text-sm">{selectedNotification.debtorName}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{selectedNotification.debtorDocument}</p>
                   {selectedNotification.debtorEmail && (
-                    <p className="text-sm">{selectedNotification.debtorEmail}</p>
+                    <p className="text-xs sm:text-sm">{selectedNotification.debtorEmail}</p>
                   )}
                 </div>
               </div>
 
               <Separator />
 
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
-                  <h4 className="font-semibold">{selectedNotification.title}</h4>
-                  <p className="text-muted-foreground">{selectedNotification.subject}</p>
+                  <h4 className="font-semibold text-sm sm:text-base">{selectedNotification.title}</h4>
+                  <p className="text-muted-foreground text-xs sm:text-sm">{selectedNotification.subject}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm">Descricao</h4>
-                  <p className="text-sm">{selectedNotification.description}</p>
+                  <h4 className="font-semibold text-xs sm:text-sm">Descricao</h4>
+                  <p className="text-xs sm:text-sm">{selectedNotification.description}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm">Fundamentacao Legal</h4>
-                  <p className="text-sm italic">{selectedNotification.legalBasis}</p>
+                  <h4 className="font-semibold text-xs sm:text-sm">Fundamentacao Legal</h4>
+                  <p className="text-xs sm:text-sm italic">{selectedNotification.legalBasis}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm">Acao Requerida</h4>
-                  <p className="text-sm">{selectedNotification.demandedAction}</p>
+                  <h4 className="font-semibold text-xs sm:text-sm">Acao Requerida</h4>
+                  <p className="text-xs sm:text-sm">{selectedNotification.demandedAction}</p>
                 </div>
               </div>
 
               <Separator />
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <h4 className="font-semibold flex items-center gap-2">
+              <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1 sm:space-y-2">
+                  <h4 className="font-semibold flex items-center gap-2 text-sm sm:text-base">
                     <DollarSign className="h-4 w-4" />
                     Valor Total
                   </h4>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-lg sm:text-2xl font-bold text-green-600">
                     {formatCurrency(selectedNotification.totalAmount)}
                   </p>
                 </div>
-                <div className="space-y-2">
-                  <h4 className="font-semibold flex items-center gap-2">
+                <div className="space-y-1 sm:space-y-2">
+                  <h4 className="font-semibold flex items-center gap-2 text-sm sm:text-base">
                     <Calendar className="h-4 w-4" />
                     Prazo
                   </h4>
-                  <p className="text-xl font-bold">
+                  <p className="text-base sm:text-xl font-bold">
                     {formatDate(selectedNotification.deadlineDate)}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     ({selectedNotification.deadlineDays} dias)
                   </p>
                 </div>
@@ -1308,8 +1329,8 @@ export default function ExtrajudicialNotifications() {
               <Separator />
 
               <div className="space-y-2">
-                <h4 className="font-semibold">Linha do Tempo</h4>
-                <div className="space-y-1 text-sm">
+                <h4 className="font-semibold text-sm sm:text-base">Linha do Tempo</h4>
+                <div className="space-y-1 text-xs sm:text-sm">
                   <p>
                     <span className="text-muted-foreground">Criada:</span>{' '}
                     {formatDateTime(selectedNotification.createdAt)}
@@ -1362,18 +1383,18 @@ export default function ExtrajudicialNotifications() {
 
       {/* PDF Preview Modal */}
       <Dialog open={showPdfPreviewModal} onOpenChange={handleClosePdfPreview}>
-        <DialogContent className="max-w-5xl max-h-[95vh] p-0">
-          <DialogHeader className="p-4 pb-2">
-            <DialogTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Visualizar PDF - {selectedNotification?.notificationToken}
+        <DialogContent className="w-[95vw] max-w-5xl max-h-[95vh] p-0">
+          <DialogHeader className="p-3 sm:p-4 pb-2">
+            <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="truncate">PDF - {selectedNotification?.notificationToken}</span>
             </DialogTitle>
           </DialogHeader>
-          <div className="flex-1 overflow-hidden" style={{ height: 'calc(95vh - 120px)' }}>
+          <div className="flex-1 overflow-hidden" style={{ height: 'calc(95vh - 120px)', minHeight: '300px' }}>
             {pdfLoading ? (
               <div className="flex items-center justify-center h-full">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                <span className="ml-3 text-muted-foreground">Carregando PDF...</span>
+                <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-primary"></div>
+                <span className="ml-3 text-muted-foreground text-sm">Carregando PDF...</span>
               </div>
             ) : pdfPreviewUrl ? (
               <iframe
@@ -1382,12 +1403,12 @@ export default function ExtrajudicialNotifications() {
                 title="PDF Preview"
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
+              <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                 Erro ao carregar PDF
               </div>
             )}
           </div>
-          <div className="flex justify-end gap-2 p-4 pt-2 border-t">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 p-3 sm:p-4 pt-2 border-t">
             <Button
               variant="outline"
               onClick={() => {
@@ -1395,11 +1416,12 @@ export default function ExtrajudicialNotifications() {
                   handleDownloadPdf(selectedNotification.id, selectedNotification.status === 'RASCUNHO' ? 'provisional' : 'final');
                 }
               }}
+              className="w-full sm:w-auto"
             >
               <Download className="w-4 h-4 mr-2" />
               Baixar PDF
             </Button>
-            <Button variant="outline" onClick={handleClosePdfPreview}>
+            <Button variant="outline" onClick={handleClosePdfPreview} className="w-full sm:w-auto">
               Fechar
             </Button>
           </div>
@@ -1408,24 +1430,24 @@ export default function ExtrajudicialNotifications() {
 
       {/* Sign Modal */}
       <Dialog open={showSignModal} onOpenChange={setShowSignModal}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="w-[95vw] max-w-lg p-3 sm:p-6">
           <DialogHeader>
-            <DialogTitle>Assinar Notificacao</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-base sm:text-lg">Assinar Notificacao</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
               Sua assinatura tem valor juridico e sera registrada com data, hora, IP e geolocalizacao
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Show signing role based on userRole */}
-            <div className="p-4 bg-muted rounded-lg">
-              <Label className="text-sm text-muted-foreground">Voce esta assinando como:</Label>
-              <p className="text-lg font-semibold mt-1">
+            <div className="p-3 sm:p-4 bg-muted rounded-lg">
+              <Label className="text-xs sm:text-sm text-muted-foreground">Voce esta assinando como:</Label>
+              <p className="text-base sm:text-lg font-semibold mt-1">
                 {selectedNotification?.userRole === 'CREDITOR' && 'Credor (Notificante)'}
                 {selectedNotification?.userRole === 'DEBTOR' && 'Devedor (Notificado)'}
                 {!selectedNotification?.userRole && 'Carregando...'}
               </p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                 {selectedNotification?.userRole === 'CREDITOR' && selectedNotification?.creditorName}
                 {selectedNotification?.userRole === 'DEBTOR' && selectedNotification?.debtorName}
               </p>
@@ -1435,7 +1457,7 @@ export default function ExtrajudicialNotifications() {
             {selectedNotification?.userRole === 'CREDITOR' && selectedNotification?.creditorSignedAt && (
               <Alert className="bg-green-50 border-green-200">
                 <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">
+                <AlertDescription className="text-green-800 text-xs sm:text-sm">
                   Voce ja assinou esta notificacao como Credor.
                 </AlertDescription>
               </Alert>
@@ -1443,7 +1465,7 @@ export default function ExtrajudicialNotifications() {
             {selectedNotification?.userRole === 'DEBTOR' && selectedNotification?.debtorSignedAt && (
               <Alert className="bg-green-50 border-green-200">
                 <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">
+                <AlertDescription className="text-green-800 text-xs sm:text-sm">
                   Voce ja assinou esta notificacao como Devedor.
                 </AlertDescription>
               </Alert>
@@ -1456,13 +1478,13 @@ export default function ExtrajudicialNotifications() {
             ) && (
               <>
                 <div>
-                  <Label>Assinatura</Label>
+                  <Label className="text-xs sm:text-sm">Assinatura</Label>
                   <div className="border rounded-lg p-2 bg-white">
                     <SignatureCanvas
                       ref={signatureRef}
                       canvasProps={{
                         className: 'signature-canvas w-full',
-                        style: { width: '100%', height: '150px' },
+                        style: { width: '100%', height: '120px' },
                       }}
                     />
                   </div>
@@ -1470,6 +1492,7 @@ export default function ExtrajudicialNotifications() {
                     variant="link"
                     size="sm"
                     onClick={() => signatureRef.current?.clear()}
+                    className="text-xs sm:text-sm"
                   >
                     Limpar
                   </Button>
@@ -1483,14 +1506,14 @@ export default function ExtrajudicialNotifications() {
                     onChange={(e) => setSignData({ ...signData, geoConsent: e.target.checked })}
                     className="mt-1"
                   />
-                  <Label htmlFor="geoConsent" className="text-sm leading-tight">
+                  <Label htmlFor="geoConsent" className="text-xs sm:text-sm leading-tight">
                     Autorizo a captura da minha localizacao para fins de validacao juridica
                   </Label>
                 </div>
 
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
+                  <AlertDescription className="text-xs sm:text-sm">
                     Ao assinar, voce declara ciencia do conteudo desta notificacao e aceita
                     que esta assinatura tem validade juridica equivalente a uma assinatura fisica.
                   </AlertDescription>
@@ -1499,8 +1522,8 @@ export default function ExtrajudicialNotifications() {
             )}
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSignModal(false)}>
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowSignModal(false)} className="w-full sm:w-auto order-2 sm:order-1">
               {(selectedNotification?.userRole === 'CREDITOR' && selectedNotification?.creditorSignedAt) ||
               (selectedNotification?.userRole === 'DEBTOR' && selectedNotification?.debtorSignedAt)
                 ? 'Fechar'
@@ -1510,7 +1533,7 @@ export default function ExtrajudicialNotifications() {
               (selectedNotification?.userRole === 'CREDITOR' && selectedNotification?.creditorSignedAt) ||
               (selectedNotification?.userRole === 'DEBTOR' && selectedNotification?.debtorSignedAt)
             ) && (
-              <Button onClick={handleSign} disabled={saving}>
+              <Button onClick={handleSign} disabled={saving} className="w-full sm:w-auto order-1 sm:order-2">
                 {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Assinar
               </Button>
@@ -1521,49 +1544,52 @@ export default function ExtrajudicialNotifications() {
 
       {/* Forward to Judicial Modal */}
       <Dialog open={showJudicialModal} onOpenChange={setShowJudicialModal}>
-        <DialogContent>
+        <DialogContent className="w-[95vw] max-w-md p-3 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Gavel className="h-5 w-5" />
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Gavel className="h-4 w-4 sm:h-5 sm:w-5" />
               Encaminhar ao Judicial
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               Esta notificacao sera marcada como encaminhada ao processo judicial
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <div>
-              <Label>Numero do Processo</Label>
+              <Label className="text-xs sm:text-sm">Numero do Processo</Label>
               <Input
                 value={judicialData.judicialProcessNumber}
                 onChange={(e) => setJudicialData({ ...judicialData, judicialProcessNumber: e.target.value })}
                 placeholder="0000000-00.0000.0.00.0000"
+                className="text-xs sm:text-sm"
               />
             </div>
             <div>
-              <Label>Tribunal/Comarca</Label>
+              <Label className="text-xs sm:text-sm">Tribunal/Comarca</Label>
               <Input
                 value={judicialData.judicialCourt}
                 onChange={(e) => setJudicialData({ ...judicialData, judicialCourt: e.target.value })}
                 placeholder="Ex: 1a Vara Civel de Sao Paulo"
+                className="text-xs sm:text-sm"
               />
             </div>
             <div>
-              <Label>Observacoes</Label>
+              <Label className="text-xs sm:text-sm">Observacoes</Label>
               <Textarea
                 value={judicialData.judicialNotes}
                 onChange={(e) => setJudicialData({ ...judicialData, judicialNotes: e.target.value })}
                 rows={3}
+                className="text-xs sm:text-sm"
               />
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowJudicialModal(false)}>
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowJudicialModal(false)} className="w-full sm:w-auto order-2 sm:order-1">
               Cancelar
             </Button>
-            <Button onClick={handleForwardToJudicial} disabled={saving} variant="destructive">
+            <Button onClick={handleForwardToJudicial} disabled={saving} variant="destructive" className="w-full sm:w-auto order-1 sm:order-2">
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Encaminhar
             </Button>
@@ -1573,36 +1599,38 @@ export default function ExtrajudicialNotifications() {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="w-[95vw] max-w-md p-3 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
-              <Trash2 className="h-5 w-5" />
+            <DialogTitle className="flex items-center gap-2 text-red-600 text-base sm:text-lg">
+              <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
               Excluir Notificacao
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               Tem certeza que deseja excluir esta notificacao? Esta acao nao pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex items-center justify-center py-4">
-            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-              <AlertCircle className="h-8 w-8 text-red-600" />
+          <div className="flex items-center justify-center py-3 sm:py-4">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-100 flex items-center justify-center">
+              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
             </div>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
             <Button
               variant="outline"
               onClick={() => {
                 setShowDeleteModal(false);
                 setNotificationToDelete(null);
               }}
+              className="w-full sm:w-auto order-2 sm:order-1"
             >
               Cancelar
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
+              className="w-full sm:w-auto order-1 sm:order-2"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Excluir
