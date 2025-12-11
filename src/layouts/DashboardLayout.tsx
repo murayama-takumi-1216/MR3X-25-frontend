@@ -8,7 +8,7 @@ import {
   Crown, Package, Mail, Wrench, Receipt, Key, ClipboardCheck, FileSignature,
   Code, KeyRound, Activity, Webhook, BookOpen, UserCog2,
   Award, Inbox, TrendingUp, Kanban,
-  Database, GitCompare, Headphones, UserSearch
+  Database, GitCompare, Headphones, UserSearch, Gavel
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { chatAPI, notificationsAPI } from '../api';
@@ -31,6 +31,7 @@ const baseNavigation = [
   { name: 'Contratos', href: '/dashboard/contracts', icon: FileText, perm: 'contracts:read' },
   { name: 'Vistorias', href: '/dashboard/inspections', icon: ClipboardCheck, perm: undefined },
   { name: 'Acordos', href: '/dashboard/agreements', icon: FileSignature, perm: undefined },
+  { name: 'Notif. Extrajudiciais', href: '/dashboard/extrajudicial-notifications', icon: Gavel, perm: undefined },
   { name: 'Faturas', href: '/dashboard/invoices', icon: Receipt, perm: undefined },
   { name: 'Pagamentos', href: '/dashboard/payments', icon: DollarSign, perm: 'payments:read' },
   { name: 'Plano da Agência', href: '/dashboard/agency-plan-config', icon: Package, perm: 'agencies:update', roles: ['AGENCY_ADMIN'] },
@@ -174,6 +175,7 @@ export function DashboardLayout() {
         '/dashboard/contracts',
         '/dashboard/inspections',
         '/dashboard/agreements',
+        '/dashboard/extrajudicial-notifications',
         '/dashboard/invoices',
         '/dashboard/payments',
         '/dashboard/brokers',
@@ -240,20 +242,21 @@ export function DashboardLayout() {
 
     if (user?.role === 'BROKER') {
       const allowForBroker = [
-        '/dashboard', 
-        '/dashboard/broker-dashboard', 
-        '/dashboard/properties', 
-        '/dashboard/contracts', 
-        '/dashboard/inspections', 
-        '/dashboard/agreements', 
-        '/dashboard/invoices', 
-        '/dashboard/tenants', 
-        '/dashboard/tenant-analysis', 
-        '/dashboard/payments', 
-        '/dashboard/documents', 
-        '/dashboard/notifications', 
-        '/dashboard/chat', 
-        '/dashboard/change-password', 
+        '/dashboard',
+        '/dashboard/broker-dashboard',
+        '/dashboard/properties',
+        '/dashboard/contracts',
+        '/dashboard/inspections',
+        '/dashboard/agreements',
+        '/dashboard/extrajudicial-notifications',
+        '/dashboard/invoices',
+        '/dashboard/tenants',
+        '/dashboard/tenant-analysis',
+        '/dashboard/payments',
+        '/dashboard/documents',
+        '/dashboard/notifications',
+        '/dashboard/chat',
+        '/dashboard/change-password',
       ];
       
       if (!allowForBroker.includes(item.href)) return false;
@@ -326,6 +329,7 @@ export function DashboardLayout() {
         '/dashboard/agency-plan-config',
         '/dashboard/inspections',
         '/dashboard/agreements',
+        '/dashboard/extrajudicial-notifications',
         '/dashboard/invoices',
         '/dashboard/plans',
         '/dashboard/billing',
@@ -340,18 +344,19 @@ export function DashboardLayout() {
 
     if (user?.role === 'LEGAL_AUDITOR') {
       const allowForAuditor = [
-        '/dashboard',                     
-        '/dashboard/auditor-logs',        
-        '/dashboard/auditor-signatures',  
-        '/dashboard/auditor-payments',    
-        '/dashboard/auditor-security',    
-        '/dashboard/auditor-integrity',   
-        '/dashboard/auditor-agencies',    
-        '/dashboard/auditor-users',       
-        '/dashboard/auditor-documents',   
-        '/dashboard/auditor-tools',       
-        '/dashboard/auditor-settings',    
-        '/dashboard/change-password',     
+        '/dashboard',
+        '/dashboard/auditor-logs',
+        '/dashboard/auditor-signatures',
+        '/dashboard/auditor-payments',
+        '/dashboard/auditor-security',
+        '/dashboard/auditor-integrity',
+        '/dashboard/auditor-agencies',
+        '/dashboard/auditor-users',
+        '/dashboard/auditor-documents',
+        '/dashboard/auditor-tools',
+        '/dashboard/auditor-settings',
+        '/dashboard/extrajudicial-notifications',
+        '/dashboard/change-password',
       ];
       if (!allowForAuditor.includes(item.href)) return false;
       

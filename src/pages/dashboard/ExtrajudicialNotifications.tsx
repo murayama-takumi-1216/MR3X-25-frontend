@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -87,15 +88,16 @@ const typeOptions = [
 
 const statusOptions = [
   { value: 'RASCUNHO', label: 'Rascunho', color: 'bg-gray-500' },
+  { value: 'GERADO', label: 'Gerado', color: 'bg-blue-400' },
   { value: 'AGUARDANDO_ENVIO', label: 'Aguardando Envio', color: 'bg-yellow-500' },
-  { value: 'ENVIADA', label: 'Enviada', color: 'bg-blue-500' },
-  { value: 'VISUALIZADA', label: 'Visualizada', color: 'bg-indigo-500' },
-  { value: 'RESPONDIDA', label: 'Respondida', color: 'bg-purple-500' },
-  { value: 'ACEITA', label: 'Aceita', color: 'bg-green-500' },
-  { value: 'REJEITADA', label: 'Rejeitada', color: 'bg-red-500' },
+  { value: 'ENVIADO', label: 'Enviado', color: 'bg-blue-500' },
+  { value: 'VISUALIZADO', label: 'Visualizado', color: 'bg-indigo-500' },
+  { value: 'RESPONDIDO', label: 'Respondido', color: 'bg-purple-500' },
+  { value: 'RESOLVIDO', label: 'Resolvido', color: 'bg-green-500' },
+  { value: 'REJEITADO', label: 'Rejeitado', color: 'bg-red-500' },
   { value: 'PRAZO_EXPIRADO', label: 'Prazo Expirado', color: 'bg-orange-500' },
-  { value: 'ENCAMINHADA_JUDICIAL', label: 'Encaminhada ao Judicial', color: 'bg-red-700' },
-  { value: 'CANCELADA', label: 'Cancelada', color: 'bg-gray-700' },
+  { value: 'ENCAMINHADO_JUDICIAL', label: 'Encaminhado ao Judicial', color: 'bg-red-700' },
+  { value: 'CANCELADO', label: 'Cancelado', color: 'bg-gray-700' },
 ];
 
 const priorityOptions = [
@@ -229,6 +231,33 @@ export default function ExtrajudicialNotifications() {
   };
 
   const handleCreate = async () => {
+    // Validate required fields
+    const requiredFields = [
+      { field: 'propertyId', label: 'Imovel' },
+      { field: 'creditorId', label: 'ID do Credor' },
+      { field: 'creditorName', label: 'Nome do Credor' },
+      { field: 'creditorDocument', label: 'Documento do Credor' },
+      { field: 'debtorId', label: 'ID do Devedor' },
+      { field: 'debtorName', label: 'Nome do Devedor' },
+      { field: 'debtorDocument', label: 'Documento do Devedor' },
+      { field: 'title', label: 'Titulo' },
+      { field: 'subject', label: 'Assunto' },
+      { field: 'description', label: 'Descricao' },
+      { field: 'legalBasis', label: 'Fundamento Legal' },
+      { field: 'demandedAction', label: 'Acao Demandada' },
+      { field: 'totalAmount', label: 'Valor Total' },
+      { field: 'deadlineDays', label: 'Prazo em Dias' },
+    ];
+
+    const missingFields = requiredFields.filter(
+      ({ field }) => !formData[field as keyof typeof formData]
+    );
+
+    if (missingFields.length > 0) {
+      toast.error(`Campos obrigatorios: ${missingFields.map(f => f.label).join(', ')}`);
+      return;
+    }
+
     try {
       setSaving(true);
       await extrajudicialNotificationsAPI.createNotification({
@@ -238,15 +267,24 @@ export default function ExtrajudicialNotifications() {
         interestAmount: formData.interestAmount ? parseFloat(formData.interestAmount) : undefined,
         correctionAmount: formData.correctionAmount ? parseFloat(formData.correctionAmount) : undefined,
         lawyerFees: formData.lawyerFees ? parseFloat(formData.lawyerFees) : undefined,
-        totalAmount: parseFloat(formData.totalAmount),
-        deadlineDays: parseInt(formData.deadlineDays),
+        totalAmount: parseFloat(formData.totalAmount) || 0,
+        deadlineDays: parseInt(formData.deadlineDays) || 15,
         gracePeriodDays: formData.gracePeriodDays ? parseInt(formData.gracePeriodDays) : undefined,
       });
+      toast.success('Notificacao criada com sucesso!');
       setShowCreateModal(false);
       resetForm();
       loadData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating notification:', error);
+      const message = error?.response?.data?.message;
+      if (Array.isArray(message)) {
+        toast.error(`Erros de validacao: ${message.join(', ')}`);
+      } else if (message) {
+        toast.error(`Erro: ${message}`);
+      } else {
+        toast.error('Erro ao criar notificacao. Verifique os campos e tente novamente.');
+      }
     } finally {
       setSaving(false);
     }
@@ -255,9 +293,11 @@ export default function ExtrajudicialNotifications() {
   const handleSend = async (id: string) => {
     try {
       await extrajudicialNotificationsAPI.sendNotification(id, 'EMAIL');
+      toast.success('Notificacao enviada com sucesso!');
       loadData();
     } catch (error) {
       console.error('Error sending notification:', error);
+      toast.error('Erro ao enviar notificacao');
     }
   };
 
@@ -292,10 +332,12 @@ export default function ExtrajudicialNotifications() {
         geoLng: signData.geoLng,
       });
 
+      toast.success('Notificacao assinada com sucesso!');
       setShowSignModal(false);
       loadData();
     } catch (error) {
       console.error('Error signing notification:', error);
+      toast.error('Erro ao assinar notificacao');
     } finally {
       setSaving(false);
     }
@@ -307,10 +349,12 @@ export default function ExtrajudicialNotifications() {
     try {
       setSaving(true);
       await extrajudicialNotificationsAPI.forwardToJudicial(selectedNotification.id, judicialData);
+      toast.success('Notificacao encaminhada ao judicial com sucesso!');
       setShowJudicialModal(false);
       loadData();
     } catch (error) {
       console.error('Error forwarding to judicial:', error);
+      toast.error('Erro ao encaminhar ao judicial');
     } finally {
       setSaving(false);
     }
@@ -321,9 +365,11 @@ export default function ExtrajudicialNotifications() {
 
     try {
       await extrajudicialNotificationsAPI.deleteNotification(id);
+      toast.success('Notificacao excluida com sucesso!');
       loadData();
     } catch (error) {
       console.error('Error deleting notification:', error);
+      toast.error('Erro ao excluir notificacao');
     }
   };
 
@@ -339,8 +385,10 @@ export default function ExtrajudicialNotifications() {
       a.download = `notificacao-extrajudicial-${type}-${id}.pdf`;
       a.click();
       window.URL.revokeObjectURL(url);
+      toast.success('PDF baixado com sucesso!');
     } catch (error) {
       console.error('Error downloading PDF:', error);
+      toast.error('Erro ao baixar PDF');
     }
   };
 
@@ -352,15 +400,21 @@ export default function ExtrajudicialNotifications() {
       setShowAuditModal(true);
     } catch (error) {
       console.error('Error loading audit log:', error);
+      toast.error('Erro ao carregar historico de auditoria');
     }
   };
 
   const handleVerifyHash = async (id: string) => {
     try {
       const result = await extrajudicialNotificationsAPI.verifyHash(id);
-      alert(result.message);
+      if (result.valid) {
+        toast.success(result.message || 'Documento verificado com sucesso!');
+      } else {
+        toast.error(result.message || 'Falha na verificacao do documento');
+      }
     } catch (error) {
       console.error('Error verifying hash:', error);
+      toast.error('Erro ao verificar integridade do documento');
     }
   };
 
@@ -433,7 +487,7 @@ export default function ExtrajudicialNotifications() {
 
       {/* Statistics Cards */}
       {statistics && (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           <Card className="bg-gray-50">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold">{statistics.total}</div>
@@ -442,44 +496,26 @@ export default function ExtrajudicialNotifications() {
           </Card>
           <Card className="bg-yellow-50">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-600">{statistics.draft}</div>
-              <div className="text-xs text-muted-foreground">Rascunho</div>
+              <div className="text-2xl font-bold text-yellow-600">{(statistics.draft || 0) + (statistics.generated || 0)}</div>
+              <div className="text-xs text-muted-foreground">Pendentes</div>
             </CardContent>
           </Card>
           <Card className="bg-blue-50">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">{statistics.sent}</div>
-              <div className="text-xs text-muted-foreground">Enviadas</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-indigo-50">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-indigo-600">{statistics.viewed}</div>
-              <div className="text-xs text-muted-foreground">Visualizadas</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-purple-50">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-purple-600">{statistics.responded}</div>
-              <div className="text-xs text-muted-foreground">Respondidas</div>
+              <div className="text-2xl font-bold text-blue-600">{(statistics.sent || 0) + (statistics.viewed || 0)}</div>
+              <div className="text-xs text-muted-foreground">Em Andamento</div>
             </CardContent>
           </Card>
           <Card className="bg-green-50">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">{statistics.resolved}</div>
+              <div className="text-2xl font-bold text-green-600">{statistics.resolved || 0}</div>
               <div className="text-xs text-muted-foreground">Resolvidas</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-orange-50">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600">{statistics.expired}</div>
-              <div className="text-xs text-muted-foreground">Expiradas</div>
             </CardContent>
           </Card>
           <Card className="bg-red-50">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-red-600">{statistics.judicial}</div>
-              <div className="text-xs text-muted-foreground">Judicial</div>
+              <div className="text-2xl font-bold text-red-600">{(statistics.expired || 0) + (statistics.judicial || 0)}</div>
+              <div className="text-xs text-muted-foreground">Criticas</div>
             </CardContent>
           </Card>
         </div>
@@ -500,23 +536,23 @@ export default function ExtrajudicialNotifications() {
                 />
               </div>
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter || 'ALL'} onValueChange={(v) => setStatusFilter(v === 'ALL' ? '' : v)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os Status</SelectItem>
+                <SelectItem value="ALL">Todos os Status</SelectItem>
                 {statusOptions.map(s => (
                   <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <Select value={typeFilter || 'ALL'} onValueChange={(v) => setTypeFilter(v === 'ALL' ? '' : v)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os Tipos</SelectItem>
+                <SelectItem value="ALL">Todos os Tipos</SelectItem>
                 {typeOptions.map(t => (
                   <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
                 ))}
@@ -615,7 +651,7 @@ export default function ExtrajudicialNotifications() {
                           </>
                         )}
 
-                        {['ENVIADA', 'VISUALIZADA'].includes(n.status) && (
+                        {['ENVIADO', 'VISUALIZADO'].includes(n.status) && (
                           <Button
                             variant="ghost"
                             size="icon"
