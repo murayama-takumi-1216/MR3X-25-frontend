@@ -124,6 +124,86 @@ export function Contracts() {
     return `MR3X-${templateType || 'CTR'}-${year}-${random1}-${random2}`;
   };
 
+  // Helper function to capture barcode SVG as rotated image (-90 degrees)
+  const captureBarcodeAsRotatedImage = async (): Promise<{ rotated: string; original: string; width: number; height: number } | null> => {
+    try {
+      // Find the barcode SVG element - try multiple selectors
+      let svgElement: SVGElement | null = document.querySelector('#contract-preview-content svg[class*="react-barcode"]');
+      if (!svgElement) {
+        svgElement = document.querySelector('#contract-preview-content .flex-shrink-0 svg');
+      }
+      if (!svgElement) {
+        // Try to find any SVG that looks like a barcode (has rect elements)
+        const allSvgs = document.querySelectorAll('#contract-preview-content svg');
+        for (const svg of allSvgs) {
+          if (svg.querySelectorAll('rect').length > 10) {
+            svgElement = svg as SVGElement;
+            break;
+          }
+        }
+      }
+      if (!svgElement) return null;
+
+      // Get SVG dimensions
+      const bbox = svgElement.getBoundingClientRect();
+      const svgWidth = bbox.width || 300;
+      const svgHeight = bbox.height || 80;
+
+      // Clone and convert SVG to image
+      const svgData = new XMLSerializer().serializeToString(svgElement);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          // Create original canvas
+          const originalCanvas = document.createElement('canvas');
+          originalCanvas.width = img.width || svgWidth;
+          originalCanvas.height = img.height || svgHeight;
+          const origCtx = originalCanvas.getContext('2d');
+          if (origCtx) {
+            origCtx.fillStyle = 'white';
+            origCtx.fillRect(0, 0, originalCanvas.width, originalCanvas.height);
+            origCtx.drawImage(img, 0, 0);
+          }
+
+          // Create rotated canvas (-90 degrees means width becomes height and vice versa)
+          const rotatedCanvas = document.createElement('canvas');
+          rotatedCanvas.width = originalCanvas.height; // Swap dimensions
+          rotatedCanvas.height = originalCanvas.width;
+          const rotCtx = rotatedCanvas.getContext('2d');
+
+          if (rotCtx) {
+            rotCtx.fillStyle = 'white';
+            rotCtx.fillRect(0, 0, rotatedCanvas.width, rotatedCanvas.height);
+
+            // Rotate -90 degrees (counterclockwise)
+            rotCtx.translate(0, rotatedCanvas.height);
+            rotCtx.rotate(-Math.PI / 2);
+            rotCtx.drawImage(originalCanvas, 0, 0);
+          }
+
+          URL.revokeObjectURL(url);
+          resolve({
+            rotated: rotatedCanvas.toDataURL('image/png'),
+            original: originalCanvas.toDataURL('image/png'),
+            width: rotatedCanvas.width,
+            height: rotatedCanvas.height
+          });
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve(null);
+        };
+        img.src = url;
+      });
+    } catch (error) {
+      console.error('Error capturing barcode:', error);
+      return null;
+    }
+  };
+
   // Handle contract preview PDF download
   const handleDownloadPreviewPDF = async () => {
     const element = document.getElementById('contract-preview-content');
@@ -132,74 +212,59 @@ export function Contracts() {
       return;
     }
 
+    // Capture pre-rotated barcode image before generating PDF
+    const barcodeData = await captureBarcodeAsRotatedImage();
+
     const opt = {
-      margin: [10, 15, 10, 10] as [number, number, number, number], // Extra right margin for barcode
+      margin: [10, 18, 10, 10] as [number, number, number, number], // Extra right margin for barcode
       filename: `contrato-previa-${previewToken || 'draft'}.pdf`,
       image: { type: 'jpeg' as const, quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
     try {
       // Generate PDF and get jsPDF instance to add barcode to each page
       const pdfInstance = await html2pdf().set(opt).from(element).toPdf().get('pdf');
 
-      // Add vertical barcode and token to each page
+      // Add vertical barcode to each page
       const pageCount = pdfInstance.internal.getNumberOfPages();
       const pageHeight = pdfInstance.internal.pageSize.getHeight();
       const pageWidth = pdfInstance.internal.pageSize.getWidth();
-      const token = previewToken || 'DRAFT';
 
       for (let i = 1; i <= pageCount; i++) {
         pdfInstance.setPage(i);
 
-        // Draw vertical barcode on right edge
-        const barcodeX = pageWidth - 8; // 8mm from right edge
-        const barcodeStartY = 40; // Start 40mm from top
-        const barcodeEndY = pageHeight - 40; // End 40mm from bottom
+        // Add the pre-rotated barcode image if available
+        if (barcodeData && barcodeData.rotated) {
+          // Calculate dimensions to fit nicely on the page
+          // The rotated image has swapped dimensions (original width is now height)
+          const maxBarcodeHeight = pageHeight * 0.6; // 60% of page height
+          const barcodeWidth = 12; // mm width for the barcode strip
 
-        // Generate barcode-like pattern based on token
-        pdfInstance.setDrawColor(0, 0, 0);
+          // Calculate aspect ratio and final dimensions
+          const aspectRatio = barcodeData.width / barcodeData.height;
+          let finalHeight = maxBarcodeHeight;
+          let finalWidth = finalHeight / aspectRatio;
 
-        // Create a pattern from the token characters for visual representation
-        const pattern: number[] = [];
-        for (let c = 0; c < token.length; c++) {
-          const charCode = token.charCodeAt(c);
-          // Generate pattern: narrow (1), medium (2), wide (3) bars
-          pattern.push((charCode % 3) + 1);
-          pattern.push(0); // Space
-          pattern.push(((charCode >> 2) % 3) + 1);
-          pattern.push(0); // Space
-        }
-
-        // Draw the barcode lines vertically
-        let currentY = barcodeStartY;
-        const totalPatternSum = pattern.reduce((a, b) => a + b, 0);
-        const unitHeight = (barcodeEndY - barcodeStartY) / totalPatternSum;
-
-        pattern.forEach((p, idx) => {
-          if (p > 0) {
-            const barHeight = p * unitHeight;
-            if (idx % 2 === 0) { // Draw bar (even indices)
-              pdfInstance.setFillColor(0, 0, 0);
-              pdfInstance.rect(barcodeX - 2, currentY, 4, barHeight, 'F');
-            }
-            currentY += barHeight;
-          } else {
-            currentY += unitHeight; // Space
+          // If width is too large, scale down
+          if (finalWidth > barcodeWidth) {
+            finalWidth = barcodeWidth;
+            finalHeight = finalWidth * aspectRatio;
           }
-        });
 
-        // Add vertical token text next to barcode
-        pdfInstance.setFontSize(7);
-        pdfInstance.setTextColor(0, 0, 0);
+          // Position on right edge, centered vertically
+          const xPos = pageWidth - finalWidth - 2; // 2mm from right edge
+          const yPos = (pageHeight - finalHeight) / 2;
 
-        // Draw token text rotated 90 degrees (reading bottom to top)
-        pdfInstance.text(token, pageWidth - 3, pageHeight / 2, { angle: 90 });
+          // Draw white background
+          pdfInstance.setFillColor(255, 255, 255);
+          pdfInstance.rect(xPos - 1, yPos - 1, finalWidth + 2, finalHeight + 2, 'F');
 
-        // Add page number
-        pdfInstance.setFontSize(6);
-        pdfInstance.text(`Pág. ${i}/${pageCount}`, pageWidth - 3, pageHeight - 10, { angle: 90 });
+          // Add the pre-rotated barcode image (no rotation needed, already rotated)
+          pdfInstance.addImage(barcodeData.rotated, 'PNG', xPos, yPos, finalWidth, finalHeight);
+        }
       }
 
       // Save the PDF
@@ -214,12 +279,15 @@ export function Contracts() {
   };
 
   // Handle contract preview print
-  const handlePrintPreview = () => {
+  const handlePrintPreview = async () => {
     const element = document.getElementById('contract-preview-content');
     if (!element) {
       toast.error('Erro ao imprimir');
       return;
     }
+
+    // Capture the pre-rotated barcode image
+    const barcodeData = await captureBarcodeAsRotatedImage();
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -231,7 +299,7 @@ export function Contracts() {
 
     const styles = `
       <style>
-        body { font-family: Arial, sans-serif; padding: 20px; padding-right: 30px; position: relative; }
+        body { font-family: Arial, sans-serif; padding: 20px; padding-right: 25mm; position: relative; }
         .prose { max-width: 100%; }
         .font-bold { font-weight: bold; }
         .font-semibold { font-weight: 600; }
@@ -249,47 +317,33 @@ export function Contracts() {
         .flex { display: flex; }
         .items-center { align-items: center; }
         .gap-4 { gap: 16px; }
-        .vertical-barcode {
+        p { page-break-inside: avoid; }
+        .barcode-container {
           position: fixed;
-          right: 5mm;
+          right: 2mm;
           top: 50%;
-          transform: translateY(-50%) rotate(90deg);
-          transform-origin: center center;
-          font-family: monospace;
-          font-size: 8pt;
-          white-space: nowrap;
-          z-index: 1000;
+          transform: translateY(-50%);
+          background: white;
+          z-index: 9999;
+          padding: 2mm;
         }
-        .vertical-lines {
-          position: fixed;
-          right: 10mm;
-          top: 15%;
-          bottom: 15%;
-          width: 5mm;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
+        .barcode-img {
+          max-height: 60%;
+          width: auto;
+          max-width: 15mm;
         }
-        .bar { background: #000; width: 100%; }
         @media print {
-          body { margin: 0; padding: 10mm; padding-right: 25mm; }
-          .vertical-barcode { position: fixed; }
-          .vertical-lines { position: fixed; }
+          body { margin: 0; padding: 10mm; padding-right: 20mm; }
+          .barcode-container { position: fixed; right: 2mm; }
+          p { page-break-inside: avoid; }
         }
       </style>
     `;
 
-    // Generate barcode pattern HTML
-    let barcodeLines = '';
-    for (let c = 0; c < token.length; c++) {
-      const charCode = token.charCodeAt(c);
-      const height1 = ((charCode % 3) + 1) * 3;
-      const height2 = (((charCode >> 2) % 3) + 1) * 3;
-      barcodeLines += `<div class="bar" style="height: ${height1}mm;"></div>`;
-      barcodeLines += `<div style="height: 1mm;"></div>`;
-      barcodeLines += `<div class="bar" style="height: ${height2}mm;"></div>`;
-      barcodeLines += `<div style="height: 1mm;"></div>`;
-    }
+    // Create barcode HTML - use pre-rotated image (no CSS rotation needed)
+    const barcodeHtml = barcodeData && barcodeData.rotated
+      ? `<img src="${barcodeData.rotated}" class="barcode-img" alt="barcode" />`
+      : `<div style="writing-mode: vertical-rl; transform: rotate(180deg); font-family: monospace; font-size: 8pt;">${token}</div>`;
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -299,8 +353,9 @@ export function Contracts() {
           ${styles}
         </head>
         <body>
-          <div class="vertical-lines">${barcodeLines}</div>
-          <div class="vertical-barcode">${token}</div>
+          <div class="barcode-container">
+            ${barcodeHtml}
+          </div>
           ${element.innerHTML}
         </body>
       </html>
