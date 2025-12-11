@@ -150,6 +150,8 @@ export default function ExtrajudicialNotifications() {
   const [showSignModal, setShowSignModal] = useState(false);
   const [showJudicialModal, setShowJudicialModal] = useState(false);
   const [showAuditModal, setShowAuditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [notificationToDelete, setNotificationToDelete] = useState<string | null>(null);
 
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -362,12 +364,19 @@ export default function ExtrajudicialNotifications() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta notificacao? Esta acao nao pode ser desfeita.')) return;
+  const handleDeleteClick = (id: string) => {
+    setNotificationToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!notificationToDelete) return;
 
     try {
-      await extrajudicialNotificationsAPI.deleteNotification(id);
+      await extrajudicialNotificationsAPI.deleteNotification(notificationToDelete);
       toast.success('Notificacao excluida com sucesso!');
+      setShowDeleteModal(false);
+      setNotificationToDelete(null);
       loadData();
     } catch (error) {
       console.error('Error deleting notification:', error);
@@ -645,7 +654,7 @@ export default function ExtrajudicialNotifications() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleDelete(n.id)}
+                              onClick={() => handleDeleteClick(n.id)}
                               title="Excluir"
                             >
                               <Trash2 className="h-4 w-4 text-red-500" />
@@ -1397,6 +1406,46 @@ export default function ExtrajudicialNotifications() {
               </div>
             )}
           </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 className="h-5 w-5" />
+              Excluir Notificacao
+            </DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir esta notificacao? Esta acao nao pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex items-center justify-center py-4">
+            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+              <AlertCircle className="h-8 w-8 text-red-600" />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setNotificationToDelete(null);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Excluir
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
