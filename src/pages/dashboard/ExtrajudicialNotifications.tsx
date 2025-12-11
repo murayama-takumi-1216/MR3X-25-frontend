@@ -31,7 +31,6 @@ import {
   Loader2,
   History,
   PenTool,
-  Shield,
   AlertCircle,
   DollarSign,
   Calendar,
@@ -872,15 +871,6 @@ export default function ExtrajudicialNotifications() {
                               title="Baixar PDF"
                             >
                               <Download className="h-4 w-4" />
-                            </Button>
-
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleVerifyHash(n.id)}
-                              title="Verificar Integridade"
-                            >
-                              <Shield className="h-4 w-4" />
                             </Button>
                           </div>
                         </TableCell>
