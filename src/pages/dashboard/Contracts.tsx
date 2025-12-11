@@ -109,9 +109,11 @@ export function Contracts() {
   const [deleting] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [isCreatePreview, setIsCreatePreview] = useState(false); // true = create preview (no download/print), false = details view
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [previewContent, setPreviewContent] = useState<string>('');
   const [previewToken, setPreviewToken] = useState<string>('');
+  const [userIp, setUserIp] = useState<string>('');
 
   // Generate preview token function
   const generatePreviewToken = (templateType: string) => {
@@ -123,7 +125,7 @@ export function Contracts() {
   };
 
   // Handle contract preview PDF download
-  const handleDownloadPreviewPDF = () => {
+  const handleDownloadPreviewPDF = async () => {
     const element = document.getElementById('contract-preview-content');
     if (!element) {
       toast.error('Erro ao gerar PDF');
@@ -131,18 +133,84 @@ export function Contracts() {
     }
 
     const opt = {
-      margin: [10, 10, 10, 10] as [number, number, number, number],
+      margin: [10, 15, 10, 10] as [number, number, number, number], // Extra right margin for barcode
       filename: `contrato-previa-${previewToken || 'draft'}.pdf`,
       image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
       jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
     };
 
-    html2pdf().set(opt).from(element).save().then(() => {
+    try {
+      // Generate PDF and get jsPDF instance to add barcode to each page
+      const pdfInstance = await html2pdf().set(opt).from(element).toPdf().get('pdf');
+
+      // Add vertical barcode and token to each page
+      const pageCount = pdfInstance.internal.getNumberOfPages();
+      const pageHeight = pdfInstance.internal.pageSize.getHeight();
+      const pageWidth = pdfInstance.internal.pageSize.getWidth();
+      const token = previewToken || 'DRAFT';
+
+      for (let i = 1; i <= pageCount; i++) {
+        pdfInstance.setPage(i);
+
+        // Draw vertical barcode on right edge
+        const barcodeX = pageWidth - 8; // 8mm from right edge
+        const barcodeStartY = 40; // Start 40mm from top
+        const barcodeEndY = pageHeight - 40; // End 40mm from bottom
+
+        // Generate barcode-like pattern based on token
+        pdfInstance.setDrawColor(0, 0, 0);
+
+        // Create a pattern from the token characters for visual representation
+        const pattern: number[] = [];
+        for (let c = 0; c < token.length; c++) {
+          const charCode = token.charCodeAt(c);
+          // Generate pattern: narrow (1), medium (2), wide (3) bars
+          pattern.push((charCode % 3) + 1);
+          pattern.push(0); // Space
+          pattern.push(((charCode >> 2) % 3) + 1);
+          pattern.push(0); // Space
+        }
+
+        // Draw the barcode lines vertically
+        let currentY = barcodeStartY;
+        const totalPatternSum = pattern.reduce((a, b) => a + b, 0);
+        const unitHeight = (barcodeEndY - barcodeStartY) / totalPatternSum;
+
+        pattern.forEach((p, idx) => {
+          if (p > 0) {
+            const barHeight = p * unitHeight;
+            if (idx % 2 === 0) { // Draw bar (even indices)
+              pdfInstance.setFillColor(0, 0, 0);
+              pdfInstance.rect(barcodeX - 2, currentY, 4, barHeight, 'F');
+            }
+            currentY += barHeight;
+          } else {
+            currentY += unitHeight; // Space
+          }
+        });
+
+        // Add vertical token text next to barcode
+        pdfInstance.setFontSize(7);
+        pdfInstance.setTextColor(0, 0, 0);
+
+        // Draw token text rotated 90 degrees (reading bottom to top)
+        pdfInstance.text(token, pageWidth - 3, pageHeight / 2, { angle: 90 });
+
+        // Add page number
+        pdfInstance.setFontSize(6);
+        pdfInstance.text(`Pág. ${i}/${pageCount}`, pageWidth - 3, pageHeight - 10, { angle: 90 });
+      }
+
+      // Save the PDF
+      pdfInstance.save(opt.filename);
       toast.success('PDF baixado com sucesso!');
-    }).catch(() => {
-      toast.error('Erro ao gerar PDF');
-    });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      // Fallback to simple PDF without barcode
+      await html2pdf().set(opt).from(element).save();
+      toast.success('PDF baixado com sucesso!');
+    }
   };
 
   // Handle contract preview print
@@ -159,9 +227,11 @@ export function Contracts() {
       return;
     }
 
+    const token = previewToken || 'DRAFT';
+
     const styles = `
       <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
+        body { font-family: Arial, sans-serif; padding: 20px; padding-right: 30px; position: relative; }
         .prose { max-width: 100%; }
         .font-bold { font-weight: bold; }
         .font-semibold { font-weight: 600; }
@@ -179,20 +249,58 @@ export function Contracts() {
         .flex { display: flex; }
         .items-center { align-items: center; }
         .gap-4 { gap: 16px; }
+        .vertical-barcode {
+          position: fixed;
+          right: 5mm;
+          top: 50%;
+          transform: translateY(-50%) rotate(90deg);
+          transform-origin: center center;
+          font-family: monospace;
+          font-size: 8pt;
+          white-space: nowrap;
+          z-index: 1000;
+        }
+        .vertical-lines {
+          position: fixed;
+          right: 10mm;
+          top: 15%;
+          bottom: 15%;
+          width: 5mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+        .bar { background: #000; width: 100%; }
         @media print {
-          body { margin: 0; padding: 10mm; }
+          body { margin: 0; padding: 10mm; padding-right: 25mm; }
+          .vertical-barcode { position: fixed; }
+          .vertical-lines { position: fixed; }
         }
       </style>
     `;
+
+    // Generate barcode pattern HTML
+    let barcodeLines = '';
+    for (let c = 0; c < token.length; c++) {
+      const charCode = token.charCodeAt(c);
+      const height1 = ((charCode % 3) + 1) * 3;
+      const height2 = (((charCode >> 2) % 3) + 1) * 3;
+      barcodeLines += `<div class="bar" style="height: ${height1}mm;"></div>`;
+      barcodeLines += `<div style="height: 1mm;"></div>`;
+      barcodeLines += `<div class="bar" style="height: ${height2}mm;"></div>`;
+      barcodeLines += `<div style="height: 1mm;"></div>`;
+    }
 
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Prévia do Contrato - ${previewToken || 'Draft'}</title>
+          <title>Prévia do Contrato - ${token}</title>
           ${styles}
         </head>
         <body>
+          <div class="vertical-lines">${barcodeLines}</div>
+          <div class="vertical-barcode">${token}</div>
           ${element.innerHTML}
         </body>
       </html>
@@ -265,6 +373,21 @@ export function Contracts() {
       }));
     }
   }, [agencyData?.creci]);
+
+  // Fetch user IP address
+  useEffect(() => {
+    const fetchIp = async () => {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        setUserIp(data.ip);
+      } catch (error) {
+        console.error('Failed to fetch IP:', error);
+        setUserIp('');
+      }
+    };
+    fetchIp();
+  }, []);
 
   // Regenerate preview when form fields change and a template is selected
   useEffect(() => {
@@ -469,6 +592,7 @@ export function Contracts() {
         if (template) {
           // Generate preview for existing contract
           generateContractPreview(template, fullContract);
+          setIsCreatePreview(false); // Details view - show download/print icons
           setShowPreviewModal(true);
         } else {
           // Template not found, show simple detail modal
@@ -657,6 +781,12 @@ export function Contracts() {
       DATA_ASSINATURA: contractData.tenantSignedAt ? new Date(contractData.tenantSignedAt).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'),
       DATA_ACEITE: new Date().toLocaleDateString('pt-BR'),
       DATA_EXTENSO: formatDateExtensive(contractData.createdAt || new Date().toISOString()),
+
+      // Digital Signatures
+      ASSINATURA_LOCADOR: contractData.ownerSignature || '________________________________',
+      ASSINATURA_LOCATARIO: contractData.tenantSignature || '________________________________',
+      ASSINATURA_TESTEMUNHA: contractData.witnessSignature || '________________________________',
+
     };
 
     for (const [key, value] of Object.entries(replacements)) {
@@ -911,6 +1041,12 @@ export function Contracts() {
       DATA_ASSINATURA: newContract.contractDate ? new Date(newContract.contractDate).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'),
       DATA_ACEITE: new Date().toLocaleDateString('pt-BR'),
       DATA_EXTENSO: formatDateExtensive(newContract.contractDate || new Date().toISOString().split('T')[0]),
+
+      // Digital Signatures (placeholders for preview - will be populated on actual signing)
+      ASSINATURA_LOCADOR: '________________________________',
+      ASSINATURA_LOCATARIO: '________________________________',
+      ASSINATURA_TESTEMUNHA: '________________________________',
+
     };
 
     // Helper function to get readable index name
@@ -1859,7 +1995,10 @@ export function Contracts() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setShowPreviewModal(true)}
+                    onClick={() => {
+                      setIsCreatePreview(true); // Create preview - hide download/print
+                      setShowPreviewModal(true);
+                    }}
                     disabled={creating}
                   >
                     <Eye className="w-4 h-4 mr-2" />
@@ -1882,16 +2021,29 @@ export function Contracts() {
         {}
         <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
           <DialogContent className="w-[95vw] sm:w-auto max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
-            <DialogHeader>
-              <DialogTitle>Prévia do Contrato</DialogTitle>
-              <DialogDescription>Visualize como ficará o contrato com as informações preenchidas.</DialogDescription>
+            <DialogHeader className="flex flex-row items-center justify-between">
+              <div>
+                <DialogTitle>Prévia do Contrato</DialogTitle>
+                <DialogDescription>Visualize como ficará o contrato com as informações preenchidas.</DialogDescription>
+              </div>
+              {/* Download/Print icons in header - only show for details view */}
+              {!isCreatePreview && previewContent && (
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="icon" onClick={handleDownloadPreviewPDF} title="Baixar PDF">
+                    <Download className="w-5 h-5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={handlePrintPreview} title="Imprimir">
+                    <Printer className="w-5 h-5" />
+                  </Button>
+                </div>
+              )}
             </DialogHeader>
             {previewContent ? (
               <div id="contract-preview-content" className="space-y-4">
                 {}
                 <div className="bg-muted p-4 rounded-lg border">
-                  <h3 className="font-semibold mb-2">Informações de Segurança</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                  <h3 className="font-semibold mb-3">Informações de Segurança</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                     <div className="break-all sm:break-normal">
                       <span className="font-medium">Token:</span>{' '}
                       <span className="font-mono text-xs">{previewToken}</span>
@@ -1900,6 +2052,31 @@ export function Contracts() {
                       <span className="font-medium">CRECI:</span>{' '}
                       <span className={!(selectedContract?.creci || newContract.creci || agencyData?.creci) ? 'text-red-500 font-semibold' : ''}>
                         {selectedContract?.creci || newContract.creci || agencyData?.creci || '⚠️ OBRIGATÓRIO'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-medium">IP:</span>{' '}
+                      <span className="font-mono text-xs">
+                        {selectedContract?.creatorIp || userIp || '[Obtendo IP...]'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-medium">Data/Hora:</span>{' '}
+                      <span className="font-mono text-xs">
+                        {new Date().toLocaleString('pt-BR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                    <div className="sm:col-span-2 break-all">
+                      <span className="font-medium">Hash:</span>{' '}
+                      <span className="font-mono text-xs">
+                        {selectedContract?.contentHash || `SHA256:${previewToken ? btoa(previewToken) : '---'}`}
                       </span>
                     </div>
                   </div>
@@ -1911,38 +2088,36 @@ export function Contracts() {
                 </div>
 
                 {}
-                <div className="flex flex-col sm:flex-row items-center sm:justify-between p-4 bg-white border rounded-lg gap-4 overflow-x-auto">
-                  <div className="flex flex-col sm:flex-row items-center gap-4">
-                    {previewToken && (
-                      <div className="flex-shrink-0">
-                        <QRCodeSVG
-                          value={`https://mr3x.com.br/verify/${previewToken}`}
-                          size={80}
-                          level="H"
-                        />
-                      </div>
-                    )}
-                    {previewToken && (
-                      <div className="flex-shrink-0 max-w-full overflow-x-auto">
-                        <Barcode
-                          value={previewToken}
-                          format="CODE128"
-                          width={2}
-                          height={40}
-                          displayValue={true}
-                        />
-                      </div>
-                    )}
+                {previewToken && (
+                  <div className="flex flex-col sm:flex-row items-center justify-center p-4 bg-white border rounded-lg gap-6 overflow-x-auto">
+                    <div className="flex-shrink-0">
+                      <QRCodeSVG
+                        value={`https://mr3x.com.br/verify/${previewToken}`}
+                        size={80}
+                        level="H"
+                      />
+                    </div>
+                    <div className="flex-shrink-0 max-w-full overflow-x-auto">
+                      <Barcode
+                        value={previewToken}
+                        format="CODE128"
+                        width={2}
+                        height={50}
+                        displayValue={true}
+                        fontSize={14}
+                        textMargin={4}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {}
                 <div className="prose prose-sm max-w-none bg-white p-6 border rounded-lg">
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                  <div className="text-sm leading-relaxed" style={{ wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>
                     {previewContent.split('\n').map((line, index) => {
                       const isBold = line.startsWith('**') || line.includes('CLÁUSULA') || line.includes('CONTRATO');
                       return (
-                        <p key={index} className={isBold ? 'font-bold my-2' : 'my-1'}>
+                        <p key={index} className={isBold ? 'font-bold my-2' : 'my-1'} style={{ wordBreak: 'normal', overflowWrap: 'normal', whiteSpace: 'normal' }}>
                           {line.replace(/\*\*/g, '')}
                         </p>
                       );
@@ -1955,16 +2130,8 @@ export function Contracts() {
                 Selecione um modelo de contrato e preencha os dados para visualizar a prévia
               </p>
             )}
-            <div className="flex flex-col sm:flex-row justify-end gap-2">
-              <Button variant="outline" onClick={handleDownloadPreviewPDF} disabled={!previewContent} className="w-full sm:w-auto">
-                <Download className="w-4 h-4 mr-2" />
-                Baixar PDF
-              </Button>
-              <Button variant="outline" onClick={handlePrintPreview} disabled={!previewContent} className="w-full sm:w-auto">
-                <Printer className="w-4 h-4 mr-2" />
-                Imprimir
-              </Button>
-              <Button variant="outline" onClick={() => setShowPreviewModal(false)} className="w-full sm:w-auto">
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => setShowPreviewModal(false)}>
                 Fechar
               </Button>
             </div>

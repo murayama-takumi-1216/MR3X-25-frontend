@@ -66,16 +66,27 @@ export function Tenants() {
     document: '',
     name: '',
     phone: '',
+    mobilePhone: '',
     email: '',
     password: '',
     birthDate: '',
     cep: '',
     address: '',
+    number: '',
+    complement: '',
     neighborhood: '',
     city: '',
     state: '',
     agencyId: '',
     brokerId: '',
+    nationality: '',
+    maritalStatus: '',
+    profession: '',
+    employerName: '',
+    monthlyIncome: '',
+    notes: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
   })
 
   const [editForm, setEditForm] = useState({
@@ -290,17 +301,71 @@ export function Tenants() {
       document: analysisResult.document || '',
       name: analysisResult.name || '',
       phone: phone,
+      mobilePhone: '',
       email: '',
       password: '',
       birthDate: birthDate,
       cep: cep,
       address: address,
+      number: '',
+      complement: '',
       neighborhood: neighborhood,
       city: basicData.city || '',
       state: basicData.state || '',
       agencyId: '',
       brokerId: '',
+      nationality: '',
+      maritalStatus: '',
+      profession: '',
+      employerName: '',
+      monthlyIncome: '',
+      notes: '',
+      emergencyContactName: '',
+      emergencyContactPhone: '',
     })
+
+    // Reset email verification states
+    setEmailVerified(false)
+    setEmailError('')
+    setCheckingEmail(false)
+
+    setShowAnalysisSearchModal(false)
+    setShowCreateModal(true)
+  }
+
+  const handleSkipVerification = () => {
+    // Reset form to empty state
+    setNewTenant({
+      name: '',
+      email: '',
+      document: '',
+      phone: '',
+      mobilePhone: '',
+      password: '',
+      address: '',
+      number: '',
+      complement: '',
+      neighborhood: '',
+      city: '',
+      state: '',
+      cep: '',
+      birthDate: '',
+      agencyId: '',
+      brokerId: '',
+      nationality: '',
+      maritalStatus: '',
+      profession: '',
+      employerName: '',
+      monthlyIncome: '',
+      notes: '',
+      emergencyContactName: '',
+      emergencyContactPhone: '',
+    })
+
+    // Reset analysis state
+    setAnalysisResult(null)
+    setAnalysisError('')
+    setSearchDocument('')
 
     // Reset email verification states
     setEmailVerified(false)
@@ -324,8 +389,10 @@ export function Tenants() {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       closeAllModals()
       setNewTenant({
-        document: '', name: '', phone: '', email: '', password: '', birthDate: '',
-        cep: '', address: '', neighborhood: '', city: '', state: '', agencyId: '', brokerId: ''
+        document: '', name: '', phone: '', mobilePhone: '', email: '', password: '', birthDate: '',
+        cep: '', address: '', number: '', complement: '', neighborhood: '', city: '', state: '',
+        agencyId: '', brokerId: '', nationality: '', maritalStatus: '', profession: '',
+        employerName: '', monthlyIncome: '', notes: '', emergencyContactName: '', emergencyContactPhone: ''
       })
       toast.success('Inquilino criado com sucesso')
     },
@@ -1398,8 +1465,8 @@ export function Tenants() {
                   <Shield className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-white">Verificar Análise do Inquilino</h2>
-                  <p className="text-orange-100 text-sm">Busque por CPF ou CNPJ aprovado</p>
+                  <h2 className="text-lg font-semibold text-white">Cadastrar Inquilino</h2>
+                  <p className="text-orange-100 text-sm">Verificação opcional - busque por CPF ou CNPJ</p>
                 </div>
               </div>
             </div>
@@ -1410,9 +1477,11 @@ export function Tenants() {
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <Shield className="w-4 h-4 text-blue-600" />
                 </div>
-                <p className="text-sm text-blue-800">
-                  Para cadastrar um inquilino, é necessário que ele tenha sido <strong>aprovado</strong> na Análise de Inquilinos. Digite o documento para verificar.
-                </p>
+                <div className="flex-1">
+                  <p className="text-sm text-blue-800">
+                    <strong>Verificação opcional:</strong> Se você possui créditos de análise no seu plano, pode verificar o inquilino antes de cadastrar. Caso contrário, pule esta etapa.
+                  </p>
+                </div>
               </div>
 
               {}
@@ -1594,11 +1663,24 @@ export function Tenants() {
 
               {}
               {!analysisResult && !analysisError && !searchingAnalysis && (
-                <div className="text-center py-8">
+                <div className="text-center py-6">
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Search className="w-8 h-8 text-gray-400" />
                   </div>
-                  <p className="text-muted-foreground">Digite o documento e clique em buscar</p>
+                  <p className="text-muted-foreground mb-6">Digite o documento e clique em buscar</p>
+
+                  <div className="border-t pt-6">
+                    <p className="text-sm text-muted-foreground mb-3">Ou pule a verificação e cadastre diretamente:</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleSkipVerification}
+                      className="w-full sm:w-auto"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Cadastrar sem Verificação
+                    </Button>
+                  </div>
                 </div>
               )}
 
