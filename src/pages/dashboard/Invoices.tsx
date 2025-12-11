@@ -474,9 +474,9 @@ export function Invoices() {
             <Filter className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm font-medium">Filtros:</span>
           </div>
-          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4">
+          <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-4">
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-full sm:w-[150px]">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
@@ -490,7 +490,7 @@ export function Invoices() {
               </SelectContent>
             </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-full sm:w-[150px]">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -502,7 +502,7 @@ export function Invoices() {
               </SelectContent>
             </Select>
             <Select value={filterProperty} onValueChange={setFilterProperty}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Imóvel" />
               </SelectTrigger>
               <SelectContent>
@@ -518,7 +518,7 @@ export function Invoices() {
               type="month"
               value={filterMonth}
               onChange={(e) => setFilterMonth(e.target.value)}
-              className="flex h-10 w-full sm:w-[150px] rounded-md border border-input bg-background pl-3 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+              className="flex h-10 rounded-md border border-input bg-background pl-3 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
               placeholder="Mes de referencia"
             />
           </div>

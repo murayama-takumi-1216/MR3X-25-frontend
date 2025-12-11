@@ -54,7 +54,7 @@ export function DashboardHome() {
     return <CEODashboard />;
   }
 
-  if (user?.role === 'INDEPENDENT_OWNER') {
+  if (user?.role === 'INDEPENDENT_OWNER' || user?.role === 'PROPRIETARIO') {
     return <IndependentOwnerDashboard />;
   }
 

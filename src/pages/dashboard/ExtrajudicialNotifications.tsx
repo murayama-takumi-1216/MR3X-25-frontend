@@ -137,6 +137,7 @@ export default function ExtrajudicialNotifications() {
   const signatureRef = useRef<SignatureCanvas>(null);
   const { user } = useAuth();
   const isInquilino = user?.role === 'INQUILINO';
+  const isProprietario = user?.role === 'PROPRIETARIO';
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -527,7 +528,7 @@ export default function ExtrajudicialNotifications() {
             Gerencie notificacoes extrajudiciais com valor juridico
           </p>
         </div>
-        {!isInquilino && (
+        {!isInquilino && !isProprietario && (
           <Button onClick={() => setShowCreateModal(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Nova Notificacao

@@ -453,8 +453,18 @@ export function Contracts() {
       setContractDetail(fullContract);
 
       // Try to generate preview if template exists
-      if (fullContract.templateId && templates && templates.length > 0) {
-        const template = templates.find((t: any) => t.id?.toString() === fullContract.templateId?.toString());
+      if (fullContract.templateId) {
+        // First try to find template in the local list
+        let template = templates?.find((t: any) => t.id?.toString() === fullContract.templateId?.toString());
+
+        // If not found in local list, fetch it by ID (for roles like PROPRIETARIO that may not have access to templates list)
+        if (!template) {
+          try {
+            template = await contractTemplatesAPI.getTemplateById(fullContract.templateId.toString());
+          } catch (templateError) {
+            console.warn('Could not fetch template:', templateError);
+          }
+        }
 
         if (template) {
           // Generate preview for existing contract
@@ -1871,7 +1881,7 @@ export function Contracts() {
 
         {}
         <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="w-[95vw] sm:w-auto max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
             <DialogHeader>
               <DialogTitle>Prévia do Contrato</DialogTitle>
               <DialogDescription>Visualize como ficará o contrato com as informações preenchidas.</DialogDescription>
@@ -1881,8 +1891,8 @@ export function Contracts() {
                 {}
                 <div className="bg-muted p-4 rounded-lg border">
                   <h3 className="font-semibold mb-2">Informações de Segurança</h3>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                    <div className="break-all sm:break-normal">
                       <span className="font-medium">Token:</span>{' '}
                       <span className="font-mono text-xs">{previewToken}</span>
                     </div>
@@ -1901,10 +1911,10 @@ export function Contracts() {
                 </div>
 
                 {}
-                <div className="flex items-center justify-between p-4 bg-white border rounded-lg">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-center sm:justify-between p-4 bg-white border rounded-lg gap-4 overflow-x-auto">
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
                     {previewToken && (
-                      <div>
+                      <div className="flex-shrink-0">
                         <QRCodeSVG
                           value={`https://mr3x.com.br/verify/${previewToken}`}
                           size={80}
@@ -1913,7 +1923,7 @@ export function Contracts() {
                       </div>
                     )}
                     {previewToken && (
-                      <div>
+                      <div className="flex-shrink-0 max-w-full overflow-x-auto">
                         <Barcode
                           value={previewToken}
                           format="CODE128"
@@ -1945,16 +1955,16 @@ export function Contracts() {
                 Selecione um modelo de contrato e preencha os dados para visualizar a prévia
               </p>
             )}
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={handleDownloadPreviewPDF} disabled={!previewContent}>
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
+              <Button variant="outline" onClick={handleDownloadPreviewPDF} disabled={!previewContent} className="w-full sm:w-auto">
                 <Download className="w-4 h-4 mr-2" />
                 Baixar PDF
               </Button>
-              <Button variant="outline" onClick={handlePrintPreview} disabled={!previewContent}>
+              <Button variant="outline" onClick={handlePrintPreview} disabled={!previewContent} className="w-full sm:w-auto">
                 <Printer className="w-4 h-4 mr-2" />
                 Imprimir
               </Button>
-              <Button variant="outline" onClick={() => setShowPreviewModal(false)}>
+              <Button variant="outline" onClick={() => setShowPreviewModal(false)} className="w-full sm:w-auto">
                 Fechar
               </Button>
             </div>

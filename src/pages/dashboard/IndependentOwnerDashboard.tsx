@@ -117,7 +117,7 @@ export function IndependentOwnerDashboard() {
       </div>
 
       {}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <KPICard
           title="Total de Imóveis"
           value={totalProperties}
@@ -147,7 +147,7 @@ export function IndependentOwnerDashboard() {
       </div>
 
       {}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <KPICard
           title="Imóveis Disponíveis"
           value={overview.availableProperties ?? overview.vacantUnits ?? 0}
@@ -460,18 +460,18 @@ function KPICard({
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className={`p-3 rounded-lg ${colorClasses[color] || colorClasses.blue}`}>
-            <Icon className="w-5 h-5" />
+      <CardContent className="p-3 sm:p-6">
+        <div className="flex items-center justify-between mb-2 sm:mb-4">
+          <div className={`p-2 sm:p-3 rounded-lg ${colorClasses[color] || colorClasses.blue}`}>
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
-        <h3 className="text-sm text-muted-foreground mb-1">{title}</h3>
-        <p className="text-2xl font-bold">
+        <h3 className="text-xs sm:text-sm text-muted-foreground mb-1 line-clamp-1">{title}</h3>
+        <p className="text-lg sm:text-2xl font-bold truncate">
           {isAmount ? value : typeof value === 'number' ? value.toLocaleString() : value}
         </p>
         {subtitle && (
-          <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 truncate">{subtitle}</p>
         )}
       </CardContent>
     </Card>
