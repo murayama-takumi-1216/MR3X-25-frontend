@@ -20,6 +20,7 @@ import { TenantAnalysis } from './pages/dashboard/TenantAnalysis';
 import { Brokers } from './pages/dashboard/Brokers';
 import { Owners } from './pages/dashboard/Owners';
 import { Managers } from './pages/dashboard/Managers';
+import { AgencyUsers } from './pages/dashboard/AgencyUsers';
 import { Agencies } from './pages/dashboard/Agencies';
 import { AgencyAdmin } from './pages/dashboard/AgencyAdmin';
 import { AgencyPlanConfig } from './pages/dashboard/AgencyPlanConfig';
@@ -185,6 +186,7 @@ function App() {
               <Route path="owners/:id/edit" element={<PlaceholderPage title="Editar Imóvel" />} />
 
               <Route path="managers" element={<Managers />} />
+              <Route path="agency-users" element={<AgencyUsers />} />
               <Route path="agency-admin" element={<AgencyAdmin />} />
               <Route path="agency-split-config" element={<AgencySplitConfig />} />
               <Route path="agency-plan-config" element={<AgencyPlanConfig />} />

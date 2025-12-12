@@ -69,6 +69,19 @@ interface FilePreview {
   type: 'image' | 'video';
 }
 
+interface ServerMedia {
+  id: string;
+  inspectionId: string;
+  itemIndex?: number;
+  room?: string;
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  type: 'IMAGE' | 'VIDEO';
+}
+
 interface Inspection {
   id: string;
   token?: string;
@@ -147,11 +160,14 @@ export function Inspections() {
 
   const [inspectionItems, setInspectionItems] = useState<InspectionItem[]>([]);
   const [itemFilePreviews, setItemFilePreviews] = useState<Map<number, FilePreview[]>>(new Map());
+  const [existingMedia, setExistingMedia] = useState<Map<number, ServerMedia[]>>(new Map());
+  const [mediaToDelete, setMediaToDelete] = useState<string[]>([]);
   const [_uploadingItems, _setUploadingItems] = useState<Set<number>>(new Set());
 
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
   const [inspectionToDelete, setInspectionToDelete] = useState<Inspection | null>(null);
   const [inspectionDetail, setInspectionDetail] = useState<Inspection | null>(null);
+  const [detailMedia, setDetailMedia] = useState<ServerMedia[]>([]);
   const [rejectionReason, setRejectionReason] = useState('');
   const [properties, setProperties] = useState<any[]>([]);
   const [contracts, setContracts] = useState<any[]>([]);
@@ -221,50 +237,18 @@ export function Inspections() {
     setSelectedInspection(null);
     setInspectionToDelete(null);
     setInspectionDetail(null);
+    setDetailMedia([]);
     setInspectionItems([]);
     setRejectionReason('');
-    
+
     itemFilePreviews.forEach(files => {
       files.forEach(f => URL.revokeObjectURL(f.preview));
     });
     setItemFilePreviews(new Map());
+    setExistingMedia(new Map());
+    setMediaToDelete([]);
     _setUploadingItems(new Set());
   };
-
-  const createInspectionMutation = useMutation({
-    mutationFn: (data: any) => inspectionsAPI.createInspection(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inspections'] });
-      closeAllModals();
-      toast.success('Vistoria criada com sucesso');
-      setNewInspection({
-        propertyId: '',
-        contractId: '',
-        type: 'ENTRY',
-        date: new Date().toISOString().split('T')[0],
-        scheduledDate: '',
-        inspectorId: user?.id?.toString() || '',
-        notes: '',
-        templateId: '',
-        location: '',
-      });
-    },
-    onError: (error: any) => {
-      toast.error(error?.message || 'Erro ao criar vistoria');
-    },
-  });
-
-  const updateInspectionMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => inspectionsAPI.updateInspection(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inspections'] });
-      closeAllModals();
-      toast.success('Vistoria atualizada com sucesso');
-    },
-    onError: (error: any) => {
-      toast.error(error?.message || 'Erro ao atualizar vistoria');
-    },
-  });
 
   const deleteInspectionMutation = useMutation({
     mutationFn: (id: string) => inspectionsAPI.deleteInspection(id),
@@ -305,10 +289,48 @@ export function Inspections() {
     e.preventDefault();
     setCreating(true);
     try {
-      await createInspectionMutation.mutateAsync({
+      const result = await inspectionsAPI.createInspection({
         ...newInspection,
         items: inspectionItems.length > 0 ? inspectionItems : undefined,
       });
+
+      // Upload media for each item
+      const inspectionId = result.id || result.data?.id;
+      if (inspectionId) {
+        for (const [itemIndex, files] of itemFilePreviews.entries()) {
+          if (files.length > 0) {
+            const room = inspectionItems[itemIndex]?.room;
+            try {
+              await inspectionsAPI.uploadMedia(
+                inspectionId.toString(),
+                files.map(f => f.file),
+                itemIndex,
+                room
+              );
+            } catch (uploadError) {
+              console.error(`Error uploading media for item ${itemIndex}:`, uploadError);
+              toast.error(`Erro ao enviar mídia do item ${itemIndex + 1}`);
+            }
+          }
+        }
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['inspections'] });
+      closeAllModals();
+      toast.success('Vistoria criada com sucesso');
+      setNewInspection({
+        propertyId: '',
+        contractId: '',
+        type: 'ENTRY',
+        date: new Date().toISOString().split('T')[0],
+        scheduledDate: '',
+        inspectorId: user?.id?.toString() || '',
+        notes: '',
+        templateId: '',
+        location: '',
+      });
+    } catch (error: any) {
+      toast.error(error?.message || 'Erro ao criar vistoria');
     } finally {
       setCreating(false);
     }
@@ -319,13 +341,44 @@ export function Inspections() {
     if (!selectedInspection) return;
     setUpdating(true);
     try {
-      await updateInspectionMutation.mutateAsync({
-        id: selectedInspection.id,
-        data: {
-          ...editForm,
-          items: inspectionItems.length > 0 ? inspectionItems : undefined,
-        },
+      // Delete media marked for deletion
+      for (const mediaId of mediaToDelete) {
+        try {
+          await inspectionsAPI.deleteMedia(selectedInspection.id, mediaId);
+        } catch (deleteError) {
+          console.error('Error deleting media:', deleteError);
+        }
+      }
+
+      // Update inspection
+      await inspectionsAPI.updateInspection(selectedInspection.id, {
+        ...editForm,
+        items: inspectionItems.length > 0 ? inspectionItems : undefined,
       });
+
+      // Upload new media for each item
+      for (const [itemIndex, files] of itemFilePreviews.entries()) {
+        if (files.length > 0) {
+          const room = inspectionItems[itemIndex]?.room;
+          try {
+            await inspectionsAPI.uploadMedia(
+              selectedInspection.id,
+              files.map(f => f.file),
+              itemIndex,
+              room
+            );
+          } catch (uploadError) {
+            console.error(`Error uploading media for item ${itemIndex}:`, uploadError);
+            toast.error(`Erro ao enviar mídia do item ${itemIndex + 1}`);
+          }
+        }
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['inspections'] });
+      closeAllModals();
+      toast.success('Vistoria atualizada com sucesso');
+    } catch (error: any) {
+      toast.error(error?.message || 'Erro ao atualizar vistoria');
     } finally {
       setUpdating(false);
     }
@@ -337,6 +390,17 @@ export function Inspections() {
     try {
       const fullDetails = await inspectionsAPI.getInspectionById(inspection.id);
       setInspectionDetail(fullDetails);
+
+      // Load media from server
+      try {
+        const mediaList = await inspectionsAPI.getMedia(inspection.id);
+        if (Array.isArray(mediaList)) {
+          setDetailMedia(mediaList);
+        }
+      } catch (mediaError) {
+        console.error('Error loading media:', mediaError);
+      }
+
       setShowDetailModal(true);
     } catch (error: any) {
       toast.error(error?.message || 'Erro ao carregar detalhes da vistoria');
@@ -361,6 +425,25 @@ export function Inspections() {
         status: fullDetails.status || '',
       });
       setInspectionItems(fullDetails.items || []);
+
+      // Load existing media from server
+      try {
+        const mediaList = await inspectionsAPI.getMedia(inspection.id);
+        if (Array.isArray(mediaList)) {
+          const mediaMap = new Map<number, ServerMedia[]>();
+          mediaList.forEach((media: ServerMedia) => {
+            const idx = media.itemIndex ?? -1;
+            if (!mediaMap.has(idx)) {
+              mediaMap.set(idx, []);
+            }
+            mediaMap.get(idx)!.push(media);
+          });
+          setExistingMedia(mediaMap);
+        }
+      } catch (mediaError) {
+        console.error('Error loading media:', mediaError);
+      }
+
       setShowEditModal(true);
     } catch (error: any) {
       toast.error(error?.message || 'Erro ao carregar vistoria');
@@ -482,6 +565,33 @@ export function Inspections() {
 
   const getItemFilePreviews = (index: number): FilePreview[] => {
     return itemFilePreviews.get(index) || [];
+  };
+
+  const getItemExistingMedia = (index: number): ServerMedia[] => {
+    return existingMedia.get(index) || [];
+  };
+
+  const removeExistingMedia = (itemIndex: number, mediaId: string) => {
+    setMediaToDelete(prev => [...prev, mediaId]);
+    setExistingMedia(prev => {
+      const newMap = new Map(prev);
+      const media = newMap.get(itemIndex) || [];
+      newMap.set(itemIndex, media.filter(m => m.id !== mediaId));
+      return newMap;
+    });
+  };
+
+  const getMediaUrl = (media: ServerMedia): string => {
+    const baseUrl = import.meta.env.VITE_API_URL || '';
+    return `${baseUrl}${media.url}`;
+  };
+
+  const getDetailMediaForItem = (itemIndex: number): ServerMedia[] => {
+    return detailMedia.filter(m => m.itemIndex === itemIndex);
+  };
+
+  const getDetailMediaGeneral = (): ServerMedia[] => {
+    return detailMedia.filter(m => m.itemIndex === undefined || m.itemIndex === null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -1445,40 +1555,83 @@ export function Inspections() {
                           </span>
                         </div>
 
-                        {}
-                        {getItemFilePreviews(index).length > 0 && (
-                          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                            {getItemFilePreviews(index).map((filePreview, fileIndex) => (
-                              <div key={fileIndex} className="relative group">
-                                {filePreview.type === 'image' ? (
-                                  <img
-                                    src={filePreview.preview}
-                                    alt={`Preview ${fileIndex + 1}`}
-                                    className="w-full h-20 object-cover rounded-lg border border-border"
-                                  />
-                                ) : (
-                                  <div className="w-full h-20 bg-muted rounded-lg border border-border flex items-center justify-center">
-                                    <Video className="w-8 h-8 text-muted-foreground" />
+                        {/* Existing media from server */}
+                        {getItemExistingMedia(index).length > 0 && (
+                          <div className="mt-3">
+                            <Label className="text-xs text-muted-foreground mb-2 block">Mídia existente:</Label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                              {getItemExistingMedia(index).map((media) => (
+                                <div key={media.id} className="relative group">
+                                  {media.type === 'IMAGE' ? (
+                                    <img
+                                      src={getMediaUrl(media)}
+                                      alt={media.originalName}
+                                      className="w-full h-20 object-cover rounded-lg border border-green-300"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-20 bg-muted rounded-lg border border-green-300 flex items-center justify-center">
+                                      <Video className="w-8 h-8 text-muted-foreground" />
+                                    </div>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => removeExistingMedia(index, media.id)}
+                                    className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                  <div className="absolute bottom-1 left-1">
+                                    <Badge variant="outline" className="text-[10px] px-1 py-0 bg-green-50 border-green-300">
+                                      {media.type === 'IMAGE' ? (
+                                        <><Image className="w-2 h-2 mr-1" />Salvo</>
+                                      ) : (
+                                        <><Video className="w-2 h-2 mr-1" />Salvo</>
+                                      )}
+                                    </Badge>
                                   </div>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => removeFilePreview(index, fileIndex)}
-                                  className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <X className="w-3 h-3" />
-                                </button>
-                                <div className="absolute bottom-1 left-1">
-                                  <Badge variant="secondary" className="text-[10px] px-1 py-0">
-                                    {filePreview.type === 'image' ? (
-                                      <><Image className="w-2 h-2 mr-1" />Foto</>
-                                    ) : (
-                                      <><Video className="w-2 h-2 mr-1" />Vídeo</>
-                                    )}
-                                  </Badge>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* New file previews */}
+                        {getItemFilePreviews(index).length > 0 && (
+                          <div className="mt-3">
+                            <Label className="text-xs text-muted-foreground mb-2 block">Novos arquivos:</Label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                              {getItemFilePreviews(index).map((filePreview, fileIndex) => (
+                                <div key={fileIndex} className="relative group">
+                                  {filePreview.type === 'image' ? (
+                                    <img
+                                      src={filePreview.preview}
+                                      alt={`Preview ${fileIndex + 1}`}
+                                      className="w-full h-20 object-cover rounded-lg border border-orange-300"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-20 bg-muted rounded-lg border border-orange-300 flex items-center justify-center">
+                                      <Video className="w-8 h-8 text-muted-foreground" />
+                                    </div>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => removeFilePreview(index, fileIndex)}
+                                    className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                  <div className="absolute bottom-1 left-1">
+                                    <Badge variant="secondary" className="text-[10px] px-1 py-0 bg-orange-50">
+                                      {filePreview.type === 'image' ? (
+                                        <><Image className="w-2 h-2 mr-1" />Novo</>
+                                      ) : (
+                                        <><Video className="w-2 h-2 mr-1" />Novo</>
+                                      )}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1590,8 +1743,49 @@ export function Inspections() {
                   </div>
                 )}
 
-                {/* General Photos */}
-                {inspectionDetail.photos && (() => {
+                {/* General Media from server */}
+                {getDetailMediaGeneral().length > 0 && (
+                  <div>
+                    <Label className="text-muted-foreground mb-2 flex items-center gap-1">
+                      <Image className="w-4 h-4" />
+                      <Video className="w-4 h-4" />
+                      Mídia Geral ({getDetailMediaGeneral().length})
+                    </Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {getDetailMediaGeneral().map((media) => (
+                        <div key={media.id} className="relative group">
+                          {media.type === 'IMAGE' ? (
+                            <img
+                              src={getMediaUrl(media)}
+                              alt={media.originalName}
+                              className="w-full h-32 object-cover rounded-lg border border-border cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => window.open(getMediaUrl(media), '_blank')}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div
+                              className="w-full h-32 bg-muted rounded-lg border border-border flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => window.open(getMediaUrl(media), '_blank')}
+                            >
+                              <Video className="w-10 h-10 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="absolute bottom-1 left-1">
+                            <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                              {media.type === 'IMAGE' ? 'Foto' : 'Vídeo'}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Legacy General Photos */}
+                {inspectionDetail.photos && getDetailMediaGeneral().length === 0 && (() => {
                   try {
                     const photos = typeof inspectionDetail.photos === 'string'
                       ? JSON.parse(inspectionDetail.photos)
@@ -1691,8 +1885,49 @@ export function Inspections() {
                             </div>
                           </div>
 
-                          {/* Photos Display */}
-                          {item.photos && item.photos.length > 0 && (
+                          {/* Media from server */}
+                          {getDetailMediaForItem(index).length > 0 && (
+                            <div className="pt-3 border-t">
+                              <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                                <Image className="w-3 h-3" />
+                                <Video className="w-3 h-3" />
+                                Mídia ({getDetailMediaForItem(index).length})
+                              </Label>
+                              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                {getDetailMediaForItem(index).map((media) => (
+                                  <div key={media.id} className="relative group">
+                                    {media.type === 'IMAGE' ? (
+                                      <img
+                                        src={getMediaUrl(media)}
+                                        alt={media.originalName}
+                                        className="w-full h-24 object-cover rounded-lg border border-border cursor-pointer hover:opacity-90 transition-opacity"
+                                        onClick={() => window.open(getMediaUrl(media), '_blank')}
+                                        onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.style.display = 'none';
+                                        }}
+                                      />
+                                    ) : (
+                                      <div
+                                        className="w-full h-24 bg-muted rounded-lg border border-border flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+                                        onClick={() => window.open(getMediaUrl(media), '_blank')}
+                                      >
+                                        <Video className="w-8 h-8 text-muted-foreground" />
+                                      </div>
+                                    )}
+                                    <div className="absolute bottom-1 left-1">
+                                      <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                                        {media.type === 'IMAGE' ? 'Foto' : 'Vídeo'}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Legacy photos from item data */}
+                          {item.photos && item.photos.length > 0 && getDetailMediaForItem(index).length === 0 && (
                             <div className="pt-3 border-t">
                               <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
                                 <Image className="w-3 h-3" />

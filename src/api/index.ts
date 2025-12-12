@@ -955,18 +955,24 @@ export const inspectionsAPI = {
   },
 
   // Media upload
-  uploadMedia: async (id: string, files: File[], room?: string) => {
+  uploadMedia: async (id: string, files: File[], itemIndex?: number, room?: string) => {
     const formData = new FormData();
     files.forEach(file => formData.append('files', file));
-    if (room) formData.append('room', room);
-    const response = await apiClient.post(`/inspections/${id}/media`, formData, {
+    const params = new URLSearchParams();
+    if (itemIndex !== undefined) params.append('itemIndex', String(itemIndex));
+    if (room) params.append('room', room);
+    const query = params.toString();
+    const response = await apiClient.post(`/inspections/${id}/media${query ? `?${query}` : ''}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data;
   },
 
-  getMedia: async (id: string) => {
-    const response = await apiClient.get(`/inspections/${id}/media`);
+  getMedia: async (id: string, itemIndex?: number) => {
+    const params = new URLSearchParams();
+    if (itemIndex !== undefined) params.append('itemIndex', String(itemIndex));
+    const query = params.toString();
+    const response = await apiClient.get(`/inspections/${id}/media${query ? `?${query}` : ''}`);
     return response.data;
   },
 

@@ -8,7 +8,7 @@ import {
   Crown, Package, Mail, Wrench, Receipt, Key, ClipboardCheck, FileSignature,
   Code, KeyRound, Activity, Webhook, BookOpen, UserCog2,
   Award, Inbox, TrendingUp, Kanban,
-  Database, GitCompare, Headphones, UserSearch, Gavel
+  Database, GitCompare, Headphones, UserSearch, Gavel, UsersRound
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { chatAPI, notificationsAPI, extrajudicialNotificationsAPI } from '../api';
@@ -19,7 +19,8 @@ const baseNavigation = [
 
   { name: 'Meu Contrato', href: '/dashboard/tenant-contract', icon: FileText, perm: undefined, roles: ['INQUILINO'] },
   { name: 'Meus Pagamentos', href: '/dashboard/tenant-payments', icon: DollarSign, perm: undefined, roles: ['INQUILINO'] },
-  
+
+  { name: 'Usuários', href: '/dashboard/agency-users', icon: UsersRound, perm: undefined, roles: ['AGENCY_ADMIN'] },
   { name: 'Imóveis', href: '/dashboard/properties', icon: Building2, perm: 'properties:read' },
   { name: 'Inquilinos', href: '/dashboard/tenants', icon: Users, perm: 'users:read' },
   { name: 'Análise de Inquilinos', href: '/dashboard/tenant-analysis', icon: UserSearch, perm: undefined },

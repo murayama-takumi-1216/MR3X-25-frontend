@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { usersAPI, agenciesAPI, tenantAnalysisAPI } from '@/api'
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAuth } from '@/contexts/AuthContext'
 import {
@@ -21,7 +22,8 @@ import {
   XCircle,
   AlertTriangle,
   Shield,
-  Loader2
+  Loader2,
+  Crown
 } from 'lucide-react'
 import { DocumentInput } from '@/components/ui/document-input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
@@ -48,6 +50,7 @@ import {
 export function Tenants() {
   const { hasPermission, user } = useAuth()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const isCEO = user?.role === 'CEO'
   const canViewUsers = hasPermission('users:read')
@@ -123,6 +126,10 @@ export function Tenants() {
   const [searchingAnalysis, setSearchingAnalysis] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<any>(null)
   const [analysisError, setAnalysisError] = useState('')
+
+  // Upgrade modal states
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [upgradeErrorMessage, setUpgradeErrorMessage] = useState('')
 
   const checkEmailExists = useCallback(async (email: string, currentEmail?: string) => {
     // Reset states
@@ -398,15 +405,30 @@ export function Tenants() {
     },
     onError: (error: any) => {
       let errorMessage = 'Erro ao criar inquilino'
-      if (error.message) {
-        const message = error.message.toLowerCase()
+      const backendMessage = error.response?.data?.message || error.message
+      if (backendMessage) {
+        const message = backendMessage.toLowerCase()
         if (message.includes('already exists')) {
           errorMessage = 'Este usuario ja existe. Verifique o email ou documento.'
         } else {
-          errorMessage = error.message
+          errorMessage = backendMessage
         }
       }
-      toast.error(errorMessage)
+
+      // Check if it's a plan limit error
+      const isPlanLimitError = error?.response?.status === 403 ||
+        errorMessage.toLowerCase().includes('plano') ||
+        errorMessage.toLowerCase().includes('limite') ||
+        errorMessage.toLowerCase().includes('plan') ||
+        errorMessage.toLowerCase().includes('limit')
+
+      if (isPlanLimitError) {
+        setUpgradeErrorMessage(errorMessage || 'Você atingiu o limite do seu plano.')
+        setShowCreateModal(false)
+        setShowUpgradeModal(true)
+      } else {
+        toast.error(errorMessage)
+      }
     },
   })
 
@@ -1721,6 +1743,53 @@ export function Tenants() {
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               >
                 {deleteTenantMutation.isPending ? 'Excluindo...' : 'Excluir'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Upgrade Plan Modal */}
+        <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <div className="mx-auto w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                <Crown className="w-6 h-6 text-orange-600" />
+              </div>
+              <DialogTitle className="text-center">Limite do Plano Atingido</DialogTitle>
+              <DialogDescription className="text-center">
+                {upgradeErrorMessage}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg mt-4">
+              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-amber-800">
+                <p className="font-medium mb-1">Por que isso acontece?</p>
+                <p>Cada plano tem um limite de inquilinos que podem ser cadastrados. Para continuar cadastrando, você precisa fazer upgrade do seu plano.</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 mt-6">
+              <Button
+                onClick={() => {
+                  setShowUpgradeModal(false)
+                  if (user?.role === 'CEO' || user?.role === 'ADMIN') {
+                    navigate('/dashboard/plans')
+                  } else if (user?.role === 'AGENCY_ADMIN') {
+                    navigate('/dashboard/agency-config')
+                  } else {
+                    navigate('/dashboard/settings')
+                  }
+                }}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                Ver Planos Disponíveis
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowUpgradeModal(false)}
+                className="w-full"
+              >
+                Fechar
               </Button>
             </div>
           </DialogContent>

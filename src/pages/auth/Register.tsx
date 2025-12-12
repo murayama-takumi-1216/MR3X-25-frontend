@@ -6,6 +6,7 @@ import { authApi } from '../../api/auth';
 import { DocumentInput } from '@/components/ui/document-input';
 import { CEPInput } from '@/components/ui/cep-input';
 import { validateDocument, isValidCEPFormat } from '@/lib/validation';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export function Register() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export function Register() {
     password: '',
     confirmPassword: '',
     name: '',
-    role: 'INDEPENDENT_OWNER', 
+    role: 'INDEPENDENT_OWNER',
     plan: 'FREE',
     phone: '',
     document: '',
@@ -71,7 +72,7 @@ export function Register() {
         setRequestId(result.requestId);
         setCooldown(result.cooldownSeconds || 60);
         setStep('code');
-        
+
         if ((result as any).debugCode) {
           console.log(`🔑 Verification code: ${(result as any).debugCode}`);
         }
@@ -91,7 +92,7 @@ export function Register() {
           toast.error('A senha deve ter pelo menos 6 caracteres');
           return;
         }
-        
+
         const docResult = validateDocument(formData.document);
         if (!docResult.isValid) {
           toast.error(docResult.error || 'Documento inválido (CPF/CNPJ)');
@@ -101,13 +102,13 @@ export function Register() {
           toast.error('CEP inválido');
           return;
         }
-        
+
         if (formData.role === 'AGENCY_ADMIN') {
           if (!formData.agencyName || !formData.agencyCnpj) {
             toast.error('Nome da agência e CNPJ são obrigatórios para proprietários de agência');
             return;
           }
-          
+
           const agencyCnpjResult = validateDocument(formData.agencyCnpj);
           if (!agencyCnpjResult.isValid) {
             toast.error(agencyCnpjResult.error || 'CNPJ da agência inválido');
@@ -150,7 +151,7 @@ export function Register() {
       const result = await authApi.requestEmailCode(formData.email);
       setRequestId(result.requestId);
       setCooldown(result.cooldownSeconds || 60);
-      
+
       if ((result as any).debugCode) {
         console.log(`🔑 Verification code: ${(result as any).debugCode}`);
       }
@@ -161,18 +162,18 @@ export function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-start sm:items-center justify-center bg-background px-3 py-4 sm:p-4">
       <div className="w-full max-w-md">
-        <div className="bg-card border border-border rounded-lg shadow-lg p-6 sm:p-8">
-          <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Criar Conta</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">Comece a gerenciar seus aluguéis</p>
+        <div className="bg-card border border-border rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+          <div className="text-center mb-4 sm:mb-6 md:mb-8">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">Criar Conta</h1>
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground">Comece a gerenciar seus aluguéis</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {step === 'email' && (
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                <label htmlFor="email" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                   Email
                 </label>
                 <input
@@ -183,7 +184,7 @@ export function Register() {
                   onChange={handleChange}
                   required
                   autoComplete="email"
-                  className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
                   placeholder="seu@email.com"
                 />
               </div>
@@ -191,23 +192,23 @@ export function Register() {
 
             {step === 'code' && (
               <div>
-                <label className="block text-sm font-medium mb-2">Digite o código recebido</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">Digite o código recebido</label>
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   maxLength={6}
                   autoComplete="one-time-code"
-                  className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base tracking-widest text-center"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base tracking-widest text-center"
                   placeholder="000000"
                 />
-                <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                  <span>Enviado para {formData.email}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0 mt-2 text-xs sm:text-sm text-muted-foreground">
+                  <span className="truncate">Enviado para {formData.email}</span>
                   <button
                     type="button"
                     disabled={cooldown > 0}
                     onClick={handleResendCode}
-                    className="text-primary disabled:opacity-50"
+                    className="text-primary disabled:opacity-50 text-left sm:text-right"
                   >
                     Reenviar {cooldown > 0 ? `(${cooldown}s)` : ''}
                   </button>
@@ -217,7 +218,7 @@ export function Register() {
 
             {step === 'details' && (
               <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-2">
+                <label htmlFor="name" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                   Nome Completo
                 </label>
                 <input
@@ -228,7 +229,7 @@ export function Register() {
                   onChange={handleChange}
                   required
                   autoComplete="name"
-                  className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
                   placeholder="Seu nome"
                 />
               </div>
@@ -236,7 +237,7 @@ export function Register() {
 
             {step === 'details' && (
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                <label htmlFor="email" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                   Email
                 </label>
                 <input
@@ -247,7 +248,7 @@ export function Register() {
                   disabled
                   readOnly
                   autoComplete="email"
-                  className="w-full px-4 py-2.5 bg-background border border-input rounded-md text-base opacity-80 cursor-not-allowed"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-input rounded-md text-sm sm:text-base opacity-80 cursor-not-allowed"
                   placeholder="seu@email.com"
                 />
               </div>
@@ -255,21 +256,28 @@ export function Register() {
 
             {step === 'details' && (
               <div>
-                <label htmlFor="role" className="block text-sm font-medium mb-2">
+                <label htmlFor="role" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                   Tipo de Conta
                 </label>
-                <select
-                  id="role"
-                  name="role"
+                <Select
                   value={formData.role}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}
                 >
-                  {}
-                  <option value="INDEPENDENT_OWNER">Imóvel Independente - Gerenciar meus imóveis sem agência</option>
-                  <option value="AGENCY_ADMIN">Diretor de Agência - Criar minha imobiliária</option>
-                </select>
-                <p className="text-xs text-muted-foreground mt-2">
+                  <SelectTrigger className="w-full text-xs sm:text-sm">
+                    <SelectValue placeholder="Selecione o tipo de conta" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="INDEPENDENT_OWNER" className="text-xs sm:text-sm">
+                      <span className="block sm:hidden">Imóvel Independente</span>
+                      <span className="hidden sm:block">Imóvel Independente - Gerenciar meus imóveis sem agência</span>
+                    </SelectItem>
+                    <SelectItem value="AGENCY_ADMIN" className="text-xs sm:text-sm">
+                      <span className="block sm:hidden">Diretor de Agência</span>
+                      <span className="hidden sm:block">Diretor de Agência - Criar minha imobiliária</span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1.5 sm:mt-2">
                   {formData.role === 'INDEPENDENT_OWNER' &&
                     'Como Imóvel Independente, você poderá gerenciar seus próprios imóveis, inquilinos e contratos.'}
                   {formData.role === 'AGENCY_ADMIN' &&
@@ -280,7 +288,7 @@ export function Register() {
 
             {step === 'details' && (
               <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-2">
+                <label htmlFor="password" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                   Senha
                 </label>
                 <div className="relative">
@@ -293,13 +301,13 @@ export function Register() {
                     required
                     minLength={6}
                     autoComplete="new-password"
-                    className="w-full px-4 py-2.5 pr-10 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 pr-10 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -309,7 +317,7 @@ export function Register() {
 
             {step === 'details' && (
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
+                <label htmlFor="confirmPassword" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                   Confirmar Senha
                 </label>
                 <div className="relative">
@@ -322,13 +330,13 @@ export function Register() {
                     required
                     minLength={6}
                     autoComplete="new-password"
-                    className="w-full px-4 py-2.5 pr-10 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 pr-10 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1"
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -338,7 +346,7 @@ export function Register() {
 
             {step === 'details' && (
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium mb-2">
+                <label htmlFor="phone" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                   Telefone
                 </label>
                 <input
@@ -348,7 +356,7 @@ export function Register() {
                   value={formData.phone}
                   onChange={handleChange}
                   autoComplete="tel"
-                  className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
                   placeholder="(11) 99999-9999"
                 />
               </div>
@@ -380,7 +388,7 @@ export function Register() {
 
             {step === 'details' && (
               <div>
-                <label htmlFor="address" className="block text-sm font-medium mb-2">
+                <label htmlFor="address" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                   Endereço
                 </label>
                 <input
@@ -389,16 +397,16 @@ export function Register() {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
                   placeholder="Rua, Avenida, etc."
                 />
               </div>
             )}
 
             {step === 'details' && (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-3">
                 <div>
-                  <label htmlFor="number" className="block text-sm font-medium mb-2">
+                  <label htmlFor="number" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                     Número
                   </label>
                   <input
@@ -407,12 +415,12 @@ export function Register() {
                     name="number"
                     value={formData.number}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
                     placeholder="123"
                   />
                 </div>
                 <div>
-                  <label htmlFor="neighborhood" className="block text-sm font-medium mb-2">
+                  <label htmlFor="neighborhood" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                     Bairro
                   </label>
                   <input
@@ -421,7 +429,7 @@ export function Register() {
                     name="neighborhood"
                     value={formData.neighborhood}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
                     placeholder="Centro"
                   />
                 </div>
@@ -429,9 +437,9 @@ export function Register() {
             )}
 
             {step === 'details' && (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-3">
                 <div>
-                  <label htmlFor="city" className="block text-sm font-medium mb-2">
+                  <label htmlFor="city" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                     Cidade
                   </label>
                   <input
@@ -440,12 +448,12 @@ export function Register() {
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
                     placeholder="São Paulo"
                   />
                 </div>
                 <div>
-                  <label htmlFor="state" className="block text-sm font-medium mb-2">
+                  <label htmlFor="state" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                     Estado
                   </label>
                   <input
@@ -454,25 +462,25 @@ export function Register() {
                     name="state"
                     value={formData.state}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
                     placeholder="SP"
                   />
                 </div>
               </div>
             )}
 
-            {}
+            {/* Agency fields */}
             {step === 'details' && formData.role === 'AGENCY_ADMIN' && (
               <>
-                <div className="mt-6 pt-6 border-t border-border">
-                  <h3 className="text-lg font-semibold mb-4 text-foreground">Informações da Agência</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border">
+                  <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-4 text-foreground">Informações da Agência</h3>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                     As informações da agência serão criadas automaticamente com base nos seus dados pessoais.
                   </p>
                 </div>
 
                 <div>
-                  <label htmlFor="agencyName" className="block text-sm font-medium mb-2">
+                  <label htmlFor="agencyName" className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
                     Nome da Agência <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -482,7 +490,7 @@ export function Register() {
                     value={formData.agencyName}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
                     placeholder="Ex: Imobiliária Central"
                   />
                 </div>
@@ -495,7 +503,7 @@ export function Register() {
                     placeholder="00.000.000/0000-00"
                     showValidation={true}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
                     O CNPJ da agência será usado para identificação legal
                   </p>
                 </div>
@@ -505,7 +513,7 @@ export function Register() {
             <button
               type="submit"
               disabled={loading || (step === 'email' && requesting)}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2.5 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6 text-base"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 sm:py-2.5 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4 sm:mt-6 text-sm sm:text-base"
             >
               {step === 'email' && (requesting ? 'Enviando...' : 'Enviar código')}
               {step === 'code' && (loading ? 'Verificando...' : 'Confirmar código')}
@@ -513,17 +521,17 @@ export function Register() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-4 sm:mt-6 text-center">
             <Link
               to="/auth/login"
-              className="text-sm text-primary hover:underline"
+              className="text-xs sm:text-sm text-primary hover:underline"
             >
               Já tem uma conta? Faça login
             </Link>
           </div>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-8">
+        <p className="text-center text-[10px] sm:text-sm text-muted-foreground mt-4 sm:mt-8 px-2">
           Ao criar uma conta, você concorda com nossos{' '}
           <Link
             to="/terms"

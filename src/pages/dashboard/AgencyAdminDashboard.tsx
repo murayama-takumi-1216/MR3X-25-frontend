@@ -275,8 +275,9 @@ export function AgencyAdminDashboard() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-[220px] text-muted-foreground">
-                  <p>Nenhum dado de receita disponível</p>
+                <div className="flex flex-col items-center justify-center h-[220px] text-muted-foreground">
+                  <DollarSign className="w-12 h-12 mb-3 opacity-30" />
+                  <p className="text-sm">Nenhum dado de receita disponível</p>
                 </div>
               )}
             </div>
@@ -312,8 +313,9 @@ export function AgencyAdminDashboard() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-[220px] text-muted-foreground">
-                  <p>Nenhum imóvel cadastrado</p>
+                <div className="flex flex-col items-center justify-center h-[220px] text-muted-foreground">
+                  <Building2 className="w-12 h-12 mb-3 opacity-30" />
+                  <p className="text-sm">Nenhum imóvel cadastrado</p>
                 </div>
               )}
             </div>
@@ -352,8 +354,9 @@ export function AgencyAdminDashboard() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-[220px] text-muted-foreground">
-                  <p>Nenhum contrato cadastrado</p>
+                <div className="flex flex-col items-center justify-center h-[220px] text-muted-foreground">
+                  <FileText className="w-12 h-12 mb-3 opacity-30" />
+                  <p className="text-sm">Nenhum contrato cadastrado</p>
                 </div>
               )}
             </div>

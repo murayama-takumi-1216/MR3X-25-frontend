@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { usersAPI } from '@/api'
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAuth } from '@/contexts/AuthContext'
 import {
@@ -16,7 +17,9 @@ import {
   List,
   CheckCircle,
   XCircle,
-  Loader2
+  Loader2,
+  Crown,
+  AlertTriangle
 } from 'lucide-react'
 import { DocumentInput } from '@/components/ui/document-input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
@@ -43,6 +46,7 @@ import {
 export function Managers() {
   const { hasPermission, user } = useAuth()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const canViewUsers = hasPermission('users:read')
   const canCreateUsers = hasPermission('users:create')
@@ -93,6 +97,10 @@ export function Managers() {
   const [emailError, setEmailError] = useState('')
   const [emailVerified, setEmailVerified] = useState(false)
   const [checkingEmail, setCheckingEmail] = useState(false)
+
+  // Upgrade modal states
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [upgradeErrorMessage, setUpgradeErrorMessage] = useState('')
 
   const checkEmailExists = useCallback(async (email: string, currentEmail?: string) => {
     setEmailVerified(false)
@@ -199,15 +207,25 @@ export function Managers() {
         const message = backendMessage.toLowerCase()
         if (message.includes('already exists') || message.includes('email already registered')) {
           errorMessage = 'Este usuario ja existe. Verifique o email ou documento.'
-        } else if (message.includes('limite') || message.includes('limit')) {
-          errorMessage = backendMessage
-        } else if (message.includes('não pode criar') || message.includes('cannot create')) {
-          errorMessage = backendMessage
         } else {
           errorMessage = backendMessage
         }
       }
-      toast.error(errorMessage)
+
+      // Check if it's a plan limit error
+      const isPlanLimitError = error?.response?.status === 403 ||
+        errorMessage.toLowerCase().includes('plano') ||
+        errorMessage.toLowerCase().includes('limite') ||
+        errorMessage.toLowerCase().includes('plan') ||
+        errorMessage.toLowerCase().includes('limit')
+
+      if (isPlanLimitError) {
+        setUpgradeErrorMessage(errorMessage || 'Você atingiu o limite do seu plano.')
+        setShowCreateModal(false)
+        setShowUpgradeModal(true)
+      } else {
+        toast.error(errorMessage)
+      }
     },
   })
 
@@ -931,6 +949,107 @@ export function Managers() {
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               >
                 Excluir
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Upgrade Plan Modal */}
+        <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-amber-600">
+                <AlertTriangle className="w-6 h-6" />
+                Limite do Plano Atingido
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="flex items-center justify-center py-4">
+                <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
+                  <Crown className="w-8 h-8 text-amber-600" />
+                </div>
+              </div>
+
+              <div className="text-center space-y-2">
+                <p className="text-lg font-semibold text-gray-900">
+                  Você atingiu o limite do plano
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {upgradeErrorMessage || 'Você atingiu o limite de usuários do seu plano Gratuito. Faça upgrade para adicionar mais usuários.'}
+                </p>
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-2">
+                <p className="text-sm font-medium text-amber-800">
+                  Com o plano gratuito você pode:
+                </p>
+                <ul className="text-sm text-amber-700 space-y-1">
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    Cadastrar 1 imóvel
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    Cadastrar 1 usuário
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    Criar 1 contrato
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
+                <p className="text-sm font-medium text-green-800">
+                  Faça upgrade para desbloquear:
+                </p>
+                <ul className="text-sm text-green-700 space-y-1">
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    Imóveis ilimitados
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    Usuários ilimitados
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    Contratos ilimitados
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    Relatórios avançados
+                  </li>
+                </ul>
+              </div>
+
+              <p className="text-center text-sm text-muted-foreground">
+                Deseja fazer upgrade do seu plano agora?
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowUpgradeModal(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white"
+                onClick={() => {
+                  setShowUpgradeModal(false)
+                  if (user?.role === 'AGENCY_ADMIN' || user?.role === 'AGENCY_MANAGER') {
+                    navigate('/dashboard/agency-plan-config')
+                  } else if (user?.role === 'INDEPENDENT_OWNER') {
+                    navigate('/dashboard/owner-plan-config')
+                  } else {
+                    navigate('/dashboard/plans')
+                  }
+                }}
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                Fazer Upgrade
               </Button>
             </div>
           </DialogContent>
