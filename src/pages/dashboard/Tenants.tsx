@@ -28,6 +28,7 @@ import {
 import { DocumentInput } from '@/components/ui/document-input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { CEPInput } from '@/components/ui/cep-input'
+import { RGInput } from '@/components/ui/rg-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -69,7 +70,6 @@ export function Tenants() {
     document: '',
     name: '',
     phone: '',
-    mobilePhone: '',
     email: '',
     password: '',
     birthDate: '',
@@ -85,9 +85,8 @@ export function Tenants() {
     nationality: '',
     maritalStatus: '',
     profession: '',
+    rg: '',
     employerName: '',
-    monthlyIncome: '',
-    notes: '',
     emergencyContactName: '',
     emergencyContactPhone: '',
   })
@@ -105,6 +104,10 @@ export function Tenants() {
     city: '',
     state: '',
     brokerId: '',
+    nationality: '',
+    maritalStatus: '',
+    profession: '',
+    rg: '',
   })
 
   const [selectedTenant, setSelectedTenant] = useState<any>(null)
@@ -340,7 +343,6 @@ export function Tenants() {
       document: analysisResult.document || '',
       name: analysisResult.name || '',
       phone: phone,
-      mobilePhone: '',
       email: '',
       password: '',
       birthDate: birthDate,
@@ -356,9 +358,8 @@ export function Tenants() {
       nationality: '',
       maritalStatus: '',
       profession: '',
+      rg: '',
       employerName: '',
-      monthlyIncome: '',
-      notes: '',
       emergencyContactName: '',
       emergencyContactPhone: '',
     })
@@ -379,7 +380,6 @@ export function Tenants() {
       email: '',
       document: '',
       phone: '',
-      mobilePhone: '',
       password: '',
       address: '',
       number: '',
@@ -394,9 +394,8 @@ export function Tenants() {
       nationality: '',
       maritalStatus: '',
       profession: '',
+      rg: '',
       employerName: '',
-      monthlyIncome: '',
-      notes: '',
       emergencyContactName: '',
       emergencyContactPhone: '',
     })
@@ -428,10 +427,10 @@ export function Tenants() {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       closeAllModals()
       setNewTenant({
-        document: '', name: '', phone: '', mobilePhone: '', email: '', password: '', birthDate: '',
+        document: '', name: '', phone: '', email: '', password: '', birthDate: '',
         cep: '', address: '', number: '', complement: '', neighborhood: '', city: '', state: '',
-        agencyId: '', brokerId: '', nationality: '', maritalStatus: '', profession: '',
-        employerName: '', monthlyIncome: '', notes: '', emergencyContactName: '', emergencyContactPhone: ''
+        agencyId: '', brokerId: '', nationality: '', maritalStatus: '', profession: '', rg: '',
+        employerName: '', emergencyContactName: '', emergencyContactPhone: ''
       })
       toast.success('Inquilino criado com sucesso')
     },
@@ -599,6 +598,10 @@ export function Tenants() {
         city: fullTenantDetails.city || '',
         state: fullTenantDetails.state || '',
         brokerId: fullTenantDetails.brokerId || '',
+        nationality: fullTenantDetails.nationality || '',
+        maritalStatus: fullTenantDetails.maritalStatus || '',
+        profession: fullTenantDetails.profession || '',
+        rg: fullTenantDetails.rg || '',
       })
       setShowEditModal(true)
     } catch (error) {
@@ -626,12 +629,12 @@ export function Tenants() {
     setShowWhatsAppModal(true)
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setNewTenant(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setEditForm(prev => ({ ...prev, [name]: value }))
   }
@@ -1089,6 +1092,56 @@ export function Tenants() {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <RGInput
+                    value={newTenant.rg || ''}
+                    onChange={(value) => setNewTenant(prev => ({ ...prev, rg: value }))}
+                    label="RG"
+                    placeholder="00.000.000-0"
+                    showValidation={true}
+                  />
+                  <div>
+                    <Label htmlFor="nationality">Nacionalidade</Label>
+                    <Input
+                      id="nationality"
+                      name="nationality"
+                      value={newTenant.nationality}
+                      onChange={handleInputChange}
+                      placeholder="Brasileira"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="maritalStatus">Estado Civil</Label>
+                    <select
+                      id="maritalStatus"
+                      name="maritalStatus"
+                      value={newTenant.maritalStatus}
+                      onChange={handleInputChange}
+                      className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                    >
+                      <option value="">Selecione...</option>
+                      <option value="Solteiro(a)">Solteiro(a)</option>
+                      <option value="Casado(a)">Casado(a)</option>
+                      <option value="Divorciado(a)">Divorciado(a)</option>
+                      <option value="Viúvo(a)">Viúvo(a)</option>
+                      <option value="União Estável">União Estável</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="profession">Profissão</Label>
+                    <Input
+                      id="profession"
+                      name="profession"
+                      value={newTenant.profession}
+                      onChange={handleInputChange}
+                      placeholder="Ex: Engenheiro"
+                    />
+                  </div>
+                </div>
+
                 {}
                 {isAdminOrCeo && agencies && agencies.length > 0 && (
                   <div>
@@ -1306,6 +1359,58 @@ export function Tenants() {
                     />
                   </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <RGInput
+                    value={editForm.rg}
+                    onChange={(value) => setEditForm(prev => ({ ...prev, rg: value }))}
+                    label="RG"
+                    placeholder="00.000.000-0"
+                    showValidation={true}
+                    id="edit-rg"
+                    name="rg"
+                  />
+                  <div>
+                    <Label htmlFor="edit-nationality">Nacionalidade</Label>
+                    <Input
+                      id="edit-nationality"
+                      name="nationality"
+                      value={editForm.nationality}
+                      onChange={handleEditInputChange}
+                      placeholder="Brasileira"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-maritalStatus">Estado Civil</Label>
+                    <select
+                      id="edit-maritalStatus"
+                      name="maritalStatus"
+                      value={editForm.maritalStatus}
+                      onChange={handleEditInputChange}
+                      className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                    >
+                      <option value="">Selecione...</option>
+                      <option value="Solteiro(a)">Solteiro(a)</option>
+                      <option value="Casado(a)">Casado(a)</option>
+                      <option value="Divorciado(a)">Divorciado(a)</option>
+                      <option value="Viúvo(a)">Viúvo(a)</option>
+                      <option value="União Estável">União Estável</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-profession">Profissão</Label>
+                    <Input
+                      id="edit-profession"
+                      name="profession"
+                      value={editForm.profession}
+                      onChange={handleEditInputChange}
+                      placeholder="Ex: Engenheiro"
+                    />
+                  </div>
+                </div>
               </div>
 
               {}
@@ -1390,7 +1495,7 @@ export function Tenants() {
 
         {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-          <DialogContent className="max-w-2xl mx-4 sm:mx-0">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
             <DialogHeader>
               <DialogTitle>Detalhes do Locatário</DialogTitle>
             </DialogHeader>
@@ -1404,18 +1509,21 @@ export function Tenants() {
                     </div>
                     <h3 className="text-lg font-semibold">Informações Pessoais</h3>
                   </div>
-
+                  {tenantDetail.token && (
+                    <div className="mb-4">
+                      <label className="text-sm font-medium text-muted-foreground">Token</label>
+                      <div className="text-sm font-mono bg-muted px-2 py-1 rounded inline-block">{tenantDetail.token}</div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Documento (CPF/CNPJ)</label>
+                      <div className="text-base">{tenantDetail.document || '-'}</div>
+                    </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Nome</label>
                       <div className="text-base">{tenantDetail.name || '-'}</div>
                     </div>
-                    {tenantDetail.token && (
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Token</label>
-                        <div className="text-sm font-mono bg-muted px-2 py-1 rounded inline-block">{tenantDetail.token}</div>
-                      </div>
-                    )}
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Telefone</label>
                       <div className="text-base">{tenantDetail.phone || '-'}</div>
@@ -1425,14 +1533,26 @@ export function Tenants() {
                       <div className="text-base">{tenantDetail.email || '-'}</div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Documento</label>
-                      <div className="text-base">{tenantDetail.document || '-'}</div>
-                    </div>
-                    <div>
                       <label className="text-sm font-medium text-muted-foreground">Data de Nascimento</label>
                       <div className="text-base">
                         {tenantDetail.birthDate ? new Date(tenantDetail.birthDate).toLocaleDateString('pt-BR') : '-'}
                       </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">RG</label>
+                      <div className="text-base">{tenantDetail.rg || '-'}</div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Nacionalidade</label>
+                      <div className="text-base">{tenantDetail.nationality || '-'}</div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Estado Civil</label>
+                      <div className="text-base">{tenantDetail.maritalStatus || '-'}</div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Profissão</label>
+                      <div className="text-base">{tenantDetail.profession || '-'}</div>
                     </div>
                   </div>
                 </div>

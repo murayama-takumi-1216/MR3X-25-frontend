@@ -257,10 +257,10 @@ export function AgencyUsers() {
                   <thead className="bg-muted/50">
                     <tr>
                       <th className="text-left p-4 font-semibold">Nome</th>
+                      <th className="text-left p-4 font-semibold">Email</th>
                       <th className="text-left p-4 font-semibold">Tipo</th>
                       <th className="text-left p-4 font-semibold">Status</th>
                       <th className="text-left p-4 font-semibold">Telefone</th>
-                      <th className="text-left p-4 font-semibold">Email</th>
                       <th className="text-left p-4 font-semibold">Ações</th>
                     </tr>
                   </thead>
@@ -276,6 +276,9 @@ export function AgencyUsers() {
                               </div>
                               <div className="font-medium">{userData.name || 'Sem nome'}</div>
                             </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="text-muted-foreground">{userData.email || '-'}</div>
                           </td>
                           <td className="p-4">
                             <Badge className={`${roleColors[userData.role as UserRole] || 'bg-gray-500'} text-white`}>
@@ -294,9 +297,6 @@ export function AgencyUsers() {
                           </td>
                           <td className="p-4">
                             <div className="text-muted-foreground">{userData.phone || '-'}</div>
-                          </td>
-                          <td className="p-4">
-                            <div className="text-muted-foreground">{userData.email || '-'}</div>
                           </td>
                           <td className="p-4">
                             <Button

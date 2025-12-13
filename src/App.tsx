@@ -79,6 +79,7 @@ import { Notifications } from './pages/dashboard/Notifications';
 import { Chat } from './pages/dashboard/Chat';
 import { Settings } from './pages/dashboard/Settings';
 import { ChangePassword } from './pages/dashboard/ChangePassword';
+import MyAccount from './pages/dashboard/MyAccount';
 import Reports from './pages/dashboard/Reports';
 import Plans from './pages/dashboard/Plans';
 import Billing from './pages/dashboard/Billing';
@@ -210,6 +211,7 @@ function App() {
               <Route path="chat" element={<Chat />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="change-password" element={<ChangePassword />} />
+              <Route path="my-account" element={<MyAccount />} />
 
               {}
               <Route path="tenant-dashboard" element={<TenantDashboard />} />

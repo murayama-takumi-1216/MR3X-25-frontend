@@ -20,7 +20,8 @@ import {
   Loader2,
   Crown,
   AlertTriangle,
-  Search
+  Search,
+  Users
 } from 'lucide-react'
 import { DocumentInput } from '@/components/ui/document-input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
@@ -912,14 +913,30 @@ export function Managers() {
 
         {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Detalhes do Gerente</DialogTitle>
             </DialogHeader>
             {managerDetail ? (
               <div className="space-y-6">
                 <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Users className="w-4 h-4 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold">Informações Pessoais</h3>
+                  </div>
+                  {managerDetail.token && (
+                    <div className="mb-4">
+                      <label className="text-sm font-medium text-muted-foreground">Token</label>
+                      <div className="text-sm font-mono bg-muted px-2 py-1 rounded inline-block">{managerDetail.token}</div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Documento (CPF/CNPJ)</label>
+                      <div className="text-base">{managerDetail.document || '-'}</div>
+                    </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Nome</label>
                       <div className="text-base">{managerDetail.name || '-'}</div>
@@ -933,10 +950,6 @@ export function Managers() {
                       <div className="text-base">{managerDetail.email || '-'}</div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Documento</label>
-                      <div className="text-base">{managerDetail.document || '-'}</div>
-                    </div>
-                    <div>
                       <label className="text-sm font-medium text-muted-foreground">Data de Nascimento</label>
                       <div className="text-base">
                         {managerDetail.birthDate ? new Date(managerDetail.birthDate).toLocaleDateString('pt-BR') : '-'}
@@ -946,14 +959,19 @@ export function Managers() {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Endereco</h3>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
+                      <MapPin className="w-4 h-4 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold">Endereço</h3>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">CEP</label>
                       <div className="text-base">{managerDetail.cep || '-'}</div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Endereco</label>
+                      <label className="text-sm font-medium text-muted-foreground">Endereço</label>
                       <div className="text-base">{managerDetail.address || '-'}</div>
                     </div>
                     <div>
@@ -973,7 +991,7 @@ export function Managers() {
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                Nao foi possivel carregar os detalhes do gerente.
+                Não foi possível carregar os detalhes do gerente.
               </div>
             )}
           </DialogContent>

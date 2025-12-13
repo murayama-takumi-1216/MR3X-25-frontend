@@ -2,70 +2,90 @@ import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, XCircle } from 'lucide-react';
-import { validateDocument } from '@/lib/validation';
 
-interface DocumentInputProps {
+interface RGInputProps {
   value: string;
   onChange: (value: string) => void;
-  id?: string;
   label?: string;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
   showValidation?: boolean;
+  id?: string;
+  name?: string;
 }
 
-export function DocumentInput({
+// Format RG as 00.000.000-0 (Brazilian format)
+function formatRG(value: string): string {
+  const digits = value.replace(/\D/g, '');
+
+  if (digits.length <= 2) {
+    return digits;
+  } else if (digits.length <= 5) {
+    return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+  } else if (digits.length <= 8) {
+    return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+  } else {
+    return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}-${digits.slice(8, 9)}`;
+  }
+}
+
+// Validate RG format (must have 9 digits)
+function validateRG(value: string): { isValid: boolean; error?: string } {
+  const digits = value.replace(/\D/g, '');
+
+  if (digits.length === 0) {
+    return { isValid: false };
+  }
+
+  if (digits.length < 9) {
+    return { isValid: false, error: 'RG incompleto' };
+  }
+
+  if (digits.length === 9) {
+    return { isValid: true };
+  }
+
+  return { isValid: false, error: 'RG inválido' };
+}
+
+export function RGInput({
   value,
   onChange,
-  id = 'document',
-  label = 'Documento',
-  placeholder = 'CPF ou CNPJ',
+  label = 'RG',
+  placeholder = '00.000.000-0',
   className,
   disabled = false,
   showValidation = true,
-}: DocumentInputProps) {
+  id = 'rg',
+  name = 'rg',
+}: RGInputProps) {
   const [localValue, setLocalValue] = useState(value);
-  const [validation, setValidation] = useState<{ isValid: boolean; error?: string; formatted?: string } | null>(null);
+  const [validation, setValidation] = useState<{ isValid: boolean; error?: string } | null>(null);
 
   useEffect(() => {
     setLocalValue(value);
   }, [value]);
 
   useEffect(() => {
-    const raw = localValue || '';
-    const hasAnyChar = /\d/.test(raw);
+    const digits = (localValue || '').replace(/\D/g, '');
 
-    if (hasAnyChar) {
-      const result = validateDocument(raw);
+    if (digits.length > 0) {
+      const result = validateRG(localValue);
       setValidation(result);
-
-      if (result.isValid && result.formatted) {
-        if (result.formatted !== localValue) {
-          setLocalValue(result.formatted);
-          onChange(result.formatted);
-        }
-      }
     } else {
       setValidation(null);
     }
-  }, [localValue, onChange]);
+  }, [localValue]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    const cleanValue = inputValue.replace(/\D/g, '');
+    const digits = inputValue.replace(/\D/g, '');
 
-    if (cleanValue.length > 14) return;
+    // Limit to 9 digits
+    if (digits.length > 9) return;
 
-    let formatted = inputValue;
-    if (cleanValue.length <= 11) {
-      
-      formatted = cleanValue.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    } else {
-      
-      formatted = cleanValue.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
-    }
-
+    const formatted = formatRG(inputValue);
     setLocalValue(formatted);
     onChange(formatted);
   };
@@ -82,6 +102,7 @@ export function DocumentInput({
       <div className="relative">
         <Input
           id={id}
+          name={name}
           value={localValue}
           onChange={handleInputChange}
           placeholder={placeholder}
@@ -102,9 +123,7 @@ export function DocumentInput({
         <p className="text-sm text-red-500 mt-1">{validation.error}</p>
       )}
       {validation && validation.isValid && (
-        <p className="text-sm text-green-600 mt-1">
-          {localValue.replace(/\D/g, '').length === 11 ? 'CPF válido' : 'CNPJ válido'}
-        </p>
+        <p className="text-sm text-green-600 mt-1">RG válido</p>
       )}
     </div>
   );

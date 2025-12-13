@@ -26,6 +26,7 @@ import {
 import { DocumentInput } from '@/components/ui/document-input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { CEPInput } from '@/components/ui/cep-input'
+import { RGInput } from '@/components/ui/rg-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -74,6 +75,10 @@ export function Owners() {
     neighborhood: '',
     city: '',
     state: '',
+    nationality: '',
+    maritalStatus: '',
+    profession: '',
+    rg: '',
   })
 
   const [editForm, setEditForm] = useState({
@@ -88,6 +93,10 @@ export function Owners() {
     neighborhood: '',
     city: '',
     state: '',
+    nationality: '',
+    maritalStatus: '',
+    profession: '',
+    rg: '',
   })
 
   const [selectedOwner, setSelectedOwner] = useState<any>(null)
@@ -200,7 +209,8 @@ export function Owners() {
       closeAllModals()
       setNewOwner({
         document: '', name: '', phone: '', email: '', password: '', birthDate: '',
-        cep: '', address: '', neighborhood: '', city: '', state: ''
+        cep: '', address: '', neighborhood: '', city: '', state: '',
+        nationality: '', maritalStatus: '', profession: '', rg: ''
       })
       toast.success('Imóvel criado com sucesso')
     },
@@ -355,6 +365,10 @@ export function Owners() {
         neighborhood: fullOwnerDetails.neighborhood || '',
         city: fullOwnerDetails.city || '',
         state: fullOwnerDetails.state || '',
+        nationality: fullOwnerDetails.nationality || '',
+        maritalStatus: fullOwnerDetails.maritalStatus || '',
+        profession: fullOwnerDetails.profession || '',
+        rg: fullOwnerDetails.rg || '',
       })
       setEmailVerified(true) // Current email is valid
       setShowEditModal(true)
@@ -376,12 +390,12 @@ export function Owners() {
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setNewOwner(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setEditForm(prev => ({ ...prev, [name]: value }))
   }
@@ -497,6 +511,7 @@ export function Owners() {
                   <thead className="bg-muted/50">
                     <tr>
                       <th className="text-left p-4 font-semibold">Nome</th>
+                      <th className="text-left p-4 font-semibold">Documento</th>
                       <th className="text-left p-4 font-semibold">Telefone</th>
                       <th className="text-left p-4 font-semibold">Email</th>
                       <th className="text-left p-4 font-semibold">Endereco</th>
@@ -511,6 +526,9 @@ export function Owners() {
                           {owner.token && (
                             <div className="text-[10px] text-muted-foreground font-mono">{owner.token}</div>
                           )}
+                        </td>
+                        <td className="p-4">
+                          <div className="text-muted-foreground">{owner.document || '-'}</div>
                         </td>
                         <td className="p-4">
                           <div className="text-muted-foreground">{owner.phone || '-'}</div>
@@ -561,9 +579,10 @@ export function Owners() {
                         {owner.token && (
                           <p className="text-[10px] text-muted-foreground font-mono">{owner.token}</p>
                         )}
+                        <p className="text-sm text-muted-foreground truncate">{owner.document || '-'}</p>
                         <p className="text-sm text-muted-foreground truncate">{owner.email || '-'}</p>
                       </div>
-                      <Badge className="bg-purple-500 text-white text-xs flex-shrink-0">Imóvel</Badge>
+                      <Badge className="bg-purple-500 text-white text-xs flex-shrink-0">Proprietário</Badge>
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline" onClick={() => handleViewOwner(owner)} className="text-orange-600 border-orange-600 hover:bg-orange-50 flex-1">
@@ -725,6 +744,44 @@ export function Owners() {
                     <Input id="birthDate" name="birthDate" type="date" value={newOwner.birthDate} onChange={handleInputChange} />
                   </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <RGInput
+                    value={newOwner.rg}
+                    onChange={(value) => setNewOwner(prev => ({ ...prev, rg: value }))}
+                    label="RG"
+                    placeholder="00.000.000-0"
+                    showValidation={true}
+                  />
+                  <div>
+                    <Label htmlFor="nationality">Nacionalidade</Label>
+                    <Input id="nationality" name="nationality" value={newOwner.nationality} onChange={handleInputChange} placeholder="Brasileira" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="maritalStatus">Estado Civil</Label>
+                    <select
+                      id="maritalStatus"
+                      name="maritalStatus"
+                      value={newOwner.maritalStatus}
+                      onChange={handleInputChange}
+                      className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                    >
+                      <option value="">Selecione...</option>
+                      <option value="Solteiro(a)">Solteiro(a)</option>
+                      <option value="Casado(a)">Casado(a)</option>
+                      <option value="Divorciado(a)">Divorciado(a)</option>
+                      <option value="Viúvo(a)">Viúvo(a)</option>
+                      <option value="União Estável">União Estável</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="profession">Profissão</Label>
+                    <Input id="profession" name="profession" value={newOwner.profession} onChange={handleInputChange} placeholder="Ex: Empresário" />
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -852,6 +909,46 @@ export function Owners() {
                     <Input id="edit-birthDate" name="birthDate" type="date" value={editForm.birthDate} onChange={handleEditInputChange} />
                   </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <RGInput
+                    value={editForm.rg}
+                    onChange={(value) => setEditForm(prev => ({ ...prev, rg: value }))}
+                    label="RG"
+                    placeholder="00.000.000-0"
+                    showValidation={true}
+                    id="edit-rg"
+                    name="rg"
+                  />
+                  <div>
+                    <Label htmlFor="edit-nationality">Nacionalidade</Label>
+                    <Input id="edit-nationality" name="nationality" value={editForm.nationality} onChange={handleEditInputChange} placeholder="Brasileira" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-maritalStatus">Estado Civil</Label>
+                    <select
+                      id="edit-maritalStatus"
+                      name="maritalStatus"
+                      value={editForm.maritalStatus}
+                      onChange={handleEditInputChange}
+                      className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                    >
+                      <option value="">Selecione...</option>
+                      <option value="Solteiro(a)">Solteiro(a)</option>
+                      <option value="Casado(a)">Casado(a)</option>
+                      <option value="Divorciado(a)">Divorciado(a)</option>
+                      <option value="Viúvo(a)">Viúvo(a)</option>
+                      <option value="União Estável">União Estável</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-profession">Profissão</Label>
+                    <Input id="edit-profession" name="profession" value={editForm.profession} onChange={handleEditInputChange} placeholder="Ex: Empresário" />
+                  </div>
+                </div>
               </div>
 
               {}
@@ -908,24 +1005,34 @@ export function Owners() {
 
         {}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Detalhes do Imóvel</DialogTitle>
+              <DialogTitle>Detalhes do Proprietário</DialogTitle>
             </DialogHeader>
             {ownerDetail ? (
               <div className="space-y-6">
                 <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Home className="w-4 h-4 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold">Informações Pessoais</h3>
+                  </div>
+                  {ownerDetail.token && (
+                    <div className="mb-4">
+                      <label className="text-sm font-medium text-muted-foreground">Token</label>
+                      <div className="text-sm font-mono bg-muted px-2 py-1 rounded inline-block">{ownerDetail.token}</div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Documento (CPF/CNPJ)</label>
+                      <div className="text-base">{ownerDetail.document || '-'}</div>
+                    </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Nome</label>
                       <div className="text-base">{ownerDetail.name || '-'}</div>
                     </div>
-                    {ownerDetail.token && (
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Token</label>
-                        <div className="text-sm font-mono bg-muted px-2 py-1 rounded inline-block">{ownerDetail.token}</div>
-                      </div>
-                    )}
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Telefone</label>
                       <div className="text-base">{ownerDetail.phone || '-'}</div>
@@ -935,27 +1042,44 @@ export function Owners() {
                       <div className="text-base">{ownerDetail.email || '-'}</div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Documento</label>
-                      <div className="text-base">{ownerDetail.document || '-'}</div>
-                    </div>
-                    <div>
                       <label className="text-sm font-medium text-muted-foreground">Data de Nascimento</label>
                       <div className="text-base">
                         {ownerDetail.birthDate ? new Date(ownerDetail.birthDate).toLocaleDateString('pt-BR') : '-'}
                       </div>
                     </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">RG</label>
+                      <div className="text-base">{ownerDetail.rg || '-'}</div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Nacionalidade</label>
+                      <div className="text-base">{ownerDetail.nationality || '-'}</div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Estado Civil</label>
+                      <div className="text-base">{ownerDetail.maritalStatus || '-'}</div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Profissão</label>
+                      <div className="text-base">{ownerDetail.profession || '-'}</div>
+                    </div>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Endereco</h3>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
+                      <MapPin className="w-4 h-4 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold">Endereço</h3>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">CEP</label>
                       <div className="text-base">{ownerDetail.cep || '-'}</div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Endereco</label>
+                      <label className="text-sm font-medium text-muted-foreground">Endereço</label>
                       <div className="text-base">{ownerDetail.address || '-'}</div>
                     </div>
                     <div>
@@ -975,7 +1099,7 @@ export function Owners() {
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                Não foi possível carregar os detalhes do imóvel.
+                Não foi possível carregar os detalhes do proprietário.
               </div>
             )}
           </DialogContent>

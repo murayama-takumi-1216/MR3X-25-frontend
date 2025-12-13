@@ -12,6 +12,7 @@ export interface User {
   name?: string;
   agencyId?: string;
   brokerId?: string;
+  creci?: string;
 }
 
 interface AuthContextType {
@@ -239,6 +240,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     plan: storeUser.plan,
     name: storeUser.name,
     agencyId: storeUser.agencyId,
+    creci: storeUser.creci,
   } : null;
 
   const isAuthenticated = storeIsAuthenticated;

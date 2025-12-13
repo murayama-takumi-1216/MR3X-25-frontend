@@ -10,6 +10,7 @@ interface User {
   emailVerified: boolean;
   agencyId?: string;
   agencyName?: string;
+  creci?: string;
 }
 
 interface AuthState {

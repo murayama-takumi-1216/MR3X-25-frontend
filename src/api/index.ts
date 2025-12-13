@@ -281,6 +281,42 @@ export const paymentsAPI = {
   },
 };
 
+export const profileAPI = {
+  getProfile: async () => {
+    const response = await apiClient.get('/users/me');
+    return response.data;
+  },
+
+  updateProfile: async (data: {
+    name?: string;
+    phone?: string;
+    document?: string;
+    address?: string;
+  }) => {
+    const response = await apiClient.put('/users/me', data);
+    return response.data;
+  },
+
+  uploadPhoto: async (file: File) => {
+    const formData = new FormData();
+    formData.append('photo', file);
+    const response = await apiClient.post('/users/me/photo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  deletePhoto: async () => {
+    const response = await apiClient.delete('/users/me/photo');
+    return response.data;
+  },
+
+  changePassword: async (data: { currentPassword: string; newPassword: string }) => {
+    const response = await apiClient.post('/users/me/change-password', data);
+    return response.data;
+  },
+};
+
 export const usersAPI = {
   listUsers: async (params: { search?: string; role?: string; status?: string; plan?: string; page?: number; pageSize?: number; excludeCurrentUser?: boolean } = {}) => {
     const { page = 1, pageSize = 10, excludeCurrentUser = true, ...otherParams } = params;

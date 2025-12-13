@@ -11,7 +11,22 @@ import {
   Database, GitCompare, Headphones, UserSearch, Gavel, UsersRound
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { chatAPI, notificationsAPI, extrajudicialNotificationsAPI } from '../api';
+import { chatAPI, notificationsAPI, extrajudicialNotificationsAPI, profileAPI } from '../api';
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081';
+
+// Get base URL without /api suffix for static files
+const getStaticBaseUrl = () => {
+  const url = API_BASE_URL;
+  return url.endsWith('/api') ? url.slice(0, -4) : url;
+};
+
+const getPhotoUrl = (photoUrl: string | null | undefined) => {
+  if (!photoUrl) return undefined;
+  if (photoUrl.startsWith('http')) return photoUrl;
+  return `${getStaticBaseUrl()}${photoUrl}`;
+};
 
 const baseNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home, perm: undefined },
@@ -25,7 +40,7 @@ const baseNavigation = [
   { name: 'Inquilinos', href: '/dashboard/tenants', icon: Users, perm: 'users:read' },
   { name: 'Análise de Inquilinos', href: '/dashboard/tenant-analysis', icon: UserSearch, perm: undefined },
   { name: 'Corretores', href: '/dashboard/brokers', icon: Briefcase, perm: 'users:read' },
-  { name: 'Proprietários', href: '/dashboard/owners', icon: UserCog, perm: 'users:read' },
+  { name: 'Proprietários', href: '/dashboard/owners', icon: User, perm: 'users:read' },
   { name: 'Diretor Agência', href: '/dashboard/agency-admin', icon: Crown, perm: undefined, roles: ['CEO', 'ADMIN'] },
   { name: 'Gerentes', href: '/dashboard/managers', icon: UserCheck, perm: 'users:read', roles: ['AGENCY_ADMIN'] },
   { name: 'Contratos', href: '/dashboard/contracts', icon: FileText, perm: 'contracts:read' },
@@ -48,7 +63,7 @@ const baseNavigation = [
   { name: 'Configuracoes', href: '/dashboard/settings', icon: Settings, perm: 'settings:read', roles: ['CEO', 'ADMIN', 'INDEPENDENT_OWNER'] },
   { name: 'Chat', href: '/dashboard/chat', icon: MessageSquare, perm: 'chat:read' },
   { name: 'Notificacoes', href: '/dashboard/notifications', icon: Bell, perm: 'notifications:read' },
-  { name: 'Alterar Senha', href: '/dashboard/change-password', icon: Key, perm: undefined },
+  { name: 'Minha Conta', href: '/dashboard/my-account', icon: UserCog, perm: undefined },
   
   { name: 'API Credentials', href: '/dashboard/api-credentials', icon: KeyRound, perm: undefined, roles: ['API_CLIENT'] },
   { name: 'Access Tokens', href: '/dashboard/api-tokens', icon: Code, perm: undefined, roles: ['API_CLIENT'] },
@@ -63,7 +78,7 @@ const baseNavigation = [
   { name: 'Métricas', href: '/dashboard/sales-metrics', icon: TrendingUp, perm: undefined, roles: ['REPRESENTATIVE'] },
   { name: 'Comissões', href: '/dashboard/sales-commissions', icon: Award, perm: undefined, roles: ['REPRESENTATIVE'] },
   { name: 'Mensagens', href: '/dashboard/sales-inbox', icon: Inbox, perm: undefined, roles: ['REPRESENTATIVE'] },
-  { name: 'Alterar Senha', href: '/dashboard/change-password', icon: Key, perm: undefined, roles: ['REPRESENTATIVE'] },
+  { name: 'Minha Conta', href: '/dashboard/my-account', icon: UserCog, perm: undefined, roles: ['REPRESENTATIVE'] },
   
   { name: 'Logs', href: '/dashboard/auditor-logs', icon: Activity, perm: undefined, roles: ['LEGAL_AUDITOR'] },
   { name: 'Assinaturas', href: '/dashboard/auditor-signatures', icon: FileSignature, perm: undefined, roles: ['LEGAL_AUDITOR'] },
@@ -75,7 +90,7 @@ const baseNavigation = [
   { name: 'Documentos', href: '/dashboard/auditor-documents', icon: FileText, perm: undefined, roles: ['LEGAL_AUDITOR'] },
   { name: 'Ferramentas', href: '/dashboard/auditor-tools', icon: GitCompare, perm: undefined, roles: ['LEGAL_AUDITOR'] },
   { name: 'Configurações', href: '/dashboard/auditor-settings', icon: Settings, perm: undefined, roles: ['LEGAL_AUDITOR'] },
-  { name: 'Alterar Senha', href: '/dashboard/change-password', icon: Key, perm: undefined, roles: ['LEGAL_AUDITOR'] },
+  { name: 'Minha Conta', href: '/dashboard/my-account', icon: UserCog, perm: undefined, roles: ['LEGAL_AUDITOR'] },
   
   { name: 'Agências', href: '/dashboard/manager-agencies', icon: Building, perm: undefined, roles: ['PLATFORM_MANAGER'] },
   { name: 'Suporte', href: '/dashboard/manager-support', icon: Headphones, perm: undefined, roles: ['PLATFORM_MANAGER'] },
@@ -84,7 +99,7 @@ const baseNavigation = [
   { name: 'Planos e Cobrança', href: '/dashboard/manager-billing', icon: Receipt, perm: undefined, roles: ['PLATFORM_MANAGER'] },
   { name: 'Configurações', href: '/dashboard/manager-settings', icon: Settings, perm: undefined, roles: ['PLATFORM_MANAGER'] },
   { name: 'Notificacoes', href: '/dashboard/notifications', icon: Bell, perm: undefined, roles: ['PLATFORM_MANAGER'] },
-  { name: 'Alterar Senha', href: '/dashboard/change-password', icon: Key, perm: undefined, roles: ['PLATFORM_MANAGER'] },
+  { name: 'Minha Conta', href: '/dashboard/my-account', icon: UserCog, perm: undefined, roles: ['PLATFORM_MANAGER'] },
 ];
 
 export function DashboardLayout() {
@@ -115,6 +130,13 @@ export function DashboardLayout() {
     queryFn: () => extrajudicialNotificationsAPI.getNotifications({}),
     enabled: isAuthenticated && user?.role === 'INQUILINO',
     refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  // Fetch user profile with photo
+  const { data: userProfile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: () => profileAPI.getProfile(),
+    enabled: isAuthenticated,
   });
 
   // Calculate unread counts
@@ -182,7 +204,7 @@ export function DashboardLayout() {
         '/dashboard/settings',
         '/dashboard/chat',
         '/dashboard/notifications',
-        '/dashboard/change-password',
+        '/dashboard/my-account',
       ];
       if (!allowedForCEO.includes(item.href)) return false;
     }
@@ -223,19 +245,19 @@ export function DashboardLayout() {
 
     if (user?.role === 'PLATFORM_MANAGER') {
       const allowForPlatformManager = [
-        '/dashboard',                       
-        '/dashboard/manager-agencies',      
-        '/dashboard/manager-support',       
-        '/dashboard/manager-users',         
-        '/dashboard/manager-logs',          
-        '/dashboard/manager-billing',       
-        '/dashboard/manager-settings',      
-        '/dashboard/notifications',         
-        '/dashboard/change-password',       
+        '/dashboard',
+        '/dashboard/manager-agencies',
+        '/dashboard/manager-support',
+        '/dashboard/manager-users',
+        '/dashboard/manager-logs',
+        '/dashboard/manager-billing',
+        '/dashboard/manager-settings',
+        '/dashboard/notifications',
+        '/dashboard/my-account',
       ];
       if (!allowForPlatformManager.includes(item.href)) return false;
-      
-      if ((item.href === '/dashboard/notifications' || item.href === '/dashboard/change-password') && !item.roles?.includes('PLATFORM_MANAGER')) {
+
+      if ((item.href === '/dashboard/notifications' || item.href === '/dashboard/my-account') && !item.roles?.includes('PLATFORM_MANAGER')) {
         return false;
       }
     }
@@ -274,9 +296,9 @@ export function DashboardLayout() {
         '/dashboard/documents',
         '/dashboard/notifications',
         '/dashboard/chat',
-        '/dashboard/change-password',
+        '/dashboard/my-account',
       ];
-      
+
       if (!allowForBroker.includes(item.href)) return false;
     }
 
@@ -328,7 +350,7 @@ export function DashboardLayout() {
         '/dashboard/extrajudicial-notifications',
         '/dashboard/chat',
         '/dashboard/notifications',
-        '/dashboard/change-password',
+        '/dashboard/my-account',
       ];
 
       if (!allowForInquilino.includes(item.href)) return false;
@@ -374,43 +396,43 @@ export function DashboardLayout() {
         '/dashboard/auditor-tools',
         '/dashboard/auditor-settings',
         '/dashboard/extrajudicial-notifications',
-        '/dashboard/change-password',
+        '/dashboard/my-account',
       ];
       if (!allowForAuditor.includes(item.href)) return false;
-      
-      if (item.href === '/dashboard/change-password' && !item.roles?.includes('LEGAL_AUDITOR')) {
+
+      if (item.href === '/dashboard/my-account' && !item.roles?.includes('LEGAL_AUDITOR')) {
         return false;
       }
     }
 
     if (user?.role === 'REPRESENTATIVE') {
       const allowForRepresentative = [
-        '/dashboard',                    
-        '/dashboard/sales-prospects',    
-        '/dashboard/sales-proposals',    
-        '/dashboard/sales-pipeline',     
-        '/dashboard/sales-metrics',      
-        '/dashboard/sales-commissions',  
-        '/dashboard/sales-inbox',        
-        '/dashboard/change-password',    
+        '/dashboard',
+        '/dashboard/sales-prospects',
+        '/dashboard/sales-proposals',
+        '/dashboard/sales-pipeline',
+        '/dashboard/sales-metrics',
+        '/dashboard/sales-commissions',
+        '/dashboard/sales-inbox',
+        '/dashboard/my-account',
       ];
       if (!allowForRepresentative.includes(item.href)) return false;
-      
-      if (item.href === '/dashboard/change-password' && !item.roles?.includes('REPRESENTATIVE')) {
+
+      if (item.href === '/dashboard/my-account' && !item.roles?.includes('REPRESENTATIVE')) {
         return false;
       }
     }
 
     if (user?.role === 'API_CLIENT') {
       const allowForApiClient = [
-        '/dashboard',                  
-        '/dashboard/api-credentials',  
-        '/dashboard/api-tokens',       
-        '/dashboard/api-logs',         
-        '/dashboard/api-webhooks',     
-        '/dashboard/api-docs',         
-        '/dashboard/api-settings',     
-        '/dashboard/change-password',  
+        '/dashboard',
+        '/dashboard/api-credentials',
+        '/dashboard/api-tokens',
+        '/dashboard/api-logs',
+        '/dashboard/api-webhooks',
+        '/dashboard/api-docs',
+        '/dashboard/api-settings',
+        '/dashboard/my-account',
       ];
       if (!allowForApiClient.includes(item.href)) return false;
     }
@@ -476,9 +498,15 @@ export function DashboardLayout() {
             {user && (
               <div className="mt-4 pt-4 border-t border-sidebar-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-primary" />
-                  </div>
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage
+                      src={getPhotoUrl(userProfile?.photoUrl)}
+                      alt={user.name || user.email}
+                    />
+                    <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                      {(user.name || user.email || '').charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">
                       {user.name || user.email}

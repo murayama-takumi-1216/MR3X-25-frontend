@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, LogIn, Loader2, UserPlus, KeyRound } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 
 export function Login() {
   const navigate = useNavigate();
@@ -17,88 +21,123 @@ export function Login() {
       await login(email, password);
       navigate('/dashboard');
     } catch (error) {
-      
       console.error('Login error:', error);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 px-4 py-6 sm:py-8">
       <div className="w-full max-w-md">
-        <div className="bg-card border border-border rounded-lg shadow-lg p-6 sm:p-8">
-          <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">MR3X</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">Gestão de Aluguéis</p>
-          </div>
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-primary">MR3X</h1>
+          <p className="text-sm text-muted-foreground mt-1">Gestão de Aluguéis</p>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                className="w-full px-4 py-2.5 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
-                placeholder="seu@email.com"
-              />
-            </div>
+        <Card className="shadow-lg border-border/50">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-xl sm:text-2xl">Bem-vindo de volta</CardTitle>
+            <CardDescription className="text-sm">
+              Entre com suas credenciais para acessar sua conta
+            </CardDescription>
+          </CardHeader>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-2">
-                Senha
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                  className="w-full px-4 py-2.5 pr-10 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-base"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                    className="pl-10"
+                    placeholder="seu@email.com"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Senha</Label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Esqueceu a senha?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                    className="pl-10 pr-10"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={loading || !email || !password}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Entrando...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-4 h-4" />
+                    Entrar
+                  </>
+                )}
+              </Button>
+            </form>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">ou</span>
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2.5 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base"
-            >
-              {loading ? 'Entrando...' : 'Entrar'}
-            </button>
-          </form>
+            <div className="space-y-3">
+              <Button
+                variant="outline"
+                className="w-full"
+                asChild
+              >
+                <Link to="/auth/register">
+                  <UserPlus className="w-4 h-4" />
+                  Criar nova conta
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-          <div className="mt-4 sm:mt-6 text-center space-y-2">
-            <Link
-              to="/auth/register"
-              className="block text-sm text-primary hover:underline font-medium"
-            >
-              Criar nova conta
-            </Link>
-            <Link
-              to="/forgot-password"
-              className="block text-sm text-muted-foreground hover:text-foreground"
-            >
-              Esqueceu a senha?
-            </Link>
-          </div>
-        </div>
-
-        <p className="text-center text-sm text-muted-foreground mt-8">
+        <p className="text-center text-xs text-muted-foreground mt-6">
           Sistema de Gestão de Aluguéis
         </p>
       </div>

@@ -21,6 +21,7 @@ export interface CompleteRegistrationRequest {
   name: string;
   phone?: string;
   document?: string;
+  creci?: string;
   address?: string;
   cep?: string;
   neighborhood?: string;
@@ -29,6 +30,10 @@ export interface CompleteRegistrationRequest {
   state?: string;
   agencyName?: string;
   agencyCnpj?: string;
+  agencyCreci?: string;
+  agencyCreciState?: string;
+  representativeName?: string;
+  representativeDocument?: string;
 }
 
 export interface AuthResponse {

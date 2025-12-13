@@ -790,7 +790,7 @@ export function Contracts() {
     const replacements: Record<string, string> = {
       // Corretor/Broker
       NOME_CORRETOR: agencyData?.name || user?.name || '',
-      CRECI_CORRETOR: contractData.creci || agencyData?.creci || '',
+      CRECI_CORRETOR: contractData.creci || agencyData?.creci || user?.creci || '',
 
       // Locador (Owner) - PF
       NOME_LOCADOR: contractOwner?.name || '',
@@ -828,7 +828,7 @@ export function Contracts() {
       // Imobiliária (Agency)
       RAZAO_SOCIAL_IMOBILIARIA: agencyData?.name || contractData.agency?.name || '',
       CNPJ_IMOBILIARIA: formatDocument(agencyData?.cnpj || contractData.agency?.cnpj) || '',
-      NUMERO_CRECI: agencyData?.creci || contractData.creci || '',
+      NUMERO_CRECI: agencyData?.creci || user?.creci || contractData.creci || '',
       ENDERECO_IMOBILIARIA: formatAddress(agencyData || contractData.agency) || '',
       EMAIL_IMOBILIARIA: agencyData?.email || contractData.agency?.email || '',
       TELEFONE_IMOBILIARIA: agencyData?.phone || contractData.agency?.phone || '',
@@ -839,9 +839,9 @@ export function Contracts() {
       PRAZO_MESES: calculateMonths(contractData.startDate, contractData.endDate),
       DATA_INICIO: contractData.startDate ? new Date(contractData.startDate).toLocaleDateString('pt-BR') : '',
       DATA_FIM: contractData.endDate ? new Date(contractData.endDate).toLocaleDateString('pt-BR') : '',
-      VALOR_ALUGUEL: contractData.monthlyRent ? `R$ ${parseFloat(contractData.monthlyRent).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '',
+      VALOR_ALUGUEL: contractData.monthlyRent ? parseFloat(contractData.monthlyRent).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
       DIA_VENCIMENTO: contractData.dueDay?.toString() || '5',
-      DEPOSITO_CAUCAO: contractData.deposit ? `R$ ${parseFloat(contractData.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '',
+      DEPOSITO_CAUCAO: contractData.deposit ? parseFloat(contractData.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
 
       // Índice de Reajuste
       INDICE_REAJUSTE: getIndexName(contractData.readjustmentIndex || 'IGPM'),
@@ -850,8 +850,8 @@ export function Contracts() {
       TIPO_GARANTIA: getGuaranteeTypeName(contractData.guaranteeType || ''),
 
       // Multas e Juros
-      MULTA_ATRASO: `${contractData.lateFeePercent || '10'}%`,
-      JUROS_MORA: `${contractData.interestRatePercent || '1'}%`,
+      MULTA_ATRASO: contractData.lateFeePercent?.toString() || '10',
+      JUROS_MORA: contractData.interestRatePercent?.toString() || '1',
       PERCENTUAL_MULTA_ATRASO: contractData.lateFeePercent?.toString() || '10',
       PERCENTUAL_JUROS_MORA: contractData.interestRatePercent?.toString() || '1',
 
@@ -1050,7 +1050,7 @@ export function Contracts() {
     const replacements: Record<string, string> = {
       // Corretor/Broker
       NOME_CORRETOR: agencyData?.name || user?.name || '',
-      CRECI_CORRETOR: newContract.creci || agencyData?.creci || '',
+      CRECI_CORRETOR: newContract.creci || agencyData?.creci || user?.creci || '',
 
       // Locador (Owner) - PF (both naming conventions)
       NOME_LOCADOR: owner?.name || '',
@@ -1121,9 +1121,9 @@ export function Contracts() {
       IMOVEL_TIPO: selectedProperty?.type || selectedProperty?.propertyType || 'Residencial',
       IMOVEL_MOVEIS_LISTA: selectedProperty?.furnitureList || 'Conforme vistoria',
       IMOVEL_ENERGIA: selectedProperty?.energyPattern || 'Monofásico',
-      IMOVEL_CONDOMINIO: selectedProperty?.condominiumName || '',
-      IMOVEL_CONDOMINIO_VALOR: selectedProperty?.condominiumFee ? `R$ ${parseFloat(selectedProperty.condominiumFee).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '',
-      IMOVEL_IPTU_VALOR: selectedProperty?.iptuValue ? `R$ ${parseFloat(selectedProperty.iptuValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '',
+      IMOVEL_CONDOMINIO: selectedProperty?.condominiumName || 'N/A',
+      IMOVEL_CONDOMINIO_VALOR: selectedProperty?.condominiumFee ? `R$ ${parseFloat(selectedProperty.condominiumFee).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'N/A',
+      IMOVEL_IPTU_VALOR: selectedProperty?.iptuValue ? `R$ ${parseFloat(selectedProperty.iptuValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'N/A',
 
       // Imobiliária (Agency) - both naming conventions
       RAZAO_SOCIAL_IMOBILIARIA: agencyData?.name || '',
@@ -1131,8 +1131,8 @@ export function Contracts() {
       IMOBILIARIA_NOME_FANTASIA: agencyData?.tradeName || agencyData?.name || '',
       CNPJ_IMOBILIARIA: formatDocument(agencyData?.cnpj) || '',
       IMOBILIARIA_CNPJ: formatDocument(agencyData?.cnpj) || '',
-      NUMERO_CRECI: agencyData?.creci || newContract.creci || '',
-      IMOBILIARIA_CRECI: agencyData?.creci || newContract.creci || '',
+      NUMERO_CRECI: agencyData?.creci || user?.creci || newContract.creci || '',
+      IMOBILIARIA_CRECI: agencyData?.creci || user?.creci || newContract.creci || '',
       ENDERECO_IMOBILIARIA: formatAddress(agencyData) || '',
       IMOBILIARIA_ENDERECO: formatAddress(agencyData) || '',
       EMAIL_IMOBILIARIA: agencyData?.email || '',
@@ -1148,10 +1148,10 @@ export function Contracts() {
       PRAZO_MESES: calculateMonths(newContract.startDate, newContract.endDate),
       DATA_INICIO: newContract.startDate ? new Date(newContract.startDate).toLocaleDateString('pt-BR') : '',
       DATA_FIM: newContract.endDate ? new Date(newContract.endDate).toLocaleDateString('pt-BR') : '',
-      VALOR_ALUGUEL: newContract.monthlyRent ? `R$ ${parseFloat(newContract.monthlyRent).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '',
+      VALOR_ALUGUEL: newContract.monthlyRent ? parseFloat(newContract.monthlyRent).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
       DIA_VENCIMENTO: newContract.dueDay || '5',
-      DEPOSITO_CAUCAO: newContract.deposit ? `R$ ${parseFloat(newContract.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '',
-      VALOR_GARANTIA: newContract.deposit ? `R$ ${parseFloat(newContract.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '',
+      DEPOSITO_CAUCAO: newContract.deposit ? parseFloat(newContract.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
+      VALOR_GARANTIA: newContract.deposit ? parseFloat(newContract.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
 
       // Índice de Reajuste (Cláusula 3)
       INDICE_REAJUSTE: newContract.readjustmentIndex === 'OUTRO'
@@ -1162,9 +1162,9 @@ export function Contracts() {
       TIPO_GARANTIA: getGuaranteeTypeName(newContract.guaranteeType),
 
       // Multas e Juros (editáveis pelas partes)
-      MULTA_ATRASO: `${newContract.latePaymentPenaltyPercent || '10'}%`,
-      JUROS_MORA: `${newContract.monthlyInterestPercent || '1'}%`,
-      JUROS_ATRASO: `${newContract.monthlyInterestPercent || '1'}%`,
+      MULTA_ATRASO: newContract.latePaymentPenaltyPercent || '10',
+      JUROS_MORA: newContract.monthlyInterestPercent || '1',
+      JUROS_ATRASO: newContract.monthlyInterestPercent || '1',
       PERCENTUAL_MULTA_ATRASO: newContract.latePaymentPenaltyPercent || '10',
       PERCENTUAL_JUROS_MORA: newContract.monthlyInterestPercent || '1',
 
@@ -1257,11 +1257,8 @@ export function Contracts() {
       if (newContract.useFixedTerminationValue && newContract.earlyTerminationFixedValue) {
         return `R$ ${parseFloat(newContract.earlyTerminationFixedValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
       }
-      if (newContract.monthlyRent && newContract.earlyTerminationPenaltyMonths) {
-        const value = parseFloat(newContract.monthlyRent) * parseFloat(newContract.earlyTerminationPenaltyMonths);
-        return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-      }
-      return '';
+      const months = newContract.earlyTerminationPenaltyMonths || '3';
+      return `${months} meses de aluguel`;
     }
 
     // Helper function to format date in extensive format (por extenso)
@@ -1847,26 +1844,6 @@ export function Contracts() {
                 )}
               </div>
 
-              {}
-              <div>
-                <Label htmlFor="creci" className="flex items-center gap-1">
-                  CRECI do Corretor
-                  <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="creci"
-                  name="creci"
-                  value={newContract.creci}
-                  onChange={handleInputChange}
-                  placeholder="Ex: 123456/SP ou CRECI/SP 123456"
-                  className={!newContract.creci ? 'border-red-300' : ''}
-                  required
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Obrigatório por lei (Lei 6.530/78). Formato: 123456/SP ou CRECI/SP 123456
-                </p>
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="propertyId">Imóvel</Label>
@@ -2199,20 +2176,6 @@ export function Contracts() {
                 </div>
               </div>
 
-              {/* Características do Imóvel */}
-              <div>
-                <Label htmlFor="propertyCharacteristics">Características do Imóvel (Cláusula 3)</Label>
-                <textarea
-                  id="propertyCharacteristics"
-                  name="propertyCharacteristics"
-                  className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  value={newContract.propertyCharacteristics}
-                  onChange={(e) => setNewContract(prev => ({ ...prev, propertyCharacteristics: e.target.value }))}
-                  placeholder="Descreva as condições e características do imóvel conforme vistoria: estado de conservação, instalações, equipamentos, mobília, etc."
-                />
-                <p className="text-xs text-muted-foreground mt-1">Dados da vistoria do imóvel que serão incluídos no contrato</p>
-              </div>
-
               <div className="flex justify-between gap-2">
                 {selectedTemplate && previewContent && (
                   <Button
@@ -2273,8 +2236,8 @@ export function Contracts() {
                     </div>
                     <div>
                       <span className="font-medium">CRECI:</span>{' '}
-                      <span className={!(selectedContract?.creci || newContract.creci || agencyData?.creci) ? 'text-red-500 font-semibold' : ''}>
-                        {selectedContract?.creci || newContract.creci || agencyData?.creci || '⚠️ OBRIGATÓRIO'}
+                      <span className={!(selectedContract?.creci || newContract.creci || agencyData?.creci || user?.creci) ? 'text-red-500 font-semibold' : ''}>
+                        {selectedContract?.creci || newContract.creci || agencyData?.creci || user?.creci || '⚠️ OBRIGATÓRIO'}
                       </span>
                     </div>
                     <div>
@@ -2303,7 +2266,7 @@ export function Contracts() {
                       </span>
                     </div>
                   </div>
-                  {!(selectedContract?.creci || newContract.creci || agencyData?.creci) && (
+                  {!(selectedContract?.creci || newContract.creci || agencyData?.creci || user?.creci) && (
                     <p className="text-red-500 text-xs mt-2">
                       * O CRECI do corretor é obrigatório por lei para validade do contrato
                     </p>
