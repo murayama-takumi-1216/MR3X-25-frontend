@@ -766,10 +766,16 @@ const LGPDDisclaimerModal = ({
           <AlertDescription className="text-amber-800">
             <p className="font-semibold mb-2">Termo de Responsabilidade</p>
             <p className="text-sm leading-relaxed">
-              O usuário se responsabiliza pelo uso indevido dos dados pesquisados conforme determina a LGPD (Lei Geral de Proteção de Dados).
+              O usuário declara estar ciente de que os dados acessados nesta plataforma destinam-se exclusivamente à análise de risco e apoio à tomada de decisão contratual, sendo vedado qualquer uso diverso, ilícito ou discriminatório, nos termos da Lei nº 13.709/2018 (LGPD) e da Constituição Federal.
             </p>
             <p className="text-sm leading-relaxed mt-2">
-              A plataforma possui auditoria constante, ficando armazenados os logs de acesso e uso nos moldes da Lei.
+              A MR3X atua como operadora de dados, realizando o tratamento conforme as finalidades informadas pelo usuário, não se responsabilizando por decisões comerciais, jurídicas ou contratuais, que são de responsabilidade exclusiva do solicitante da análise.
+            </p>
+            <p className="text-sm leading-relaxed mt-2">
+              Todos os acessos, consultas e operações são registrados, auditados e armazenados, com identificação de data, hora, IP e localização aproximada, para fins de segurança, conformidade legal e prestação de contas.
+            </p>
+            <p className="text-sm leading-relaxed mt-2 font-medium">
+              Ao prosseguir, o usuário declara possuir base legal válida para a consulta e assume total responsabilidade pelo uso das informações obtidas.
             </p>
           </AlertDescription>
         </Alert>

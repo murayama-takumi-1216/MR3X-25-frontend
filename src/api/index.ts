@@ -291,7 +291,17 @@ export const profileAPI = {
     name?: string;
     phone?: string;
     document?: string;
+    creci?: string;
     address?: string;
+    cep?: string;
+    neighborhood?: string;
+    city?: string;
+    state?: string;
+    // Agency fields
+    agencyName?: string;
+    agencyCnpj?: string;
+    representativeName?: string;
+    representativeDocument?: string;
   }) => {
     const response = await apiClient.put('/users/me', data);
     return response.data;

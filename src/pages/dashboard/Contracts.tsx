@@ -1070,16 +1070,16 @@ export function Contracts() {
       LOCADOR_DATA_NASC: owner?.birthDate ? new Date(owner.birthDate).toLocaleDateString('pt-BR') : '',
 
       // Locador (Owner) - PJ
-      RAZAO_SOCIAL_LOCADOR: owner?.companyName || owner?.name || '',
-      LOCADOR_RAZAO_SOCIAL: owner?.companyName || owner?.name || '',
-      CNPJ_LOCADOR: formatDocument(owner?.cnpj || owner?.document) || '',
-      LOCADOR_CNPJ: formatDocument(owner?.cnpj || owner?.document) || '',
-      REPRESENTANTE_LOCADOR: owner?.representativeName || owner?.name || '',
-      LOCADOR_REPRESENTANTE: owner?.representativeName || owner?.name || '',
-      CPF_REPRESENTANTE_LOCADOR: formatDocument(owner?.representativeDocument || owner?.document) || '',
-      LOCADOR_REP_DOC: formatDocument(owner?.representativeDocument || owner?.document) || '',
-      CARGO_LOCADOR: owner?.representativePosition || '',
-      LOCADOR_CARGO: owner?.representativePosition || '',
+      RAZAO_SOCIAL_LOCADOR: owner?.company?.name || owner?.name || '',
+      LOCADOR_RAZAO_SOCIAL: owner?.company?.name || owner?.name || '',
+      CNPJ_LOCADOR: formatDocument(owner?.company?.cnpj || owner?.document) || '',
+      LOCADOR_CNPJ: formatDocument(owner?.company?.cnpj || owner?.document) || '',
+      REPRESENTANTE_LOCADOR: owner?.company?.responsible || owner?.name || '',
+      LOCADOR_REPRESENTANTE: owner?.company?.responsible || owner?.name || '',
+      CPF_REPRESENTANTE_LOCADOR: formatDocument(owner?.document) || '',
+      LOCADOR_REP_DOC: formatDocument(owner?.document) || '',
+      CARGO_LOCADOR: '',
+      LOCADOR_CARGO: '',
 
       // Locatário (Tenant) - PF (both naming conventions)
       NOME_LOCATARIO: selectedTenant?.name || '',
@@ -1100,16 +1100,21 @@ export function Contracts() {
       LOCATARIO_DATA_NASC: selectedTenant?.birthDate ? new Date(selectedTenant.birthDate).toLocaleDateString('pt-BR') : '',
 
       // Locatário (Tenant) - PJ
-      RAZAO_SOCIAL_LOCATARIO: selectedTenant?.companyName || selectedTenant?.name || '',
-      LOCATARIO_RAZAO_SOCIAL: selectedTenant?.companyName || selectedTenant?.name || '',
-      CNPJ_LOCATARIO: formatDocument(selectedTenant?.cnpj || selectedTenant?.document) || '',
-      LOCATARIO_CNPJ: formatDocument(selectedTenant?.cnpj || selectedTenant?.document) || '',
-      REPRESENTANTE_LOCATARIO: selectedTenant?.representativeName || selectedTenant?.name || '',
-      LOCATARIO_REPRESENTANTE: selectedTenant?.representativeName || selectedTenant?.name || '',
-      CPF_REPRESENTANTE_LOCATARIO: formatDocument(selectedTenant?.representativeDocument || selectedTenant?.document) || '',
-      LOCATARIO_REP_DOC: formatDocument(selectedTenant?.representativeDocument || selectedTenant?.document) || '',
-      CARGO_LOCATARIO: selectedTenant?.representativePosition || '',
-      LOCATARIO_CARGO: selectedTenant?.representativePosition || '',
+      RAZAO_SOCIAL_LOCATARIO: selectedTenant?.company?.name || selectedTenant?.name || '',
+      LOCATARIO_RAZAO_SOCIAL: selectedTenant?.company?.name || selectedTenant?.name || '',
+      CNPJ_LOCATARIO: formatDocument(selectedTenant?.company?.cnpj || selectedTenant?.document) || '',
+      LOCATARIO_CNPJ: formatDocument(selectedTenant?.company?.cnpj || selectedTenant?.document) || '',
+      REPRESENTANTE_LOCATARIO: selectedTenant?.company?.responsible || selectedTenant?.name || '',
+      LOCATARIO_REPRESENTANTE: selectedTenant?.company?.responsible || selectedTenant?.name || '',
+      CPF_REPRESENTANTE_LOCATARIO: formatDocument(selectedTenant?.document) || '',
+      LOCATARIO_REP_DOC: formatDocument(selectedTenant?.document) || '',
+      CARGO_LOCATARIO: '',
+      LOCATARIO_CARGO: '',
+
+      // Additional tenant fields
+      LOCATARIO_EMPREGADOR: selectedTenant?.employerName || '',
+      CONTATO_EMERGENCIA_NOME: selectedTenant?.emergencyContactName || '',
+      CONTATO_EMERGENCIA_TELEFONE: selectedTenant?.emergencyContactPhone || '',
 
       // Imóvel (Property) - both naming conventions
       ENDERECO_IMOVEL: formatAddress(selectedProperty) || selectedProperty?.address || '',

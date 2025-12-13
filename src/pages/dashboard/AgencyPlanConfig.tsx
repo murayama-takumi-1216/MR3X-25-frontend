@@ -539,11 +539,26 @@ export function AgencyPlanConfig() {
 
       {}
       <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Confirmar Mudança de Plano</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              {previewData && !previewData.isUpgrade ? (
+                <>
+                  <ArrowDownCircle className="w-5 h-5 text-amber-600" />
+                  Confirmar Downgrade de Plano
+                </>
+              ) : (
+                <>
+                  <ArrowUpCircle className="w-5 h-5 text-green-600" />
+                  Confirmar Upgrade de Plano
+                </>
+              )}
+            </DialogTitle>
             <DialogDescription>
-              Revise as alterações antes de confirmar
+              {previewData && !previewData.isUpgrade
+                ? 'Atenção: O downgrade pode afetar seus recursos ativos'
+                : 'Revise as alterações antes de confirmar'
+              }
             </DialogDescription>
           </DialogHeader>
           {previewData && (
@@ -553,7 +568,11 @@ export function AgencyPlanConfig() {
                   <p className="text-sm text-muted-foreground">De</p>
                   <p className="font-medium">{getPlanNameInPortuguese(previewData.currentPlan)}</p>
                 </div>
-                <ArrowUpCircle className="w-5 h-5 text-muted-foreground" />
+                {previewData.isUpgrade ? (
+                  <ArrowUpCircle className="w-5 h-5 text-green-500" />
+                ) : (
+                  <ArrowDownCircle className="w-5 h-5 text-amber-500" />
+                )}
                 <div className="text-right">
                   <p className="text-sm text-muted-foreground">Para</p>
                   <p className="font-medium">{getPlanNameInPortuguese(previewData.newPlan)}</p>
@@ -562,8 +581,8 @@ export function AgencyPlanConfig() {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span>Limite de Imóveis</span>
-                  <span>
+                  <span>Limite de Contratos Ativos</span>
+                  <span className={!previewData.isUpgrade && (previewData.newLimits?.properties ?? 0) < (previewData.currentLimits?.properties ?? 0) ? 'text-amber-600 font-medium' : ''}>
                     {previewData.currentLimits?.properties === -1 ? 'Ilimitado' : (previewData.currentLimits?.properties ?? 0)}
                     {' '}&rarr;{' '}
                     {previewData.newLimits?.properties === -1 ? 'Ilimitado' : (previewData.newLimits?.properties ?? 0)}
@@ -571,7 +590,7 @@ export function AgencyPlanConfig() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span>Limite de Usuários</span>
-                  <span>
+                  <span className={!previewData.isUpgrade && (previewData.newLimits?.users ?? 0) < (previewData.currentLimits?.users ?? 0) ? 'text-amber-600 font-medium' : ''}>
                     {previewData.currentLimits?.users === -1 ? 'Ilimitado' : (previewData.currentLimits?.users ?? 0)}
                     {' '}&rarr;{' '}
                     {previewData.newLimits?.users === -1 ? 'Ilimitado' : (previewData.newLimits?.users ?? 0)}
@@ -579,12 +598,13 @@ export function AgencyPlanConfig() {
                 </div>
               </div>
 
+              {/* Upgrade benefits */}
               {(previewData.willUnfreeze?.properties ?? 0) > 0 || (previewData.willUnfreeze?.users ?? 0) > 0 ? (
                 <Alert className="border-green-300 bg-green-50">
                   <Unlock className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-800 text-sm">
                     {(previewData.willUnfreeze?.properties ?? 0) > 0 && (
-                      <span>{previewData.willUnfreeze?.properties} imóvel(eis) serão desbloqueados. </span>
+                      <span>{previewData.willUnfreeze?.properties} contrato(s) serão desbloqueados. </span>
                     )}
                     {(previewData.willUnfreeze?.users ?? 0) > 0 && (
                       <span>{previewData.willUnfreeze?.users} usuário(s) serão reativados.</span>
@@ -593,33 +613,159 @@ export function AgencyPlanConfig() {
                 </Alert>
               ) : null}
 
-              {(previewData.willFreeze?.properties ?? 0) > 0 || (previewData.willFreeze?.users ?? 0) > 0 ? (
+              {/* Downgrade Aftereffects Section */}
+              {!previewData.isUpgrade && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-amber-700">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span className="font-semibold text-sm">Consequências do Downgrade</span>
+                  </div>
+
+                  {/* Current Usage Summary */}
+                  <div className="bg-gray-100 border rounded-lg p-3 space-y-2">
+                    <p className="text-xs font-semibold text-gray-700">Situação Atual:</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Contratos ativos:</span>
+                        <span className="font-medium">{previewData.currentUsage?.properties ?? 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Usuários ativos:</span>
+                        <span className="font-medium">{previewData.currentUsage?.users ?? 0}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-4">
+                    {/* Frozen contracts warning */}
+                    {(previewData.willFreeze?.properties ?? 0) > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                          <p className="text-sm font-semibold text-amber-800">Contratos</p>
+                        </div>
+                        <div className="ml-6 space-y-1">
+                          <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
+                            <span className="text-gray-600">Você tem atualmente:</span>
+                            <span className="font-bold text-gray-800">{previewData.currentUsage?.properties ?? 0} contratos ativos</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
+                            <span className="text-gray-600">Novo limite do plano:</span>
+                            <span className="font-bold text-amber-700">{previewData.newLimits?.properties ?? 0} contratos</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-red-100 p-2 rounded border border-red-200">
+                            <span className="text-red-700 font-medium">Serão congelados:</span>
+                            <span className="font-bold text-red-700">{previewData.willFreeze?.properties} contrato(s)</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-green-100 p-2 rounded border border-green-200">
+                            <span className="text-green-700 font-medium">Permanecerão ativos:</span>
+                            <span className="font-bold text-green-700">{previewData.newLimits?.properties ?? 0} contrato(s) mais antigos</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Frozen users warning */}
+                    {(previewData.willFreeze?.users ?? 0) > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                          <p className="text-sm font-semibold text-amber-800">Usuários</p>
+                        </div>
+                        <div className="ml-6 space-y-1">
+                          <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
+                            <span className="text-gray-600">Você tem atualmente:</span>
+                            <span className="font-bold text-gray-800">{previewData.currentUsage?.users ?? 0} usuários ativos</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
+                            <span className="text-gray-600">Novo limite do plano:</span>
+                            <span className="font-bold text-amber-700">{previewData.newLimits?.users ?? 0} usuários</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-red-100 p-2 rounded border border-red-200">
+                            <span className="text-red-700 font-medium">Serão desativados:</span>
+                            <span className="font-bold text-red-700">{previewData.willFreeze?.users} usuário(s)</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-green-100 p-2 rounded border border-green-200">
+                            <span className="text-green-700 font-medium">Permanecerão ativos:</span>
+                            <span className="font-bold text-green-700">{previewData.newLimits?.users ?? 0} usuário(s) mais antigos</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* General downgrade warning */}
+                    {(previewData.willFreeze?.properties ?? 0) === 0 && (previewData.willFreeze?.users ?? 0) === 0 && (
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-amber-800">
+                            Nenhum recurso será congelado no momento. No entanto, você terá limites menores.
+                            Se no futuro exceder esses limites, novos itens serão automaticamente congelados.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Aftereffects summary */}
+                  <div className="bg-gray-50 border rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground font-medium mb-2">O que acontece após o downgrade:</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li className="flex items-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-gray-400" />
+                        Recursos congelados ficam inacessíveis até fazer upgrade
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-gray-400" />
+                        Contratos congelados não podem ser editados ou gerar cobranças
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-gray-400" />
+                        Usuários desativados não podem fazer login no sistema
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-gray-400" />
+                        Dados não são excluídos, apenas ficam inacessíveis
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {/* Simple freeze warning for cases not covered above */}
+              {previewData.isUpgrade && ((previewData.willFreeze?.properties ?? 0) > 0 || (previewData.willFreeze?.users ?? 0) > 0) && (
                 <Alert className="border-amber-300 bg-amber-50">
                   <Lock className="h-4 w-4 text-amber-600" />
                   <AlertDescription className="text-amber-800 text-sm">
                     {(previewData.willFreeze?.properties ?? 0) > 0 && (
-                      <span>{previewData.willFreeze?.properties} imóvel(eis) serão congelados. </span>
+                      <span>{previewData.willFreeze?.properties} contrato(s) serão congelados. </span>
                     )}
                     {(previewData.willFreeze?.users ?? 0) > 0 && (
                       <span>{previewData.willFreeze?.users} usuário(s) serão desativados.</span>
                     )}
                   </AlertDescription>
                 </Alert>
-              ) : null}
+              )}
             </div>
           )}
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setShowUpgradeModal(false)} disabled={changingPlan}>
               Cancelar
             </Button>
-            <Button onClick={handleRequestPlanChange} disabled={changingPlan}>
+            <Button
+              onClick={handleRequestPlanChange}
+              disabled={changingPlan}
+              variant={previewData && !previewData.isUpgrade ? 'destructive' : 'default'}
+            >
               {changingPlan ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Alterando...
                 </>
+              ) : previewData && !previewData.isUpgrade ? (
+                'Confirmar Downgrade'
               ) : (
-                'Confirmar Mudança'
+                'Confirmar Upgrade'
               )}
             </Button>
           </DialogFooter>

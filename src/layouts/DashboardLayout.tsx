@@ -5,7 +5,7 @@ import {
   Home, Building2, Users, FileText, DollarSign, MessageSquare, Bell,
   LogOut, Menu, X, BarChart3, User, Shield, Building, Briefcase,
   UserCheck, UserCog, ShieldCheck, Settings, FileDown,
-  Crown, Package, Mail, Wrench, Receipt, Key, ClipboardCheck, FileSignature,
+  Crown, Package, Mail, Wrench, Receipt, ClipboardCheck, FileSignature,
   Code, KeyRound, Activity, Webhook, BookOpen, UserCog2,
   Award, Inbox, TrendingUp, Kanban,
   Database, GitCompare, Headphones, UserSearch, Gavel, UsersRound

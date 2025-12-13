@@ -225,7 +225,7 @@ export function PlanUsageWidget({
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-muted-foreground" />
-              <span>Usuarios Internos</span>
+              <span>Usuários</span>
             </div>
             <span className="font-medium">
               {usage.users.current} / {usage.users.limit >= 9999 ? '∞' : usage.users.limit}

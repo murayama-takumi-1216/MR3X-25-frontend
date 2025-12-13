@@ -53,7 +53,6 @@ export function Register() {
     address: '',
     cep: '',
     neighborhood: '',
-    number: '',
     city: '',
     state: '',
     agencyName: '',
@@ -177,7 +176,6 @@ export function Register() {
           address: formData.address,
           cep: formData.cep,
           neighborhood: formData.neighborhood,
-          number: formData.number,
           city: formData.city,
           state: formData.state,
           agencyName: formData.agencyName || undefined,
@@ -606,29 +604,16 @@ export function Register() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="number">Número</Label>
-                        <Input
-                          id="number"
-                          type="text"
-                          name="number"
-                          value={formData.number}
-                          onChange={handleChange}
-                          placeholder="123"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="neighborhood">Bairro</Label>
-                        <Input
-                          id="neighborhood"
-                          type="text"
-                          name="neighborhood"
-                          value={formData.neighborhood}
-                          onChange={handleChange}
-                          placeholder="Centro"
-                        />
-                      </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="neighborhood">Bairro</Label>
+                      <Input
+                        id="neighborhood"
+                        type="text"
+                        name="neighborhood"
+                        value={formData.neighborhood}
+                        onChange={handleChange}
+                        placeholder="Centro"
+                      />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">

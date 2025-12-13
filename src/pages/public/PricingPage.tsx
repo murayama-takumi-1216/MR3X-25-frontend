@@ -222,7 +222,7 @@ export function PricingPage() {
                   <div className="flex items-center gap-2 text-sm">
                     <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
                     <span>
-                      <strong>{plan.maxInternalUsers === -1 ? 'Ilimitados' : plan.maxInternalUsers}</strong> usuarios internos
+                      <strong>{plan.maxInternalUsers === -1 ? 'Ilimitados' : plan.maxInternalUsers}</strong> usuários
                     </span>
                   </div>
                 </div>
@@ -311,7 +311,7 @@ export function PricingPage() {
                 ))}
               </tr>
               <tr className="border-b">
-                <td className="py-3 px-4 text-gray-600">Usuarios Internos</td>
+                <td className="py-3 px-4 text-gray-600">Usuários</td>
                 {plans.map((plan) => (
                   <td key={plan.id} className="text-center py-3 px-4 font-medium">
                     {plan.maxInternalUsers === -1 ? 'Ilimitados' : plan.maxInternalUsers}

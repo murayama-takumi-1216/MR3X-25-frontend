@@ -109,6 +109,51 @@ export function formatCNPJ(cnpj: string): string {
   return cleanCNPJ.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
 }
 
+// Input mask functions for typing
+export function formatCPFInput(value: string): string {
+  if (!value) return '';
+  const cleanValue = value.replace(/\D/g, '').slice(0, 11);
+
+  if (cleanValue.length <= 3) {
+    return cleanValue;
+  } else if (cleanValue.length <= 6) {
+    return cleanValue.replace(/(\d{3})(\d{0,3})/, '$1.$2');
+  } else if (cleanValue.length <= 9) {
+    return cleanValue.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
+  } else {
+    return cleanValue.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
+  }
+}
+
+export function formatCNPJInput(value: string): string {
+  if (!value) return '';
+  const cleanValue = value.replace(/\D/g, '').slice(0, 14);
+
+  if (cleanValue.length <= 2) {
+    return cleanValue;
+  } else if (cleanValue.length <= 5) {
+    return cleanValue.replace(/(\d{2})(\d{0,3})/, '$1.$2');
+  } else if (cleanValue.length <= 8) {
+    return cleanValue.replace(/(\d{2})(\d{3})(\d{0,3})/, '$1.$2.$3');
+  } else if (cleanValue.length <= 12) {
+    return cleanValue.replace(/(\d{2})(\d{3})(\d{3})(\d{0,4})/, '$1.$2.$3/$4');
+  } else {
+    return cleanValue.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/, '$1.$2.$3/$4-$5');
+  }
+}
+
+// Auto-detect CPF or CNPJ and format accordingly
+export function formatDocumentInput(value: string): string {
+  if (!value) return '';
+  const cleanValue = value.replace(/\D/g, '');
+
+  if (cleanValue.length <= 11) {
+    return formatCPFInput(value);
+  } else {
+    return formatCNPJInput(value);
+  }
+}
+
 export function formatCEP(cep: string): string {
   const cleanCEP = cep.replace(/\D/g, '');
   return cleanCEP.replace(/(\d{5})(\d{3})/, '$1-$2');
@@ -143,5 +188,28 @@ export function validateDocument(document: string): ValidationResult {
       isValid: false,
       error: 'Documento deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ)'
     };
+  }
+}
+
+// CRECI format: 123456/SP or 123456/SP-F
+export function formatCRECIInput(value: string): string {
+  if (!value) return '';
+
+  // Allow digits, letters, slash, and hyphen
+  let formatted = value.toUpperCase();
+
+  // Extract just the number part (digits only) and letters/special chars
+  const parts = formatted.split('/');
+
+  if (parts.length === 1) {
+    // No slash yet - just clean up and allow digits
+    const digits = formatted.replace(/[^0-9]/g, '').slice(0, 10);
+    return digits;
+  } else {
+    // Has slash - format as NUMBER/STATE-TYPE
+    const numberPart = parts[0].replace(/[^0-9]/g, '').slice(0, 10);
+    let statePart = parts.slice(1).join('/').replace(/[^A-Z\-]/g, '').slice(0, 4);
+
+    return numberPart + '/' + statePart;
   }
 }

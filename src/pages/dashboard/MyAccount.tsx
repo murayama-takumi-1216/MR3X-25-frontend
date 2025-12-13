@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -19,12 +19,14 @@ import {
   AlertDialogTitle,
 } from '../../components/ui/alert-dialog';
 import {
-  User, Mail, Phone, FileText, MapPin, Shield, Camera, Trash2, Lock, Eye, EyeOff, Save, Loader2, Building2, Award
+  User, Mail, Phone, FileText, MapPin, Shield, Camera, Trash2, Lock, Eye, EyeOff, Save, Loader2, Building2, Award, Users, BadgeCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 import { profileAPI } from '../../api';
 import { useAuthStore } from '../../stores/authStore';
+import { CEPInput } from '../../components/ui/cep-input';
+import { formatDocumentInput, formatCNPJInput, formatCPFInput, formatCRECIInput } from '../../lib/validation';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081';
 
@@ -44,7 +46,17 @@ export default function MyAccount() {
     name: '',
     phone: '',
     document: '',
+    creci: '',
     address: '',
+    cep: '',
+    neighborhood: '',
+    city: '',
+    state: '',
+    // Agency fields
+    agencyName: '',
+    agencyCnpj: '',
+    representativeName: '',
+    representativeDocument: '',
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -78,7 +90,19 @@ export default function MyAccount() {
         name: profile.name || '',
         phone: profile.phone || '',
         document: profile.document || '',
+        creci: profile.creci
+          ? (profile.creciState ? `${profile.creci}/${profile.creciState}` : profile.creci)
+          : '',
         address: profile.address || '',
+        cep: profile.cep || '',
+        neighborhood: profile.neighborhood || '',
+        city: profile.city || '',
+        state: profile.state || '',
+        // Agency fields
+        agencyName: profile.agency?.name || '',
+        agencyCnpj: profile.agency?.cnpj || '',
+        representativeName: profile.agency?.representativeName || '',
+        representativeDocument: profile.agency?.representativeDocument || '',
       });
     }
   }, [profile]);
@@ -184,6 +208,17 @@ export default function MyAccount() {
     setShowDeleteModal(false);
   };
 
+  // Handle CEP data auto-fill
+  const handleCEPData = useCallback((data: any) => {
+    setFormData(prev => ({
+      ...prev,
+      address: data.logradouro || data.street || prev.address,
+      neighborhood: data.bairro || data.neighborhood || prev.neighborhood,
+      city: data.cidade || data.city || prev.city,
+      state: data.estado || data.state || prev.state,
+    }));
+  }, []);
+
   const getRoleBadgeColor = (role: string) => {
     const colors: Record<string, string> = {
       CEO: 'bg-purple-100 text-purple-800',
@@ -229,6 +264,9 @@ export default function MyAccount() {
       </div>
     );
   }
+
+  const showCreci = ['BROKER', 'AGENCY_ADMIN'].includes(user?.role || '');
+  const showAgencyInfo = user?.role === 'AGENCY_ADMIN' && profile?.agency;
 
   return (
     <div className="space-y-6">
@@ -303,22 +341,22 @@ export default function MyAccount() {
           <CardContent>
             <Separator className="mb-4" />
             <div className="space-y-3 text-sm">
-              {user?.agencyId && (
+              {profile?.agency && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Building2 className="h-4 w-4" />
-                  <span>Agência vinculada</span>
+                  <span>{profile.agency.name}</span>
                 </div>
               )}
-              {user?.creci && (
+              {profile?.creci && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Award className="h-4 w-4" />
-                  <span>CRECI: {user.creci}</span>
+                  <span>CRECI: {profile.creci}{profile.creciState ? `/${profile.creciState}` : ''}</span>
                 </div>
               )}
-              {user?.plan && (
+              {profile?.plan && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <FileText className="h-4 w-4" />
-                  <span>Plano: {user.plan}</span>
+                  <span>Plano: {profile.plan}</span>
                 </div>
               )}
             </div>
@@ -342,78 +380,226 @@ export default function MyAccount() {
 
               {/* Profile Tab */}
               <TabsContent value="profile" className="mt-6">
-                <form onSubmit={handleProfileSubmit} className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        Nome Completo
-                      </Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="Seu nome completo"
-                      />
-                    </div>
+                <form onSubmit={handleProfileSubmit} className="space-y-6">
 
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        E-mail
-                      </Label>
-                      <Input
-                        id="email"
-                        value={user?.email || ''}
-                        disabled
-                        className="bg-muted"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        O e-mail não pode ser alterado
-                      </p>
+                  {/* Informações Pessoais Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <User className="h-4 w-4" />
+                      <span>Informações Pessoais</span>
                     </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Nome Completo</Label>
+                        <Input
+                          id="name"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          placeholder="Seu nome completo"
+                        />
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        Telefone
-                      </Label>
-                      <Input
-                        id="phone"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="(00) 00000-0000"
-                      />
-                    </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">E-mail</Label>
+                        <Input
+                          id="email"
+                          value={user?.email || ''}
+                          disabled
+                          className="bg-muted"
+                        />
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="document" className="flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        CPF/CNPJ
-                      </Label>
-                      <Input
-                        id="document"
-                        value={formData.document}
-                        onChange={(e) => setFormData({ ...formData, document: e.target.value })}
-                        placeholder="000.000.000-00"
-                      />
-                    </div>
-
-                    <div className="space-y-2 sm:col-span-2">
-                      <Label htmlFor="address" className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        Endereço
-                      </Label>
-                      <Input
-                        id="address"
-                        value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        placeholder="Seu endereço completo"
-                      />
+                      <div className="space-y-2">
+                        <Label htmlFor="role">Tipo de Conta</Label>
+                        <Input
+                          id="role"
+                          value={getRoleLabel(user?.role || '')}
+                          disabled
+                          className="bg-muted"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex justify-end">
+                  <Separator />
+
+                  {/* Contato e Documentos Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <Phone className="h-4 w-4" />
+                      <span>Contato e Documentos</span>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Telefone</Label>
+                        <Input
+                          id="phone"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          placeholder="(11) 99999-9999"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="document">CPF/CNPJ</Label>
+                        <Input
+                          id="document"
+                          value={formData.document}
+                          onChange={(e) => setFormData({ ...formData, document: formatDocumentInput(e.target.value) })}
+                          placeholder="000.000.000-00"
+                        />
+                      </div>
+
+                      {showCreci && (
+                        <div className="space-y-2 sm:col-span-2">
+                          <Label htmlFor="creci">CRECI do Corretor</Label>
+                          <div className="relative">
+                            <BadgeCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                              id="creci"
+                              value={formData.creci}
+                              onChange={(e) => setFormData({ ...formData, creci: formatCRECIInput(e.target.value) })}
+                              placeholder="123456/SP-F"
+                              className="pl-10"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Formato: 123456/SP ou 123456/SP-F
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Endereço Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      <span>Endereço</span>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <CEPInput
+                        value={formData.cep}
+                        onChange={(value) => setFormData({ ...formData, cep: value })}
+                        onCEPData={handleCEPData}
+                        label="CEP"
+                        placeholder="00000-000"
+                        className="sm:col-span-2"
+                      />
+
+                      <div className="space-y-2">
+                        <Label htmlFor="address">Logradouro</Label>
+                        <Input
+                          id="address"
+                          value={formData.address}
+                          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                          placeholder="Rua, Avenida, etc."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="neighborhood">Bairro</Label>
+                        <Input
+                          id="neighborhood"
+                          value={formData.neighborhood}
+                          onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                          placeholder="Centro"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="city">Cidade</Label>
+                        <Input
+                          id="city"
+                          value={formData.city}
+                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                          placeholder="São Paulo"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="state">Estado</Label>
+                        <Input
+                          id="state"
+                          value={formData.state}
+                          onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                          placeholder="SP"
+                          maxLength={2}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Informações da Agência Section - Only for AGENCY_ADMIN */}
+                  {showAgencyInfo && (
+                    <>
+                      <Separator />
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                          <Building2 className="h-4 w-4" />
+                          <span>Informações da Agência</span>
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label htmlFor="agencyName">Nome da Agência</Label>
+                            <Input
+                              id="agencyName"
+                              value={formData.agencyName}
+                              onChange={(e) => setFormData({ ...formData, agencyName: e.target.value })}
+                              placeholder="Nome da sua agência"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="agencyCnpj">CNPJ da Agência</Label>
+                            <Input
+                              id="agencyCnpj"
+                              value={formData.agencyCnpj}
+                              onChange={(e) => setFormData({ ...formData, agencyCnpj: formatCNPJInput(e.target.value) })}
+                              placeholder="00.000.000/0000-00"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Representante Legal Section */}
+                      <Separator />
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                          <Users className="h-4 w-4" />
+                          <span>Representante Legal</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Dados do representante legal para uso nos contratos.
+                        </p>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label htmlFor="repName">Nome do Representante</Label>
+                            <Input
+                              id="repName"
+                              value={formData.representativeName}
+                              onChange={(e) => setFormData({ ...formData, representativeName: e.target.value })}
+                              placeholder="Nome completo do representante"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="repDocument">CPF do Representante</Label>
+                            <Input
+                              id="repDocument"
+                              value={formData.representativeDocument}
+                              onChange={(e) => setFormData({ ...formData, representativeDocument: formatCPFInput(e.target.value) })}
+                              placeholder="000.000.000-00"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="flex justify-end pt-4">
                     <Button
                       type="submit"
                       disabled={updateProfileMutation.isPending}
