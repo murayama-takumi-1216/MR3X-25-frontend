@@ -235,7 +235,7 @@ export function PlanUsageWidget({
           {usage.users.frozen > 0 && (
             <div className="flex items-center gap-1 text-xs text-amber-600">
               <Lock className="w-3 h-3" />
-              <span>{usage.users.frozen} usuario(s) desativado(s)</span>
+              <span>{usage.users.frozen} usuario(s) congelado(s)</span>
             </div>
           )}
         </div>

@@ -201,7 +201,7 @@ export function SubscriptionPage() {
       setApiAddOnLoading(true);
       if (currentUsage?.features?.apiAddOnEnabled) {
         await plansAPI.disableApiAddOn(agencyId);
-        toast.success('API add-on desativado');
+        toast.success('API add-on congelado');
       } else {
         await plansAPI.enableApiAddOn(agencyId);
         toast.success('API add-on ativado com sucesso!');
@@ -397,7 +397,7 @@ export function SubscriptionPage() {
                       <p className="font-medium">
                         {currentUsage?.features?.apiAddOnEnabled
                           ? 'Ativado'
-                          : 'Desativado'}
+                          : 'Congelado'}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         +{formatCurrency(currentUsage?.billing?.apiAddOnPrice || 29)}/mes
@@ -456,7 +456,7 @@ export function SubscriptionPage() {
                     </p>
                   )}
                   {currentUsage?.users?.frozen > 0 && (
-                    <p>{currentUsage.users.frozen} usuario(s) desativado(s)</p>
+                    <p>{currentUsage.users.frozen} usuario(s) congelado(s)</p>
                   )}
                   <p className="text-sm">
                     Faca upgrade para desbloquear todos os itens.

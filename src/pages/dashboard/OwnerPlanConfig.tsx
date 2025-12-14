@@ -371,7 +371,7 @@ export function OwnerPlanConfig() {
               <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-lg">
                 <Lock className="w-4 h-4 text-amber-600" />
                 <span className="text-sm text-amber-800">
-                  {planUsage?.users?.frozen} inquilino(s) desativado(s)
+                  {planUsage?.users?.frozen} inquilino(s) congelado(s)
                 </span>
               </div>
             )}
@@ -551,7 +551,7 @@ export function OwnerPlanConfig() {
                       <span>{previewData.willFreeze.properties} imóvel(eis) serão congelados. </span>
                     )}
                     {previewData.willFreeze.users > 0 && (
-                      <span>{previewData.willFreeze.users} inquilino(s) serão desativados.</span>
+                      <span>{previewData.willFreeze.users} inquilino(s) serão congelados.</span>
                     )}
                   </AlertDescription>
                 </Alert>

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { contractsAPI, propertiesAPI, usersAPI, contractTemplatesAPI, agenciesAPI } from '../../api';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
@@ -150,6 +150,25 @@ export function Contracts() {
     setSearchTerm('');
     setSearchQuery('');
   }, []);
+
+  // Validate if all required fields are filled for creating a contract
+  const isCreateFormValid = useMemo(() => {
+    return !!(
+      newContract.propertyId &&
+      newContract.tenantId &&
+      newContract.startDate &&
+      newContract.endDate &&
+      newContract.monthlyRent &&
+      parseFloat(newContract.monthlyRent) > 0 &&
+      newContract.dueDay &&
+      newContract.contractDate &&
+      newContract.readjustmentIndex &&
+      newContract.latePaymentPenaltyPercent &&
+      newContract.monthlyInterestPercent &&
+      newContract.guaranteeType &&
+      newContract.jurisdiction
+    );
+  }, [newContract]);
 
   // Generate preview token function
   const generatePreviewToken = (templateType: string) => {
@@ -436,7 +455,7 @@ export function Contracts() {
   const { data: agencyData } = useQuery({
     queryKey: ['agency', user?.agencyId],
     queryFn: () => agenciesAPI.getAgencyById(user!.agencyId!),
-    enabled: !!user?.agencyId && canCreateContracts,
+    enabled: !!user?.agencyId, // Load for all users with an agency, not just those who can create
   });
 
   useEffect(() => {
@@ -792,48 +811,102 @@ export function Contracts() {
       NOME_CORRETOR: agencyData?.name || user?.name || '',
       CRECI_CORRETOR: contractData.creci || agencyData?.creci || user?.creci || '',
 
-      // Locador (Owner) - PF
+      // Locador (Owner) - PF (both naming conventions)
       NOME_LOCADOR: contractOwner?.name || '',
+      LOCADOR_NOME: contractOwner?.name || '',
       CPF_LOCADOR: formatDocument(contractOwner?.document) || '',
+      LOCADOR_CPF: formatDocument(contractOwner?.document) || '',
       ENDERECO_LOCADOR: formatAddress(contractOwner) || '',
+      LOCADOR_ENDERECO: formatAddress(contractOwner) || '',
       EMAIL_LOCADOR: contractOwner?.email || '',
+      LOCADOR_EMAIL: contractOwner?.email || '',
       TELEFONE_LOCADOR: contractOwner?.phone || contractOwner?.mobilePhone || '',
+      LOCADOR_TELEFONE: contractOwner?.phone || contractOwner?.mobilePhone || '',
+      LOCADOR_NACIONALIDADE: contractOwner?.nationality || 'Brasileira',
+      LOCADOR_ESTADO_CIVIL: contractOwner?.maritalStatus || '',
+      LOCADOR_PROFISSAO: contractOwner?.profession || '',
+      LOCADOR_RG: contractOwner?.rg || '',
+      LOCADOR_DATA_NASC: contractOwner?.birthDate ? new Date(contractOwner.birthDate).toLocaleDateString('pt-BR') : '',
 
-      // Locador (Owner) - PJ
-      RAZAO_SOCIAL_LOCADOR: contractOwner?.companyName || contractOwner?.name || '',
-      CNPJ_LOCADOR: formatDocument(contractOwner?.cnpj || contractOwner?.document) || '',
-      REPRESENTANTE_LOCADOR: contractOwner?.representativeName || contractOwner?.name || '',
+      // Locador (Owner) - PJ (both naming conventions)
+      RAZAO_SOCIAL_LOCADOR: contractOwner?.companyName || contractOwner?.company?.name || contractOwner?.name || '',
+      LOCADOR_RAZAO_SOCIAL: contractOwner?.companyName || contractOwner?.company?.name || contractOwner?.name || '',
+      CNPJ_LOCADOR: formatDocument(contractOwner?.cnpj || contractOwner?.company?.cnpj || contractOwner?.document) || '',
+      LOCADOR_CNPJ: formatDocument(contractOwner?.cnpj || contractOwner?.company?.cnpj || contractOwner?.document) || '',
+      REPRESENTANTE_LOCADOR: contractOwner?.representativeName || contractOwner?.company?.responsible || contractOwner?.name || '',
+      LOCADOR_REPRESENTANTE: contractOwner?.representativeName || contractOwner?.company?.responsible || contractOwner?.name || '',
       CPF_REPRESENTANTE_LOCADOR: formatDocument(contractOwner?.representativeDocument || contractOwner?.document) || '',
+      LOCADOR_REP_DOC: formatDocument(contractOwner?.representativeDocument || contractOwner?.document) || '',
       CARGO_LOCADOR: contractOwner?.representativePosition || '',
+      LOCADOR_CARGO: contractOwner?.representativePosition || '',
 
-      // Locatário (Tenant) - PF
+      // Locatário (Tenant) - PF (both naming conventions)
       NOME_LOCATARIO: contractTenant?.name || '',
+      LOCATARIO_NOME: contractTenant?.name || '',
       CPF_LOCATARIO: formatDocument(contractTenant?.document) || '',
+      LOCATARIO_CPF: formatDocument(contractTenant?.document) || '',
       ENDERECO_LOCATARIO: formatAddress(contractTenant) || '',
+      LOCATARIO_ENDERECO: formatAddress(contractTenant) || '',
+      LOCATARIO_ENDERECO_ATUAL: formatAddress(contractTenant) || '',
       EMAIL_LOCATARIO: contractTenant?.email || '',
+      LOCATARIO_EMAIL: contractTenant?.email || '',
       TELEFONE_LOCATARIO: contractTenant?.phone || contractTenant?.mobilePhone || '',
+      LOCATARIO_TELEFONE: contractTenant?.phone || contractTenant?.mobilePhone || '',
+      LOCATARIO_NACIONALIDADE: contractTenant?.nationality || 'Brasileira',
+      LOCATARIO_ESTADO_CIVIL: contractTenant?.maritalStatus || '',
+      LOCATARIO_PROFISSAO: contractTenant?.profession || '',
+      LOCATARIO_RG: contractTenant?.rg || '',
+      LOCATARIO_DATA_NASC: contractTenant?.birthDate ? new Date(contractTenant.birthDate).toLocaleDateString('pt-BR') : '',
 
-      // Locatário (Tenant) - PJ
-      RAZAO_SOCIAL_LOCATARIO: contractTenant?.companyName || contractTenant?.name || '',
-      CNPJ_LOCATARIO: formatDocument(contractTenant?.cnpj || contractTenant?.document) || '',
-      REPRESENTANTE_LOCATARIO: contractTenant?.representativeName || contractTenant?.name || '',
+      // Locatário (Tenant) - PJ (both naming conventions)
+      RAZAO_SOCIAL_LOCATARIO: contractTenant?.companyName || contractTenant?.company?.name || contractTenant?.name || '',
+      LOCATARIO_RAZAO_SOCIAL: contractTenant?.companyName || contractTenant?.company?.name || contractTenant?.name || '',
+      CNPJ_LOCATARIO: formatDocument(contractTenant?.cnpj || contractTenant?.company?.cnpj || contractTenant?.document) || '',
+      LOCATARIO_CNPJ: formatDocument(contractTenant?.cnpj || contractTenant?.company?.cnpj || contractTenant?.document) || '',
+      REPRESENTANTE_LOCATARIO: contractTenant?.representativeName || contractTenant?.company?.responsible || contractTenant?.name || '',
+      LOCATARIO_REPRESENTANTE: contractTenant?.representativeName || contractTenant?.company?.responsible || contractTenant?.name || '',
       CPF_REPRESENTANTE_LOCATARIO: formatDocument(contractTenant?.representativeDocument || contractTenant?.document) || '',
+      LOCATARIO_REP_DOC: formatDocument(contractTenant?.representativeDocument || contractTenant?.document) || '',
       CARGO_LOCATARIO: contractTenant?.representativePosition || '',
+      LOCATARIO_CARGO: contractTenant?.representativePosition || '',
 
-      // Imóvel (Property)
+      // Additional tenant fields
+      LOCATARIO_EMPREGADOR: contractTenant?.employerName || '',
+      CONTATO_EMERGENCIA_NOME: contractTenant?.emergencyContactName || '',
+      CONTATO_EMERGENCIA_TELEFONE: contractTenant?.emergencyContactPhone || '',
+
+      // Imóvel (Property) - both naming conventions
       ENDERECO_IMOVEL: formatAddress(contractProperty) || contractProperty?.address || '',
+      IMOVEL_ENDERECO: formatAddress(contractProperty) || contractProperty?.address || '',
       DESCRICAO_IMOVEL: contractProperty?.description || contractProperty?.name || '',
+      IMOVEL_DESCRICAO: contractProperty?.description || contractProperty?.name || '',
       MATRICULA: contractProperty?.registrationNumber || '',
+      IMOVEL_MATRICULA: contractProperty?.registrationNumber || '',
+      IMOVEL_TIPO: contractProperty?.type || contractProperty?.propertyType || 'Residencial',
+      IMOVEL_MOVEIS_LISTA: contractProperty?.furnitureList || 'Conforme vistoria',
+      IMOVEL_ENERGIA: contractProperty?.energyPattern || 'Monofásico',
+      IMOVEL_CONDOMINIO: contractProperty?.condominiumName || 'N/A',
+      IMOVEL_CONDOMINIO_VALOR: contractProperty?.condominiumFee ? `R$ ${parseFloat(contractProperty.condominiumFee).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'N/A',
+      IMOVEL_IPTU_VALOR: contractProperty?.iptuValue ? `R$ ${parseFloat(contractProperty.iptuValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'N/A',
 
-      // Imobiliária (Agency)
+      // Imobiliária (Agency) - both naming conventions
       RAZAO_SOCIAL_IMOBILIARIA: agencyData?.name || contractData.agency?.name || '',
+      IMOBILIARIA_RAZAO_SOCIAL: agencyData?.name || contractData.agency?.name || '',
+      IMOBILIARIA_NOME_FANTASIA: agencyData?.tradeName || agencyData?.name || contractData.agency?.tradeName || contractData.agency?.name || '',
       CNPJ_IMOBILIARIA: formatDocument(agencyData?.cnpj || contractData.agency?.cnpj) || '',
+      IMOBILIARIA_CNPJ: formatDocument(agencyData?.cnpj || contractData.agency?.cnpj) || '',
       NUMERO_CRECI: agencyData?.creci || user?.creci || contractData.creci || '',
+      IMOBILIARIA_CRECI: agencyData?.creci || user?.creci || contractData.creci || '',
       ENDERECO_IMOBILIARIA: formatAddress(agencyData || contractData.agency) || '',
+      IMOBILIARIA_ENDERECO: formatAddress(agencyData || contractData.agency) || '',
       EMAIL_IMOBILIARIA: agencyData?.email || contractData.agency?.email || '',
+      IMOBILIARIA_EMAIL: agencyData?.email || contractData.agency?.email || '',
       TELEFONE_IMOBILIARIA: agencyData?.phone || contractData.agency?.phone || '',
-      REPRESENTANTE_IMOBILIARIA: agencyData?.representativeName || '',
-      CPF_REPRESENTANTE_IMOBILIARIA: formatDocument(agencyData?.representativeDocument) || '',
+      IMOBILIARIA_TELEFONE: agencyData?.phone || contractData.agency?.phone || '',
+      REPRESENTANTE_IMOBILIARIA: agencyData?.representativeName || contractData.agency?.representativeName || '',
+      IMOBILIARIA_REPRESENTANTE: agencyData?.representativeName || contractData.agency?.representativeName || '',
+      CPF_REPRESENTANTE_IMOBILIARIA: formatDocument(agencyData?.representativeDocument || contractData.agency?.representativeDocument) || '',
+      IMOBILIARIA_REP_DOC: formatDocument(agencyData?.representativeDocument || contractData.agency?.representativeDocument) || '',
 
       // Contrato (Contract)
       PRAZO_MESES: calculateMonths(contractData.startDate, contractData.endDate),
@@ -842,6 +915,7 @@ export function Contracts() {
       VALOR_ALUGUEL: contractData.monthlyRent ? parseFloat(contractData.monthlyRent).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
       DIA_VENCIMENTO: contractData.dueDay?.toString() || '5',
       DEPOSITO_CAUCAO: contractData.deposit ? parseFloat(contractData.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
+      VALOR_GARANTIA: contractData.deposit ? parseFloat(contractData.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
 
       // Índice de Reajuste
       INDICE_REAJUSTE: getIndexName(contractData.readjustmentIndex || 'IGPM'),
@@ -850,16 +924,18 @@ export function Contracts() {
       TIPO_GARANTIA: getGuaranteeTypeName(contractData.guaranteeType || ''),
 
       // Multas e Juros
-      MULTA_ATRASO: contractData.lateFeePercent?.toString() || '10',
-      JUROS_MORA: contractData.interestRatePercent?.toString() || '1',
-      PERCENTUAL_MULTA_ATRASO: contractData.lateFeePercent?.toString() || '10',
-      PERCENTUAL_JUROS_MORA: contractData.interestRatePercent?.toString() || '1',
+      MULTA_ATRASO: contractData.latePaymentPenaltyPercent?.toString() || contractData.lateFeePercent?.toString() || '10',
+      JUROS_MORA: contractData.monthlyInterestPercent?.toString() || contractData.interestRatePercent?.toString() || '1',
+      JUROS_ATRASO: contractData.monthlyInterestPercent?.toString() || contractData.interestRatePercent?.toString() || '1',
+      PERCENTUAL_MULTA_ATRASO: contractData.latePaymentPenaltyPercent?.toString() || contractData.lateFeePercent?.toString() || '10',
+      PERCENTUAL_JUROS_MORA: contractData.monthlyInterestPercent?.toString() || contractData.interestRatePercent?.toString() || '1',
 
       // Multa por Rescisão
-      MULTA_RESCISAO: contractData.earlyTerminationPenaltyPercent
-        ? `${contractData.earlyTerminationPenaltyPercent}% do valor restante`
-        : '3 meses de aluguel',
-      MESES_MULTA_RESCISAO: '3',
+      MULTA_RESCISAO: contractData.earlyTerminationPenaltyMonths || contractData.earlyTerminationPenaltyPercent || '3',
+      MESES_MULTA_RESCISAO: contractData.earlyTerminationPenaltyMonths || '3',
+      VALOR_MULTA_RESCISAO: contractData.earlyTerminationFixedValue
+        ? `R$ ${parseFloat(contractData.earlyTerminationFixedValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+        : `${contractData.earlyTerminationPenaltyMonths || '3'} meses de aluguel`,
 
       // Características do Imóvel
       CARACTERISTICAS_IMOVEL: contractData.propertyCharacteristics || '',
@@ -868,18 +944,65 @@ export function Contracts() {
       // Localização e Jurisdição
       COMARCA: contractData.jurisdiction || contractProperty?.city || '',
       FORO: contractData.jurisdiction || contractProperty?.city || '',
+      FORO_CIDADE_ESTADO: `${contractProperty?.city || ''} - ${contractProperty?.state || ''}`,
       CIDADE: contractProperty?.city || '',
+
+      // Encargos e Responsabilidades
+      AGUA_RESPONSAVEL: 'Locatário',
+      GAS_RESPONSAVEL: 'Locatário',
+      ENERGIA_RESPONSAVEL: 'Locatário',
+      CONDOMINIO_RESPONSAVEL: 'Locatário',
+      IPTU_RESPONSAVEL: 'Locatário',
+      SEGURO_INCENDIO_VALOR: 'A contratar',
+
+      // Administração
+      TAXA_ADMINISTRACAO: agencyData?.agencyFee?.toString() || contractData.agency?.agencyFee?.toString() || '10',
+      DIA_REPASSE: '10',
+      DIAS_AVISO_PREVIO: '30',
+
+      // Fiador
+      FIADOR_DADOS: '',
+
+      // Vistoria
+      DATA_VISTORIA_INICIAL: contractData.startDate ? new Date(contractData.startDate).toLocaleDateString('pt-BR') : '',
+      RESP_VISTORIA_INICIAL: agencyData?.name || user?.name || '',
 
       // Datas
       DATA_CONTRATO: contractData.createdAt ? new Date(contractData.createdAt).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'),
       DATA_ASSINATURA: contractData.tenantSignedAt ? new Date(contractData.tenantSignedAt).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'),
       DATA_ACEITE: new Date().toLocaleDateString('pt-BR'),
       DATA_EXTENSO: formatDateExtensive(contractData.createdAt || new Date().toISOString()),
+      DATA_ASS_LOCADOR: contractData.ownerSignedAt ? new Date(contractData.ownerSignedAt).toLocaleDateString('pt-BR') : '________________________________',
+      DATA_ASS_LOCATARIO: contractData.tenantSignedAt ? new Date(contractData.tenantSignedAt).toLocaleDateString('pt-BR') : '________________________________',
+      DATA_ASS_IMOBILIARIA: contractData.agencySignedAt ? new Date(contractData.agencySignedAt).toLocaleDateString('pt-BR') : '________________________________',
 
-      // Digital Signatures
+      // Digital Signatures and Security
       ASSINATURA_LOCADOR: contractData.ownerSignature || '________________________________',
       ASSINATURA_LOCATARIO: contractData.tenantSignature || '________________________________',
       ASSINATURA_TESTEMUNHA: contractData.witnessSignature || '________________________________',
+      HASH_DOCUMENTO: contractData.documentHash || '[Hash gerado na assinatura]',
+      IP_LOCADOR: contractData.ownerSignatureIP || '[IP registrado na assinatura]',
+      IP_LOCATARIO: contractData.tenantSignatureIP || '[IP registrado na assinatura]',
+      IP_IMOBILIARIA: contractData.agencySignatureIP || '[IP registrado na assinatura]',
+
+      // Anexos
+      ANEXO_VISTORIA_INICIAL: '[Anexo Digital]',
+      ANEXO_VISTORIA_FINAL: '[Anexo Digital]',
+      ANEXO_GARANTIA: '[Anexo Digital]',
+      ANEXOS_DOCUMENTOS: '[Anexos Digitais]',
+
+      // Contract Type 2 - Property Administration specific variables
+      IMOVEL_AREA_CONSTRUIDA: contractProperty?.builtArea || contractProperty?.areaM2 || 'N/A',
+      IMOVEL_AREA_TOTAL: contractProperty?.totalArea || contractProperty?.areaM2 || 'N/A',
+      IMOVEL_MOVEIS: contractProperty?.furnitureList || 'Conforme vistoria',
+      AUTORIZA_ASSINATURA_LOCACAO: 'SIM',
+      VALOR_LIMITE_MANUTENCAO: '500,00',
+      VALOR_TAXA_INTERMEDIACAO: contractData.monthlyRent ? parseFloat(contractData.monthlyRent).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00',
+      TAXA_INTERMEDIACAO_PORCENTAGEM: '100',
+      VALOR_2VIA: '15,00',
+      VALOR_LAUDO_EXTRA: '150,00',
+      PLANO_GARANTIA_ALUGUEL: 'NÃO',
+      VALOR_EMERGENCIA: '500,00',
 
     };
 
@@ -1197,7 +1320,7 @@ export function Contracts() {
       SEGURO_INCENDIO_VALOR: 'A contratar',
 
       // Administração
-      TAXA_ADMINISTRACAO: '10',
+      TAXA_ADMINISTRACAO: agencyData?.agencyFee?.toString() || '10',
       DIA_REPASSE: '10',
       DIAS_AVISO_PREVIO: '30',
 
@@ -1231,6 +1354,19 @@ export function Contracts() {
       ANEXO_VISTORIA_FINAL: '[Anexo Digital]',
       ANEXO_GARANTIA: '[Anexo Digital]',
       ANEXOS_DOCUMENTOS: '[Anexos Digitais]',
+
+      // Contract Type 2 - Property Administration specific variables
+      IMOVEL_AREA_CONSTRUIDA: selectedProperty?.builtArea || selectedProperty?.areaM2 || 'N/A',
+      IMOVEL_AREA_TOTAL: selectedProperty?.totalArea || selectedProperty?.areaM2 || 'N/A',
+      IMOVEL_MOVEIS: selectedProperty?.furnitureList || 'Conforme vistoria',
+      AUTORIZA_ASSINATURA_LOCACAO: 'SIM',
+      VALOR_LIMITE_MANUTENCAO: '500,00',
+      VALOR_TAXA_INTERMEDIACAO: newContract.monthlyRent ? parseFloat(newContract.monthlyRent).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00',
+      TAXA_INTERMEDIACAO_PORCENTAGEM: '100',
+      VALOR_2VIA: '15,00',
+      VALOR_LAUDO_EXTRA: '150,00',
+      PLANO_GARANTIA_ALUGUEL: 'NÃO',
+      VALOR_EMERGENCIA: '500,00',
 
     };
 
@@ -1801,7 +1937,7 @@ export function Contracts() {
             <form className="space-y-4" onSubmit={handleCreateContract}>
               {}
               <div>
-                <Label htmlFor="templateId">Modelo de Contrato (Opcional)</Label>
+                <Label htmlFor="templateId">Modelo de Contrato</Label>
                 <Select
                   value={newContract.templateId || 'none'}
                   onValueChange={(value) => {
@@ -1831,7 +1967,7 @@ export function Contracts() {
                     <SelectValue placeholder={templatesLoading ? 'Carregando modelos...' : 'Selecione um modelo'} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Sem modelo (padrão)</SelectItem>
+                    <SelectItem value="none" hidden>Sem modelo (padrão)</SelectItem>
                     {templates
                       .filter((template: any) =>
                         !template.allowedUserTypes ||
@@ -2206,7 +2342,7 @@ export function Contracts() {
                   <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)} disabled={creating}>
                     Cancelar
                   </Button>
-                  <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={creating}>
+                  <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={creating || !isCreateFormValid}>
                     {creating ? 'Criando...' : 'Criar'}
                   </Button>
                 </div>

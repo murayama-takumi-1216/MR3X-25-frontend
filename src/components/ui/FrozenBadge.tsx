@@ -48,7 +48,7 @@ export function FrozenUserBadge({ reason, className = '' }: FrozenBadgeProps) {
       className={`gap-1 bg-amber-100 text-amber-800 ${className}`}
     >
       <Lock className="w-3 h-3" />
-      Desativado
+      Congelado
     </Badge>
   );
 

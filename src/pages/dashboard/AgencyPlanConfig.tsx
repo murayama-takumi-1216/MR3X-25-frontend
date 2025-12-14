@@ -351,7 +351,7 @@ export function AgencyPlanConfig() {
               <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-lg">
                 <Lock className="w-4 h-4 text-amber-600" />
                 <span className="text-sm text-amber-800">
-                  {planUsage.users.frozen} usuário(s) desativado(s)
+                  {planUsage.users.frozen} usuário(s) congelado(s)
                 </span>
               </div>
             )}
@@ -411,7 +411,7 @@ export function AgencyPlanConfig() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Lock className="w-5 h-5 text-amber-600" />
-              Usuários Desativados
+              Usuários Congelados
             </CardTitle>
             <CardDescription>
               Estes usuários estão inativos devido ao limite do seu plano
@@ -427,7 +427,7 @@ export function AgencyPlanConfig() {
                   </div>
                   <Badge variant="secondary" className="gap-1 bg-amber-100 text-amber-800">
                     <Lock className="w-3 h-3" />
-                    Desativado
+                    Congelado
                   </Badge>
                 </div>
               ))}
@@ -682,7 +682,7 @@ export function AgencyPlanConfig() {
                             <span className="font-bold text-amber-700">{previewData.newLimits?.users ?? 0} usuários</span>
                           </div>
                           <div className="flex items-center justify-between text-xs bg-red-100 p-2 rounded border border-red-200">
-                            <span className="text-red-700 font-medium">Serão desativados:</span>
+                            <span className="text-red-700 font-medium">Serão congelados:</span>
                             <span className="font-bold text-red-700">{previewData.willFreeze?.users} usuário(s)</span>
                           </div>
                           <div className="flex items-center justify-between text-xs bg-green-100 p-2 rounded border border-green-200">
@@ -721,7 +721,7 @@ export function AgencyPlanConfig() {
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="w-1 h-1 rounded-full bg-gray-400" />
-                        Usuários desativados não podem fazer login no sistema
+                        Usuários congelados não podem fazer login no sistema
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="w-1 h-1 rounded-full bg-gray-400" />
@@ -741,7 +741,7 @@ export function AgencyPlanConfig() {
                       <span>{previewData.willFreeze?.properties} contrato(s) serão congelados. </span>
                     )}
                     {(previewData.willFreeze?.users ?? 0) > 0 && (
-                      <span>{previewData.willFreeze?.users} usuário(s) serão desativados.</span>
+                      <span>{previewData.willFreeze?.users} usuário(s) serão congelados.</span>
                     )}
                   </AlertDescription>
                 </Alert>
