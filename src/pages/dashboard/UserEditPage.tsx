@@ -85,7 +85,6 @@ export function UserEditPage() {
   const [currentUserRole, setCurrentUserRole] = useState<string>('');
   const baseAvailableRoles = getAvailableRoles(user?.role);
 
-  // Include current user's role in the list if not already present
   const availableRoles = currentUserRole && !baseAvailableRoles.some(r => r.value === currentUserRole)
     ? [...baseAvailableRoles, { value: currentUserRole, label: ROLE_LABELS[currentUserRole] || currentUserRole }]
     : baseAvailableRoles;

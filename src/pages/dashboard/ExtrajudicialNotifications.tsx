@@ -71,7 +71,7 @@ interface Notification {
   responseAt?: string;
   resolvedAt?: string;
   createdAt: string;
-  userRole?: 'CREDITOR' | 'DEBTOR' | 'VIEWER'; // User's role in this notification
+  userRole?: 'CREDITOR' | 'DEBTOR' | 'VIEWER';
 }
 
 const typeOptions = [
@@ -146,7 +146,6 @@ export default function ExtrajudicialNotifications() {
   const [statusFilter, _setStatusFilter] = useState<string>('');
   const [typeFilter, _setTypeFilter] = useState<string>('');
 
-  // Suppress unused variable warnings - filters will be implemented later
   void _setStatusFilter;
   void _setTypeFilter;
   const [statistics, setStatistics] = useState<any>(null);
@@ -231,8 +230,6 @@ export default function ExtrajudicialNotifications() {
     try {
       setLoading(true);
 
-      // INQUILINO users can only see their notifications, not create them
-      // So we skip loading properties, users, and tenants for them
       if (isInquilino) {
         const [notificationsRes, statsRes] = await Promise.all([
           extrajudicialNotificationsAPI.getNotifications({
@@ -261,7 +258,6 @@ export default function ExtrajudicialNotifications() {
         setProperties(propsRes || []);
         setTenants(tenantsRes || []);
 
-        // Filter owners from users (PROPRIETARIO, INDEPENDENT_OWNER roles)
         const ownerRoles = ['PROPRIETARIO', 'INDEPENDENT_OWNER'];
         const filteredOwners = (usersRes.items || []).filter((u: any) => ownerRoles.includes(u.role));
         setOwners(filteredOwners);
@@ -274,7 +270,6 @@ export default function ExtrajudicialNotifications() {
   };
 
   const handleCreate = async () => {
-    // Validate required fields
     const requiredFields = [
       { field: 'propertyId', label: 'Imovel' },
       { field: 'creditorId', label: 'ID do Credor' },
@@ -347,7 +342,6 @@ export default function ExtrajudicialNotifications() {
   const handleSign = async () => {
     if (!selectedNotification || !signatureRef.current) return;
 
-    // Check user has valid signing role
     if (!selectedNotification.userRole || selectedNotification.userRole === 'VIEWER') {
       toast.error('Voce nao tem permissao para assinar esta notificacao');
       return;
@@ -356,7 +350,6 @@ export default function ExtrajudicialNotifications() {
     try {
       setSaving(true);
 
-      // Get geolocation (optional - continues without it if unavailable or blocked)
       let geoLat = signData.geoLat;
       let geoLng = signData.geoLng;
       if (signData.geoConsent && navigator.geolocation) {
@@ -369,7 +362,6 @@ export default function ExtrajudicialNotifications() {
                 resolve();
               },
               (error) => {
-                // Log the error but don't reject - allow signing to continue without geolocation
                 console.warn('Geolocation unavailable:', error.message);
                 resolve();
               },
@@ -377,14 +369,12 @@ export default function ExtrajudicialNotifications() {
             );
           });
         } catch (geoError) {
-          // Geolocation failed but we continue without it
           console.warn('Geolocation error:', geoError);
         }
       }
 
       const signature = signatureRef.current.toDataURL('image/png');
 
-      // Use userRole to determine which signature field to send
       const signatureField = selectedNotification.userRole === 'CREDITOR' ? 'creditorSignature' : 'debtorSignature';
 
       await extrajudicialNotificationsAPI.signNotification(selectedNotification.id, {
@@ -541,7 +531,6 @@ export default function ExtrajudicialNotifications() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-amber-100 rounded-lg">
@@ -564,7 +553,6 @@ export default function ExtrajudicialNotifications() {
         )}
       </div>
 
-      {/* Statistics Cards */}
       {statistics && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
           <Card className="bg-gray-50">
@@ -600,7 +588,6 @@ export default function ExtrajudicialNotifications() {
         </div>
       )}
 
-      {/* Search */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex w-full sm:max-w-lg gap-2">
           <div className="relative flex-1">
@@ -634,7 +621,6 @@ export default function ExtrajudicialNotifications() {
         </div>
       </div>
 
-      {/* Notifications List */}
       <Card>
         <CardHeader className="p-3 sm:p-6">
           <CardTitle className="text-lg sm:text-xl">Notificacoes</CardTitle>
@@ -650,7 +636,6 @@ export default function ExtrajudicialNotifications() {
             </div>
           ) : (
             <>
-              {/* Mobile Card View */}
               <div className="md:hidden space-y-3">
                 {filteredNotifications.map(n => (
                   <Card key={n.id} className="border shadow-sm">
@@ -727,7 +712,6 @@ export default function ExtrajudicialNotifications() {
                 ))}
               </div>
 
-              {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -819,7 +803,6 @@ export default function ExtrajudicialNotifications() {
                               </>
                             )}
 
-                            {/* Show sign button only for CREDITOR/DEBTOR who haven't signed yet */}
                             {['ENVIADO', 'VISUALIZADO'].includes(n.status) &&
                              n.userRole &&
                              n.userRole !== 'VIEWER' &&
@@ -872,7 +855,6 @@ export default function ExtrajudicialNotifications() {
         </CardContent>
       </Card>
 
-      {/* Create Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
         <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto p-3 sm:p-6">
           <DialogHeader>
@@ -1232,7 +1214,6 @@ export default function ExtrajudicialNotifications() {
         </DialogContent>
       </Dialog>
 
-      {/* Details Modal */}
       <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
         <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto p-3 sm:p-6">
           <DialogHeader>
@@ -1255,7 +1236,6 @@ export default function ExtrajudicialNotifications() {
                 </div>
               </div>
 
-              {/* QR Code and Barcode */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 p-3 sm:p-4 bg-gray-50 border rounded-lg">
                 <div className="flex flex-col items-center">
                   <QRCodeSVG
@@ -1400,7 +1380,6 @@ export default function ExtrajudicialNotifications() {
         </DialogContent>
       </Dialog>
 
-      {/* PDF Preview Modal */}
       <Dialog open={showPdfPreviewModal} onOpenChange={handleClosePdfPreview}>
         <DialogContent className="w-[95vw] max-w-5xl max-h-[95vh] p-0">
           <DialogHeader className="p-3 sm:p-4 pb-2">
@@ -1447,7 +1426,6 @@ export default function ExtrajudicialNotifications() {
         </DialogContent>
       </Dialog>
 
-      {/* Sign Modal */}
       <Dialog open={showSignModal} onOpenChange={setShowSignModal}>
         <DialogContent className="w-[95vw] max-w-lg p-3 sm:p-6">
           <DialogHeader>
@@ -1458,7 +1436,6 @@ export default function ExtrajudicialNotifications() {
           </DialogHeader>
 
           <div className="space-y-3 sm:space-y-4">
-            {/* Show signing role based on userRole */}
             <div className="p-3 sm:p-4 bg-muted rounded-lg">
               <Label className="text-xs sm:text-sm text-muted-foreground">Voce esta assinando como:</Label>
               <p className="text-base sm:text-lg font-semibold mt-1">
@@ -1472,7 +1449,6 @@ export default function ExtrajudicialNotifications() {
               </p>
             </div>
 
-            {/* Check if already signed */}
             {selectedNotification?.userRole === 'CREDITOR' && selectedNotification?.creditorSignedAt && (
               <Alert className="bg-green-50 border-green-200">
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -1490,7 +1466,6 @@ export default function ExtrajudicialNotifications() {
               </Alert>
             )}
 
-            {/* Show signature canvas only if not already signed */}
             {!(
               (selectedNotification?.userRole === 'CREDITOR' && selectedNotification?.creditorSignedAt) ||
               (selectedNotification?.userRole === 'DEBTOR' && selectedNotification?.debtorSignedAt)
@@ -1561,7 +1536,6 @@ export default function ExtrajudicialNotifications() {
         </DialogContent>
       </Dialog>
 
-      {/* Forward to Judicial Modal */}
       <Dialog open={showJudicialModal} onOpenChange={setShowJudicialModal}>
         <DialogContent className="w-[95vw] max-w-md p-3 sm:p-6">
           <DialogHeader>
@@ -1616,7 +1590,6 @@ export default function ExtrajudicialNotifications() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Modal */}
       <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
         <DialogContent className="w-[95vw] max-w-md p-3 sm:p-6">
           <DialogHeader>

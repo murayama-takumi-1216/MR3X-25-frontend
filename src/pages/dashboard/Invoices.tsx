@@ -120,7 +120,6 @@ export function Invoices() {
   const [filterProperty, setFilterProperty] = useState<string>('');
   const [filterMonth, setFilterMonth] = useState<string>('');
 
-  // Search states
   const [searchTerm, setSearchTerm] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 

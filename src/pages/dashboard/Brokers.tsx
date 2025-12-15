@@ -104,7 +104,6 @@ export function Brokers() {
   const [emailVerified, setEmailVerified] = useState(false)
   const [checkingEmail, setCheckingEmail] = useState(false)
 
-  // Search states
   const [searchTerm, setSearchTerm] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -358,7 +357,7 @@ export function Brokers() {
         city: fullBrokerDetails.city || '',
         state: fullBrokerDetails.state || '',
       })
-      setEmailVerified(true) // Current email is valid
+      setEmailVerified(true)
       setShowEditModal(true)
     } catch {
       toast.error('Erro ao carregar detalhes do corretor')
@@ -1038,7 +1037,6 @@ export function Brokers() {
           </DialogContent>
         </Dialog>
 
-        {/* Upgrade Plan Modal */}
         <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
           <DialogContent className="max-w-md">
             <DialogHeader>

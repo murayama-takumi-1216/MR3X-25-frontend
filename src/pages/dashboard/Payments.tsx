@@ -82,7 +82,6 @@ export function Payments() {
   const [updating, setUpdating] = useState(false);
   const [deleting] = useState(false);
 
-  // Search states
   const [searchTerm, setSearchTerm] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 

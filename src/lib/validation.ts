@@ -109,7 +109,6 @@ export function formatCNPJ(cnpj: string): string {
   return cleanCNPJ.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
 }
 
-// Input mask functions for typing
 export function formatCPFInput(value: string): string {
   if (!value) return '';
   const cleanValue = value.replace(/\D/g, '').slice(0, 11);
@@ -142,7 +141,6 @@ export function formatCNPJInput(value: string): string {
   }
 }
 
-// Auto-detect CPF or CNPJ and format accordingly
 export function formatDocumentInput(value: string): string {
   if (!value) return '';
   const cleanValue = value.replace(/\D/g, '');
@@ -191,22 +189,17 @@ export function validateDocument(document: string): ValidationResult {
   }
 }
 
-// CRECI format: 123456/SP or 123456/SP-F
 export function formatCRECIInput(value: string): string {
   if (!value) return '';
 
-  // Allow digits, letters, slash, and hyphen
   let formatted = value.toUpperCase();
 
-  // Extract just the number part (digits only) and letters/special chars
   const parts = formatted.split('/');
 
   if (parts.length === 1) {
-    // No slash yet - just clean up and allow digits
     const digits = formatted.replace(/[^0-9]/g, '').slice(0, 10);
     return digits;
   } else {
-    // Has slash - format as NUMBER/STATE-TYPE
     const numberPart = parts[0].replace(/[^0-9]/g, '').slice(0, 10);
     let statePart = parts.slice(1).join('/').replace(/[^A-Z\-]/g, '').slice(0, 4);
 

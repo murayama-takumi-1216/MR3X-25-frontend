@@ -91,7 +91,6 @@ const getPlanColor = (name: string) => {
   }
 };
 
-// Plan order for comparison (higher index = better plan)
 const PLAN_ORDER: Record<string, number> = {
   'FREE': 0,
   'BASIC': 1,
@@ -202,7 +201,6 @@ export function AgencyPlanConfig() {
     try {
       const result = await agenciesAPI.changePlan(agencyId, selectedPlan);
 
-      // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['agency', agencyId] });
       queryClient.invalidateQueries({ queryKey: ['agency-plan-usage', agencyId] });
       queryClient.invalidateQueries({ queryKey: ['agency-frozen-entities', agencyId] });
@@ -598,7 +596,6 @@ export function AgencyPlanConfig() {
                 </div>
               </div>
 
-              {/* Upgrade benefits */}
               {(previewData.willUnfreeze?.properties ?? 0) > 0 || (previewData.willUnfreeze?.users ?? 0) > 0 ? (
                 <Alert className="border-green-300 bg-green-50">
                   <Unlock className="h-4 w-4 text-green-600" />
@@ -613,7 +610,6 @@ export function AgencyPlanConfig() {
                 </Alert>
               ) : null}
 
-              {/* Downgrade Aftereffects Section */}
               {!previewData.isUpgrade && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-amber-700">
@@ -621,7 +617,6 @@ export function AgencyPlanConfig() {
                     <span className="font-semibold text-sm">Consequências do Downgrade</span>
                   </div>
 
-                  {/* Current Usage Summary */}
                   <div className="bg-gray-100 border rounded-lg p-3 space-y-2">
                     <p className="text-xs font-semibold text-gray-700">Situação Atual:</p>
                     <div className="grid grid-cols-2 gap-2 text-xs">
@@ -637,7 +632,6 @@ export function AgencyPlanConfig() {
                   </div>
 
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-4">
-                    {/* Frozen contracts warning */}
                     {(previewData.willFreeze?.properties ?? 0) > 0 && (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
@@ -665,7 +659,6 @@ export function AgencyPlanConfig() {
                       </div>
                     )}
 
-                    {/* Frozen users warning */}
                     {(previewData.willFreeze?.users ?? 0) > 0 && (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
@@ -693,7 +686,6 @@ export function AgencyPlanConfig() {
                       </div>
                     )}
 
-                    {/* General downgrade warning */}
                     {(previewData.willFreeze?.properties ?? 0) === 0 && (previewData.willFreeze?.users ?? 0) === 0 && (
                       <div className="flex items-start gap-3">
                         <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
@@ -707,7 +699,6 @@ export function AgencyPlanConfig() {
                     )}
                   </div>
 
-                  {/* Aftereffects summary */}
                   <div className="bg-gray-50 border rounded-lg p-3">
                     <p className="text-xs text-muted-foreground font-medium mb-2">O que acontece após o downgrade:</p>
                     <ul className="text-xs text-muted-foreground space-y-1">
@@ -732,7 +723,6 @@ export function AgencyPlanConfig() {
                 </div>
               )}
 
-              {/* Simple freeze warning for cases not covered above */}
               {previewData.isUpgrade && ((previewData.willFreeze?.properties ?? 0) > 0 || (previewData.willFreeze?.users ?? 0) > 0) && (
                 <Alert className="border-amber-300 bg-amber-50">
                   <Lock className="h-4 w-4 text-amber-600" />

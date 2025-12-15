@@ -66,7 +66,7 @@ export function Notifications() {
     mutationFn: (id: string) => notificationsAPI.markAsRead(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      queryClient.invalidateQueries({ queryKey: ['notifications-unread'] }) // Update sidebar badge
+      queryClient.invalidateQueries({ queryKey: ['notifications-unread'] })
       toast.success('Notificação marcada como lida')
     },
     onError: (error: any) => {
@@ -78,7 +78,7 @@ export function Notifications() {
     mutationFn: (id: string) => notificationsAPI.deleteNotification(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      queryClient.invalidateQueries({ queryKey: ['notifications-unread'] }) // Update sidebar badge
+      queryClient.invalidateQueries({ queryKey: ['notifications-unread'] })
       setNotificationToDelete(null)
       toast.success('Notificação excluída')
     },

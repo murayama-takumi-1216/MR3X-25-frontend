@@ -268,7 +268,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const token = localStorage.getItem('accessToken');
         if (token && !storeUser) {
-          // Token exists but user not loaded - will be handled by API interceptor
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
@@ -294,7 +293,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: any) {
       let message = error?.response?.data?.message || error.message || 'Erro ao fazer login';
 
-      // Check if user is frozen and show specific error message
       if (message.startsWith('FROZEN_USER:')) {
         message = message.replace('FROZEN_USER:', '');
         toast.error(message, {

@@ -15,7 +15,6 @@ interface RGInputProps {
   name?: string;
 }
 
-// Format RG as 00.000.000-0 (Brazilian format)
 function formatRG(value: string): string {
   const digits = value.replace(/\D/g, '');
 
@@ -30,7 +29,6 @@ function formatRG(value: string): string {
   }
 }
 
-// Validate RG format (must have 9 digits)
 function validateRG(value: string): { isValid: boolean; error?: string } {
   const digits = value.replace(/\D/g, '');
 
@@ -82,7 +80,6 @@ export function RGInput({
     const inputValue = e.target.value;
     const digits = inputValue.replace(/\D/g, '');
 
-    // Limit to 9 digits
     if (digits.length > 9) return;
 
     const formatted = formatRG(inputValue);

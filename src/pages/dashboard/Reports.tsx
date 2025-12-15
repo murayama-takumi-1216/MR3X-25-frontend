@@ -17,7 +17,6 @@ export default function Reports() {
   const canViewUsers = hasPermission('users:read')
   const canViewPayments = hasPermission('payments:read')
 
-  // All hooks must be called before any conditional returns
   const currentYear = new Date().getFullYear()
   const [year, setYear] = useState<number>(currentYear)
   const [loading, setLoading] = useState<boolean>(false)

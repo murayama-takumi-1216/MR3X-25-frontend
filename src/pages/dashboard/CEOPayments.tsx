@@ -82,7 +82,6 @@ export function CEOPayments() {
   const [planFilter, setPlanFilter] = useState('all');
   const [activeTab, setActiveTab] = useState('agencies');
 
-  // Fetch platform revenue data
   const { data: platformRevenue, isLoading } = useQuery({
     queryKey: ['platform-revenue'],
     queryFn: () => dashboardAPI.getPlatformRevenue(),
@@ -110,7 +109,6 @@ export function CEOPayments() {
 
   const data = platformRevenue as PlatformRevenueData;
 
-  // Filter agencies based on search and plan
   const filteredAgencies = (data?.agencies || []).filter((agency) => {
     const searchMatch =
       searchTerm === '' ||
@@ -123,7 +121,6 @@ export function CEOPayments() {
     return searchMatch && planMatch;
   });
 
-  // Filter independent owners based on search and plan
   const filteredOwners = (data?.independentOwners || []).filter((owner) => {
     const searchMatch =
       searchTerm === '' ||
@@ -165,7 +162,6 @@ export function CEOPayments() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
@@ -178,7 +174,6 @@ export function CEOPayments() {
         </div>
       </div>
 
-      {/* Statistics Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardContent className="p-3 sm:p-4">
@@ -233,7 +228,6 @@ export function CEOPayments() {
         </Card>
       </div>
 
-      {/* Plan Distribution */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
@@ -272,7 +266,6 @@ export function CEOPayments() {
         </Card>
       </div>
 
-      {/* Filters */}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -312,7 +305,6 @@ export function CEOPayments() {
         </CardContent>
       </Card>
 
-      {/* Tabs for Agencies and Independent Owners */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="agencies" className="flex items-center gap-2">
@@ -325,7 +317,6 @@ export function CEOPayments() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Agencies Tab */}
         <TabsContent value="agencies">
           <Card>
             <CardHeader>
@@ -394,7 +385,6 @@ export function CEOPayments() {
           </Card>
         </TabsContent>
 
-        {/* Independent Owners Tab */}
         <TabsContent value="owners">
           <Card>
             <CardHeader>
@@ -445,7 +435,6 @@ export function CEOPayments() {
         </TabsContent>
       </Tabs>
 
-      {/* Recent Payments */}
       {(data?.recentPayments?.length || 0) > 0 && (
         <Card>
           <CardHeader>

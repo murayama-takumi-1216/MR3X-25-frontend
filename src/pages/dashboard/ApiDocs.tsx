@@ -87,11 +87,9 @@ const client = axios.create({
   }
 });
 
-// List properties
 const response = await client.get('/properties');
 console.log(response.data);
 
-// Create a property
 const newProperty = await client.post('/properties', {
   name: 'New Property',
   address: '123 Main St',
@@ -130,11 +128,9 @@ $client = new GuzzleHttp\\Client([
     ]
 ]);
 
-// List properties
 $response = $client->get('properties');
 $properties = json_decode($response->getBody(), true);
 
-// Create a property
 $response = $client->post('properties', [
     'json' => [
         'name' => 'New Property',

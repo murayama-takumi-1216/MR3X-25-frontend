@@ -136,12 +136,10 @@ export function Inspections() {
   const [filterStatus, _setFilterStatus] = useState<string>('');
   const [filterProperty, _setFilterProperty] = useState<string>('');
 
-  // Suppress unused variable warnings - filters will be implemented later
   void _setFilterType;
   void _setFilterStatus;
   void _setFilterProperty;
 
-  // Search states
   const [searchTerm, setSearchTerm] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -313,7 +311,6 @@ export function Inspections() {
         items: inspectionItems.length > 0 ? inspectionItems : undefined,
       });
 
-      // Upload media for each item
       const inspectionId = result.id || result.data?.id;
       if (inspectionId) {
         for (const [itemIndex, files] of itemFilePreviews.entries()) {
@@ -360,7 +357,6 @@ export function Inspections() {
     if (!selectedInspection) return;
     setUpdating(true);
     try {
-      // Delete media marked for deletion
       for (const mediaId of mediaToDelete) {
         try {
           await inspectionsAPI.deleteMedia(selectedInspection.id, mediaId);
@@ -369,13 +365,11 @@ export function Inspections() {
         }
       }
 
-      // Update inspection
       await inspectionsAPI.updateInspection(selectedInspection.id, {
         ...editForm,
         items: inspectionItems.length > 0 ? inspectionItems : undefined,
       });
 
-      // Upload new media for each item
       for (const [itemIndex, files] of itemFilePreviews.entries()) {
         if (files.length > 0) {
           const room = inspectionItems[itemIndex]?.room;
@@ -410,7 +404,6 @@ export function Inspections() {
       const fullDetails = await inspectionsAPI.getInspectionById(inspection.id);
       setInspectionDetail(fullDetails);
 
-      // Load media from server
       try {
         const mediaList = await inspectionsAPI.getMedia(inspection.id);
         if (Array.isArray(mediaList)) {
@@ -445,7 +438,6 @@ export function Inspections() {
       });
       setInspectionItems(fullDetails.items || []);
 
-      // Load existing media from server
       try {
         const mediaList = await inspectionsAPI.getMedia(inspection.id);
         if (Array.isArray(mediaList)) {
@@ -900,7 +892,6 @@ export function Inspections() {
                 </table>
               </div>
 
-              {/* Mobile Card View */}
               <div className="md:hidden divide-y divide-border">
                 {inspections.map((inspection: Inspection) => (
                   <div key={inspection.id} className="p-3 sm:p-4">
@@ -915,7 +906,6 @@ export function Inspections() {
                       </div>
                     </div>
 
-                    {/* Token display if exists */}
                     {inspection.token && (
                       <p className="text-[10px] font-mono text-muted-foreground bg-muted px-2 py-1 rounded mb-2 truncate">
                         {inspection.token}
@@ -1546,7 +1536,6 @@ export function Inspections() {
                           </span>
                         </div>
 
-                        {/* Existing media from server */}
                         {getItemExistingMedia(index).length > 0 && (
                           <div className="mt-3">
                             <Label className="text-xs text-muted-foreground mb-2 block">Mídia existente:</Label>
@@ -1586,7 +1575,6 @@ export function Inspections() {
                           </div>
                         )}
 
-                        {/* New file previews */}
                         {getItemFilePreviews(index).length > 0 && (
                           <div className="mt-3">
                             <Label className="text-xs text-muted-foreground mb-2 block">Novos arquivos:</Label>
@@ -1643,7 +1631,6 @@ export function Inspections() {
           </DialogContent>
         </Dialog>
 
-        {/* Detail Modal - Mobile Responsive */}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
             <DialogHeader>
@@ -1662,7 +1649,6 @@ export function Inspections() {
             </DialogHeader>
             {inspectionDetail && (
               <div className="space-y-4 sm:space-y-6">
-                {/* Token Display */}
                 {inspectionDetail.token && (
                   <div className="p-3 sm:p-4 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-lg">
                     <div className="flex items-center justify-between gap-2">
@@ -1696,7 +1682,6 @@ export function Inspections() {
                   </div>
                 )}
 
-                {/* Basic Info - Mobile Responsive Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <Label className="text-xs sm:text-sm text-muted-foreground">Imóvel</Label>
@@ -1726,7 +1711,6 @@ export function Inspections() {
                   )}
                 </div>
 
-                {/* Notes */}
                 {inspectionDetail.notes && (
                   <div>
                     <Label className="text-xs sm:text-sm text-muted-foreground">Observações</Label>
@@ -1734,7 +1718,6 @@ export function Inspections() {
                   </div>
                 )}
 
-                {/* General Media from server */}
                 {getDetailMediaGeneral().length > 0 && (
                   <div>
                     <Label className="text-muted-foreground mb-2 flex items-center gap-1">
@@ -1775,7 +1758,6 @@ export function Inspections() {
                   </div>
                 )}
 
-                {/* Legacy General Photos */}
                 {inspectionDetail.photos && getDetailMediaGeneral().length === 0 && (() => {
                   try {
                     const photos = typeof inspectionDetail.photos === 'string'
@@ -1816,7 +1798,6 @@ export function Inspections() {
                   }
                 })()}
 
-                {/* Signatures - Mobile Responsive */}
                 <div className="grid grid-cols-2 gap-2 sm:gap-4">
                   <div className="p-2 sm:p-3 border rounded-lg text-center">
                     <PenTool className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-muted-foreground" />
@@ -1856,7 +1837,6 @@ export function Inspections() {
                   </div>
                 </div>
 
-                {/* Inspection Items with Photos - Mobile Responsive */}
                 {inspectionDetail.items && inspectionDetail.items.length > 0 && (
                   <div>
                     <Label className="text-xs sm:text-sm text-muted-foreground mb-2 block">Itens da Vistoria ({inspectionDetail.items.length})</Label>
@@ -1876,7 +1856,6 @@ export function Inspections() {
                             </div>
                           </div>
 
-                          {/* Media from server */}
                           {getDetailMediaForItem(index).length > 0 && (
                             <div className="pt-3 border-t">
                               <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
@@ -1917,7 +1896,6 @@ export function Inspections() {
                             </div>
                           )}
 
-                          {/* Legacy photos from item data */}
                           {item.photos && item.photos.length > 0 && getDetailMediaForItem(index).length === 0 && (
                             <div className="pt-3 border-t">
                               <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-1">

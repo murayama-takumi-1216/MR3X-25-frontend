@@ -16,7 +16,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081';
 
-// Get base URL without /api suffix for static files
 const getStaticBaseUrl = () => {
   const url = API_BASE_URL;
   return url.endsWith('/api') ? url.slice(0, -4) : url;
@@ -108,38 +107,33 @@ export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, loading, isAuthenticated, logout, hasPermission } = useAuth();
 
-  // Fetch unread chat count
   const { data: chatsData } = useQuery({
     queryKey: ['chats-unread'],
     queryFn: () => chatAPI.getChats(),
     enabled: isAuthenticated,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
   });
 
-  // Fetch unread notifications count
   const { data: notificationsData } = useQuery({
     queryKey: ['notifications-unread'],
     queryFn: () => notificationsAPI.getNotifications(),
     enabled: isAuthenticated,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
   });
 
-  // Fetch pending extrajudicial notifications for INQUILINO
   const { data: extrajudicialData } = useQuery({
     queryKey: ['extrajudicial-unread'],
     queryFn: () => extrajudicialNotificationsAPI.getNotifications({}),
     enabled: isAuthenticated && user?.role === 'INQUILINO',
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
   });
 
-  // Fetch user profile with photo
   const { data: userProfile } = useQuery({
     queryKey: ['profile'],
     queryFn: () => profileAPI.getProfile(),
     enabled: isAuthenticated,
   });
 
-  // Calculate unread counts
   const unreadChatsCount = Array.isArray(chatsData)
     ? chatsData.reduce((sum: number, chat: any) => sum + (chat.unreadCount || 0), 0)
     : 0;
@@ -148,7 +142,6 @@ export function DashboardLayout() {
     ? notificationsData.filter((n: any) => !n.read).length
     : (notificationsData?.data ? notificationsData.data.filter((n: any) => !n.read).length : 0);
 
-  // Calculate pending extrajudicial notifications (sent/viewed but not signed by debtor)
   const pendingExtrajudicialCount = (() => {
     const notifications = extrajudicialData?.data || [];
     return notifications.filter((n: any) =>
@@ -536,14 +529,12 @@ export function DashboardLayout() {
             )}
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 p-3 lg:p-4 space-y-1 overflow-y-auto">
             {navigation.map((item) => {
               const isActive = item.href === '/dashboard'
                 ? location.pathname === '/dashboard'
                 : location.pathname?.startsWith(item.href);
 
-              // Determine badge count for this item
               let badgeCount = 0;
               if (item.href === '/dashboard/chat') {
                 badgeCount = unreadChatsCount;

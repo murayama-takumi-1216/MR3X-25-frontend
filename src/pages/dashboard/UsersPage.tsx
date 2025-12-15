@@ -42,7 +42,6 @@ export function UsersPage() {
   const canCreateUsers = hasPermission('users:create');
   const canEditUsers = hasPermission('users:update');
   const canDeleteUsers = hasPermission('users:delete');
-  // Allow CEO, ADMIN, AGENCY_ADMIN, AGENCY_MANAGER, BROKER, PROPRIETARIO, INDEPENDENT_OWNER
   const isAllowedRole = ['CEO', 'ADMIN', 'AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER', 'PROPRIETARIO', 'INDEPENDENT_OWNER'].includes(user?.role || '');
   const allowAccess = canViewUsers && isAllowedRole;
 

@@ -89,7 +89,6 @@ export function Properties() {
     dueDay: '',
     ownerId: '',
     agencyFee: '',
-    // Additional property details for contracts
     registrationNumber: '',
     builtArea: '',
     totalArea: '',
@@ -111,7 +110,6 @@ export function Properties() {
     dueDay: '',
     ownerId: '',
     agencyFee: '',
-    // Additional property details for contracts
     registrationNumber: '',
     builtArea: '',
     totalArea: '',
@@ -341,7 +339,6 @@ export function Properties() {
           neighborhood: data?.neighborhood || prev.neighborhood,
         }));
       } catch {
-        // Silent fail - CEP lookup failure is not critical
       }
     }
   };
@@ -371,7 +368,6 @@ export function Properties() {
             neighborhood: data?.neighborhood || prev.neighborhood,
           }));
         } catch {
-          // Silent fail - CEP lookup failure is not critical
         }
       }
     }
@@ -540,7 +536,6 @@ export function Properties() {
         stateNumber: newProperty.state,
         ownerId: ownerIdToUse,
         agencyFee: parsePercentageInput(newProperty.agencyFee),
-        // Additional property details for contracts
         registrationNumber: newProperty.registrationNumber || undefined,
         builtArea: newProperty.builtArea ? Number(newProperty.builtArea.replace(/\D/g, '')) / 100 : undefined,
         totalArea: newProperty.totalArea ? Number(newProperty.totalArea.replace(/\D/g, '')) / 100 : undefined,
@@ -589,7 +584,6 @@ export function Properties() {
         stateNumber: editForm.state,
         ownerId: ownerIdToUse,
         agencyFee: parsePercentageInput(editForm.agencyFee),
-        // Additional property details for contracts
         registrationNumber: editForm.registrationNumber || undefined,
         builtArea: editForm.builtArea ? Number(editForm.builtArea.replace(/\D/g, '')) / 100 : undefined,
         totalArea: editForm.totalArea ? Number(editForm.totalArea.replace(/\D/g, '')) / 100 : undefined,
@@ -1529,7 +1523,6 @@ export function Properties() {
                 )}
               </div>
 
-              {/* Additional Property Details for Contracts */}
               <div className="border-t pt-4 mt-4">
                 <h4 className="text-sm font-medium mb-3">Detalhes Adicionais (para contratos)</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1815,7 +1808,6 @@ export function Properties() {
                 )}
               </div>
 
-              {/* Additional Property Details for Contracts */}
               <div className="border-t pt-4 mt-4">
                 <h4 className="text-sm font-medium mb-3">Detalhes Adicionais (para contratos)</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

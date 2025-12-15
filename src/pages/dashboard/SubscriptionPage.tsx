@@ -119,13 +119,11 @@ export function SubscriptionPage() {
   const [pendingCharges, setPendingCharges] = useState<PendingCharge[]>([]);
   const [billingHistory, setBillingHistory] = useState<UsageSummary[]>([]);
 
-  // Upgrade dialog state
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [upgradePreview, setUpgradePreview] = useState<UpgradePreview | null>(null);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
 
-  // API add-on state
   const [apiAddOnLoading, setApiAddOnLoading] = useState(false);
 
   useEffect(() => {
@@ -252,10 +250,8 @@ export function SubscriptionPage() {
           <TabsTrigger value="billing">Cobrancas</TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Current Plan Card */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
@@ -335,7 +331,6 @@ export function SubscriptionPage() {
               </CardFooter>
             </Card>
 
-            {/* Billing Summary Card */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -379,7 +374,6 @@ export function SubscriptionPage() {
               </CardFooter>
             </Card>
 
-            {/* API Add-on Card (for Professional plan) */}
             {currentUsage?.plan === 'PROFESSIONAL' && (
               <Card>
                 <CardHeader>
@@ -439,7 +433,6 @@ export function SubscriptionPage() {
               </Card>
             )}
 
-            {/* Frozen Items Alert */}
             {(currentUsage?.contracts?.frozen > 0 ||
               currentUsage?.users?.frozen > 0) && (
               <Card className="border-amber-200 bg-amber-50">
@@ -476,7 +469,6 @@ export function SubscriptionPage() {
           </div>
         </TabsContent>
 
-        {/* Plans Tab */}
         <TabsContent value="plans" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((plan) => {
@@ -572,7 +564,6 @@ export function SubscriptionPage() {
           </div>
         </TabsContent>
 
-        {/* Usage Tab */}
         <TabsContent value="usage" className="space-y-6">
           <Card>
             <CardHeader>
@@ -658,9 +649,7 @@ export function SubscriptionPage() {
           </Card>
         </TabsContent>
 
-        {/* Billing Tab */}
         <TabsContent value="billing" className="space-y-6">
-          {/* Pending Charges */}
           {pendingCharges.length > 0 && (
             <Card>
               <CardHeader>
@@ -698,7 +687,6 @@ export function SubscriptionPage() {
             </Card>
           )}
 
-          {/* Billing History */}
           <Card>
             <CardHeader>
               <CardTitle>Historico de Cobrancas</CardTitle>
@@ -740,7 +728,6 @@ export function SubscriptionPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Upgrade/Downgrade Confirmation Dialog */}
       <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -757,7 +744,6 @@ export function SubscriptionPage() {
 
           {upgradePreview && (
             <div className="space-y-4">
-              {/* Plan Change Details */}
               <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div>
                   <p className="text-sm text-muted-foreground">Contratos</p>
@@ -777,7 +763,6 @@ export function SubscriptionPage() {
                 </div>
               </div>
 
-              {/* New Features */}
               {upgradePreview.changes.newFeatures.length > 0 && (
                 <div>
                   <p className="text-sm font-medium mb-2">Novos recursos:</p>
@@ -795,7 +780,6 @@ export function SubscriptionPage() {
                 </div>
               )}
 
-              {/* Pricing */}
               <div className="border-t pt-4">
                 {upgradePreview.proratedAmount > 0 && (
                   <div className="flex justify-between mb-2">
@@ -817,7 +801,6 @@ export function SubscriptionPage() {
                 </div>
               </div>
 
-              {/* Downgrade Warning */}
               {upgradePreview.newMonthlyPrice <
                 (currentUsage?.billing?.monthlyPrice || 0) && (
                 <Alert className="border-amber-200 bg-amber-50">

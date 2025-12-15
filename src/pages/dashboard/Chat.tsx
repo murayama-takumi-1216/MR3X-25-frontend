@@ -134,7 +134,7 @@ export function Chat() {
     mutationFn: (chatId: string) => chatAPI.markAsRead(chatId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chats'] })
-      queryClient.invalidateQueries({ queryKey: ['chats-unread'] }) // Update sidebar badge
+      queryClient.invalidateQueries({ queryKey: ['chats-unread'] })
     },
   })
 
@@ -181,7 +181,6 @@ export function Chat() {
       try {
         await markAsReadMutation.mutateAsync(chat.id)
       } catch {
-        // Silent fail - mark as read is not critical
       }
     }
   }

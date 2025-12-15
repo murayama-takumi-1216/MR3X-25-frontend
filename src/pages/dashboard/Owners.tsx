@@ -121,7 +121,6 @@ export function Owners() {
   const [emailVerified, setEmailVerified] = useState(false)
   const [checkingEmail, setCheckingEmail] = useState(false)
 
-  // Search states
   const [searchTerm, setSearchTerm] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -384,7 +383,7 @@ export function Owners() {
         bankAccount: fullOwnerDetails.bankAccount || '',
         pixKey: fullOwnerDetails.pixKey || '',
       })
-      setEmailVerified(true) // Current email is valid
+      setEmailVerified(true)
       setShowEditModal(true)
     } catch {
       toast.error('Erro ao carregar detalhes do imóvel')
@@ -1279,7 +1278,6 @@ export function Owners() {
           </DialogContent>
         </Dialog>
 
-        {/* Upgrade Plan Modal */}
         <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
           <DialogContent className="max-w-md">
             <DialogHeader>

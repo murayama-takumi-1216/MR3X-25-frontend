@@ -85,39 +85,37 @@ export function SalesInbox() {
   }, [fetchedNotifications]);
 
   const handleMarkAsRead = async (id: string) => {
-    
+
     setLocalMessages(prev => prev.map(msg =>
       msg.id === id ? { ...msg, isRead: true, readAt: new Date().toISOString() } : msg
     ));
-    
+
     if (selectedMessage?.id === id) {
       setSelectedMessage(prev => prev ? { ...prev, isRead: true, readAt: new Date().toISOString() } : null);
     }
-    
+
     try {
       await apiClient.patch(`/sales-rep/messages/${id}/read`);
       queryClient.invalidateQueries({ queryKey: ['sales-messages'] });
     } catch {
-      // Silent fail - optimistic update already applied
     }
   };
 
   const handleToggleStar = async (id: string) => {
-    
+
     setLocalMessages(prev => prev.map(msg =>
       msg.id === id ? { ...msg, isStarred: !msg.isStarred } : msg
     ));
-    
+
     if (selectedMessage?.id === id) {
       setSelectedMessage(prev => prev ? { ...prev, isStarred: !prev.isStarred } : null);
     }
     toast.success('Mensagem atualizada');
-    
+
     try {
       await apiClient.patch(`/sales-rep/messages/${id}/star`);
       queryClient.invalidateQueries({ queryKey: ['sales-messages'] });
     } catch {
-      // Silent fail - optimistic update already applied
     }
   };
 
@@ -135,18 +133,17 @@ export function SalesInbox() {
     if (!messageToDelete) return;
 
     setLocalMessages(prev => prev.filter(msg => msg.id !== messageToDelete));
-    
+
     if (selectedMessage?.id === messageToDelete) {
       setSelectedMessage(null);
     }
     toast.success('Mensagem excluída com sucesso');
     closeDeleteModal();
-    
+
     try {
       await apiClient.delete(`/sales-rep/messages/${messageToDelete}`);
       queryClient.invalidateQueries({ queryKey: ['sales-messages'] });
     } catch {
-      // Silent fail - optimistic update already applied
     }
   };
 
@@ -186,7 +183,6 @@ export function SalesInbox() {
       });
       queryClient.invalidateQueries({ queryKey: ['sales-messages'] });
     } catch {
-      // Silent fail - optimistic update already applied
     }
   };
 
@@ -264,7 +260,7 @@ export function SalesInbox() {
 
   return (
     <div className="space-y-6">
-      {}
+      { }
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Caixa de Entrada</h1>
@@ -276,7 +272,7 @@ export function SalesInbox() {
         </Button>
       </div>
 
-      {}
+      { }
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex gap-2">
           <Button
@@ -335,7 +331,7 @@ export function SalesInbox() {
         </div>
       </div>
 
-      {}
+      { }
       <Card>
         <CardContent className="p-4">
           <div className="relative">
@@ -350,10 +346,10 @@ export function SalesInbox() {
         </CardContent>
       </Card>
 
-      {}
+      { }
       {activeTab === 'messages' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {}
+          { }
           <Card className="lg:col-span-1">
             <CardHeader>
               <CardTitle className="text-sm">Mensagens ({filteredMessages.length})</CardTitle>
@@ -363,9 +359,8 @@ export function SalesInbox() {
                 {filteredMessages.map((message: Message) => (
                   <div
                     key={message.id}
-                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                      !message.isRead ? 'bg-blue-50/50' : ''
-                    } ${selectedMessage?.id === message.id ? 'bg-blue-100' : ''}`}
+                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${!message.isRead ? 'bg-blue-50/50' : ''
+                      } ${selectedMessage?.id === message.id ? 'bg-blue-100' : ''}`}
                     onClick={() => {
                       setSelectedMessage(message);
                       if (!message.isRead) {
@@ -425,7 +420,7 @@ export function SalesInbox() {
             </CardContent>
           </Card>
 
-          {}
+          { }
           <Card className="lg:col-span-2">
             <CardContent className="p-6">
               {selectedMessage ? (
@@ -471,9 +466,9 @@ export function SalesInbox() {
                     <h2 className="text-xl font-semibold">{selectedMessage.subject}</h2>
                   </div>
 
-                  {}
+                  { }
                   <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                    {}
+                    { }
                     <div className="flex gap-3 justify-start">
                       <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                         <User className="w-5 h-5 text-primary" />
@@ -490,7 +485,7 @@ export function SalesInbox() {
                       </div>
                     </div>
 
-                    {}
+                    { }
                     {selectedMessage.replies?.map((reply) => {
                       const isMyReply = reply.senderRole === 'REPRESENTATIVE' || reply.senderRole === 'SALES_REP';
                       return (
@@ -498,16 +493,15 @@ export function SalesInbox() {
                           key={reply.id}
                           className={`flex gap-3 ${isMyReply ? 'justify-end' : 'justify-start'}`}
                         >
-                          {}
+                          { }
                           {!isMyReply && (
                             <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                               <User className="w-5 h-5 text-primary" />
                             </div>
                           )}
 
-                          <div className={`max-w-[75%] rounded-lg p-4 ${
-                            isMyReply ? 'bg-orange-500 text-white' : 'bg-gray-100'
-                          }`}>
+                          <div className={`max-w-[75%] rounded-lg p-4 ${isMyReply ? 'bg-orange-500 text-white' : 'bg-gray-100'
+                            }`}>
                             <div className={`flex items-center gap-2 mb-2 ${isMyReply ? 'justify-end' : ''}`}>
                               {!isMyReply && (
                                 <>
@@ -522,7 +516,7 @@ export function SalesInbox() {
                             <p className="whitespace-pre-wrap text-sm">{reply.content}</p>
                           </div>
 
-                          {}
+                          { }
                           {isMyReply && (
                             <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
                               <User className="w-5 h-5 text-orange-600" />
@@ -565,7 +559,7 @@ export function SalesInbox() {
         </div>
       )}
 
-      {}
+      { }
       {activeTab === 'notifications' && (
         <Card>
           <CardHeader>
@@ -579,9 +573,8 @@ export function SalesInbox() {
               {filteredNotifications.map((notification: Notification) => (
                 <div
                   key={notification.id}
-                  className={`flex items-start gap-4 p-4 rounded-lg border transition-colors ${
-                    !notification.isRead ? 'bg-blue-50/50 border-blue-100' : 'bg-gray-50 border-gray-100'
-                  } ${notification.link ? 'cursor-pointer hover:bg-gray-100' : ''}`}
+                  className={`flex items-start gap-4 p-4 rounded-lg border transition-colors ${!notification.isRead ? 'bg-blue-50/50 border-blue-100' : 'bg-gray-50 border-gray-100'
+                    } ${notification.link ? 'cursor-pointer hover:bg-gray-100' : ''}`}
                   onClick={() => {
                     if (notification.link) {
                       window.location.href = notification.link;
@@ -617,7 +610,7 @@ export function SalesInbox() {
         </Card>
       )}
 
-      {}
+      { }
       {deleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md">
@@ -650,7 +643,7 @@ export function SalesInbox() {
         </div>
       )}
 
-      {}
+      { }
       {showComposeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">

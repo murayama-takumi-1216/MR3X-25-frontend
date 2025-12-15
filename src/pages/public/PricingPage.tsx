@@ -110,7 +110,6 @@ export function PricingPage() {
   };
 
   const getAnnualPrice = (monthlyPrice: number) => {
-    // 20% discount for annual billing
     return monthlyPrice * 12 * 0.8;
   };
 
@@ -144,7 +143,6 @@ export function PricingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
       <div className="container mx-auto px-4 pt-12 pb-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -154,7 +152,6 @@ export function PricingPage() {
             Escolha o plano ideal para sua imobiliaria. Pague apenas pelo que usar.
           </p>
 
-          {/* Billing Toggle */}
           <div className="flex justify-center mb-8">
             <Tabs value={billingCycle} onValueChange={(v) => setBillingCycle(v as 'monthly' | 'annual')}>
               <TabsList>
@@ -171,7 +168,6 @@ export function PricingPage() {
         </div>
       </div>
 
-      {/* Plans Grid */}
       <div className="container mx-auto px-4 pb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {plans.map((plan) => (
@@ -196,7 +192,6 @@ export function PricingPage() {
               </CardHeader>
 
               <CardContent className="flex-1">
-                {/* Price */}
                 <div className="mb-6">
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-bold text-gray-900">
@@ -211,7 +206,6 @@ export function PricingPage() {
                   )}
                 </div>
 
-                {/* Limits */}
                 <div className="space-y-3 mb-6 pb-6 border-b">
                   <div className="flex items-center gap-2 text-sm">
                     <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -227,7 +221,6 @@ export function PricingPage() {
                   </div>
                 </div>
 
-                {/* Features */}
                 <div className="space-y-2">
                   {plan.features.map((feature, index) => (
                     <div key={index} className="flex items-start gap-2 text-sm text-gray-600">
@@ -237,7 +230,6 @@ export function PricingPage() {
                   ))}
                 </div>
 
-                {/* Pay-per-use Pricing */}
                 <div className="mt-6 pt-6 border-t">
                   <p className="text-xs text-gray-500 uppercase font-semibold mb-3">
                     Precos sob demanda
@@ -286,7 +278,6 @@ export function PricingPage() {
         </div>
       </div>
 
-      {/* Feature Comparison Table */}
       <div className="container mx-auto px-4 py-12">
         <h2 className="text-2xl font-bold text-center mb-8">Comparativo de Recursos</h2>
         <div className="overflow-x-auto">
@@ -409,7 +400,6 @@ export function PricingPage() {
         </div>
       </div>
 
-      {/* FAQ Section */}
       <div className="container mx-auto px-4 py-12 bg-gray-50">
         <h2 className="text-2xl font-bold text-center mb-8">Perguntas Frequentes</h2>
         <div className="max-w-3xl mx-auto space-y-6">
@@ -444,7 +434,6 @@ export function PricingPage() {
         </div>
       </div>
 
-      {/* CTA Section */}
       <div className="container mx-auto px-4 py-16 text-center">
         <h2 className="text-3xl font-bold mb-4">Pronto para comecar?</h2>
         <p className="text-xl text-gray-600 mb-8">

@@ -28,7 +28,6 @@ export function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 px-4 py-6 sm:py-8">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-primary">MR3X</h1>
           <p className="text-sm text-muted-foreground mt-1">Gestão de Aluguéis</p>

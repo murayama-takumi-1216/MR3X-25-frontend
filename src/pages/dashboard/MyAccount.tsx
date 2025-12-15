@@ -30,7 +30,6 @@ import { formatDocumentInput, formatCNPJInput, formatCPFInput, formatCRECIInput 
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081';
 
-// Get base URL without /api suffix for static files
 const getStaticBaseUrl = () => {
   const url = API_BASE_URL;
   return url.endsWith('/api') ? url.slice(0, -4) : url;
@@ -52,7 +51,6 @@ export default function MyAccount() {
     neighborhood: '',
     city: '',
     state: '',
-    // Agency fields
     agencyName: '',
     agencyCnpj: '',
     representativeName: '',
@@ -70,20 +68,17 @@ export default function MyAccount() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Helper function to get full photo URL
   const getPhotoUrl = (photoUrl: string | null | undefined) => {
     if (!photoUrl) return undefined;
     if (photoUrl.startsWith('http')) return photoUrl;
     return `${getStaticBaseUrl()}${photoUrl}`;
   };
 
-  // Fetch profile data
   const { data: profile, isLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: profileAPI.getProfile,
   });
 
-  // Update form data when profile loads
   useEffect(() => {
     if (profile) {
       setFormData({
@@ -98,7 +93,6 @@ export default function MyAccount() {
         neighborhood: profile.neighborhood || '',
         city: profile.city || '',
         state: profile.state || '',
-        // Agency fields
         agencyName: profile.agency?.name || '',
         agencyCnpj: profile.agency?.cnpj || '',
         representativeName: profile.agency?.representativeName || '',
@@ -107,7 +101,6 @@ export default function MyAccount() {
     }
   }, [profile]);
 
-  // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: profileAPI.updateProfile,
     onSuccess: (data) => {
@@ -120,7 +113,6 @@ export default function MyAccount() {
     },
   });
 
-  // Upload photo mutation
   const uploadPhotoMutation = useMutation({
     mutationFn: profileAPI.uploadPhoto,
     onSuccess: () => {
@@ -132,7 +124,6 @@ export default function MyAccount() {
     },
   });
 
-  // Delete photo mutation
   const deletePhotoMutation = useMutation({
     mutationFn: profileAPI.deletePhoto,
     onSuccess: () => {
@@ -144,7 +135,6 @@ export default function MyAccount() {
     },
   });
 
-  // Change password mutation
   const changePasswordMutation = useMutation({
     mutationFn: profileAPI.changePassword,
     onSuccess: () => {
@@ -208,7 +198,6 @@ export default function MyAccount() {
     setShowDeleteModal(false);
   };
 
-  // Handle CEP data auto-fill
   const handleCEPData = useCallback((data: any) => {
     setFormData(prev => ({
       ...prev,
@@ -276,7 +265,6 @@ export default function MyAccount() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Profile Card */}
         <Card className="lg:col-span-1">
           <CardHeader className="text-center">
             <div className="flex flex-col items-center space-y-4">
@@ -363,7 +351,6 @@ export default function MyAccount() {
           </CardContent>
         </Card>
 
-        {/* Settings Tabs */}
         <Card className="lg:col-span-2">
           <CardContent className="pt-6">
             <Tabs defaultValue="profile" className="w-full">
@@ -378,11 +365,9 @@ export default function MyAccount() {
                 </TabsTrigger>
               </TabsList>
 
-              {/* Profile Tab */}
               <TabsContent value="profile" className="mt-6">
                 <form onSubmit={handleProfileSubmit} className="space-y-6">
 
-                  {/* Informações Pessoais Section */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                       <User className="h-4 w-4" />
@@ -423,7 +408,6 @@ export default function MyAccount() {
 
                   <Separator />
 
-                  {/* Contato e Documentos Section */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                       <Phone className="h-4 w-4" />
@@ -473,7 +457,6 @@ export default function MyAccount() {
 
                   <Separator />
 
-                  {/* Endereço Section */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                       <MapPin className="h-4 w-4" />
@@ -532,7 +515,6 @@ export default function MyAccount() {
                     </div>
                   </div>
 
-                  {/* Informações da Agência Section - Only for AGENCY_ADMIN */}
                   {showAgencyInfo && (
                     <>
                       <Separator />
@@ -564,7 +546,6 @@ export default function MyAccount() {
                         </div>
                       </div>
 
-                      {/* Representante Legal Section */}
                       <Separator />
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
@@ -620,7 +601,6 @@ export default function MyAccount() {
                 </form>
               </TabsContent>
 
-              {/* Security Tab */}
               <TabsContent value="security" className="mt-6">
                 <form onSubmit={handlePasswordSubmit} className="space-y-4">
                   <div className="space-y-4">
@@ -722,7 +702,6 @@ export default function MyAccount() {
         </Card>
       </div>
 
-      {/* Delete Photo Confirmation Modal */}
       <AlertDialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
         <AlertDialogContent>
           <AlertDialogHeader>

@@ -297,7 +297,6 @@ export const profileAPI = {
     neighborhood?: string;
     city?: string;
     state?: string;
-    // Agency fields
     agencyName?: string;
     agencyCnpj?: string;
     representativeName?: string;
@@ -530,7 +529,6 @@ export const agenciesAPI = {
 };
 
 export const plansAPI = {
-  // Basic plan endpoints
   getPlans: async () => {
     const response = await apiClient.get('/plans');
     return response.data;
@@ -566,7 +564,6 @@ export const plansAPI = {
     return response.data;
   },
 
-  // Agency usage & billing
   getAgencyUsage: async (agencyId: string) => {
     const response = await apiClient.get(`/plans/agency/${agencyId}/usage`);
     return response.data;
@@ -594,7 +591,6 @@ export const plansAPI = {
     return response.data;
   },
 
-  // Plan limits & enforcement
   getFrozenSummary: async (agencyId: string) => {
     const response = await apiClient.get(`/plans/agency/${agencyId}/frozen`);
     return response.data;
@@ -640,7 +636,6 @@ export const plansAPI = {
     return response.data;
   },
 
-  // Upgrade & downgrade
   calculateUpgrade: async (agencyId: string, targetPlan: string) => {
     const response = await apiClient.get(`/plans/agency/${agencyId}/calculate-upgrade/${targetPlan}`);
     return response.data;
@@ -656,7 +651,6 @@ export const plansAPI = {
     return response.data;
   },
 
-  // API add-on
   enableApiAddOn: async (agencyId: string) => {
     const response = await apiClient.post(`/plans/agency/${agencyId}/api-addon/enable`);
     return response.data;
@@ -672,7 +666,6 @@ export const plansAPI = {
     return response.data;
   },
 
-  // Microtransaction charges
   chargeExtraContract: async (agencyId: string, contractId: string) => {
     const response = await apiClient.post(`/plans/agency/${agencyId}/charge/extra-contract`, { contractId });
     return response.data;
@@ -703,7 +696,6 @@ export const plansAPI = {
     return response.data;
   },
 
-  // Plan modification requests
   getPendingModificationRequests: async () => {
     const response = await apiClient.get('/plans/modification-requests/pending');
     return response.data;
@@ -724,7 +716,6 @@ export const plansAPI = {
     return response.data;
   },
 
-  // Legacy endpoints
   checkUserLimits: async (userId: string, type: 'property' | 'user' | 'contract') => {
     const response = await apiClient.get(`/plans/user/${userId}/limits?type=${type}`);
     return response.data;
@@ -902,7 +893,6 @@ export const inspectionsAPI = {
     return response.data;
   },
 
-  // Electronic signature with geolocation
   signInspectionWithGeo: async (id: string, signerType: 'tenant' | 'owner' | 'agency' | 'inspector', data: {
     signature: string;
     geoLat: number;
@@ -944,7 +934,6 @@ export const inspectionsAPI = {
     return response.data;
   },
 
-  // PDF Generation
   downloadProvisionalPdf: async (id: string) => {
     const response = await apiClient.get(`/inspections/${id}/pdf/provisional`, {
       responseType: 'blob',
@@ -966,7 +955,6 @@ export const inspectionsAPI = {
     return response.data;
   },
 
-  // Signature Links
   createSignatureLinks: async (id: string, parties: Array<{
     signerType: 'tenant' | 'owner' | 'agency' | 'inspector';
     email: string;
@@ -994,7 +982,6 @@ export const inspectionsAPI = {
     return response.data;
   },
 
-  // Templates
   getTemplates: async (params?: { type?: string; isDefault?: boolean }) => {
     const qs = new URLSearchParams();
     if (params) {
@@ -1029,7 +1016,6 @@ export const inspectionsAPI = {
     return response.data;
   },
 
-  // Media upload
   uploadMedia: async (id: string, files: File[], itemIndex?: number, room?: string) => {
     const formData = new FormData();
     files.forEach(file => formData.append('files', file));
@@ -1057,7 +1043,6 @@ export const inspectionsAPI = {
   },
 };
 
-// Extrajudicial Notifications API (Notificacao Extrajudicial)
 export const extrajudicialNotificationsAPI = {
   getNotifications: async (params?: {
     propertyId?: string;
@@ -1144,7 +1129,6 @@ export const extrajudicialNotificationsAPI = {
     return response.data;
   },
 
-  // Workflow Actions
   sendNotification: async (id: string, sentVia?: 'EMAIL' | 'WHATSAPP' | 'REGISTERED_MAIL' | 'IN_PERSON') => {
     const response = await apiClient.post(`/extrajudicial-notifications/${id}/send`, { sentVia });
     return response.data;
@@ -1201,7 +1185,6 @@ export const extrajudicialNotificationsAPI = {
     return response.data;
   },
 
-  // PDF Generation
   downloadProvisionalPdf: async (id: string) => {
     const response = await apiClient.get(`/extrajudicial-notifications/${id}/pdf/provisional`, {
       responseType: 'blob',
@@ -1228,7 +1211,6 @@ export const extrajudicialNotificationsAPI = {
     return response.data;
   },
 
-  // Verification
   verifyHash: async (id: string) => {
     const response = await apiClient.get(`/extrajudicial-notifications/${id}/verify`);
     return response.data;
@@ -1245,7 +1227,6 @@ export const extrajudicialNotificationsAPI = {
   },
 };
 
-// Public Verification API for Inspections and Notifications
 export const verificationAPI = {
   verifyInspection: async (token: string) => {
     const response = await apiClient.get(`/verify/inspection/${token}`);

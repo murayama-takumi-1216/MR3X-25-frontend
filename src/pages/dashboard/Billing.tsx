@@ -170,7 +170,6 @@ export default function BillingPage() {
               </div>
             </CardHeader>
             <CardContent className="p-0 sm:p-6">
-              {/* Mobile Card View */}
               <div className="block sm:hidden divide-y divide-border">
                 {invoices.map((invoice) => (
                   <div key={invoice.id} className="p-4 space-y-3">
@@ -210,7 +209,6 @@ export default function BillingPage() {
                 ))}
               </div>
 
-              {/* Desktop Table View */}
               <div className="hidden sm:block">
                 <Table>
                   <TableHeader>

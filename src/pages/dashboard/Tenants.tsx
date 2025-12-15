@@ -130,11 +130,9 @@ export function Tenants() {
   const [analysisResult, setAnalysisResult] = useState<any>(null)
   const [analysisError, setAnalysisError] = useState('')
 
-  // Upgrade modal states
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [upgradeErrorMessage, setUpgradeErrorMessage] = useState('')
 
-  // Search states
   const [searchTerm, setSearchTerm] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -148,13 +146,12 @@ export function Tenants() {
   }, [])
 
   const checkEmailExists = useCallback(async (email: string, currentEmail?: string) => {
-    // Reset states
     setEmailVerified(false)
 
     if (!email || email === currentEmail) {
       setEmailError('')
       if (email === currentEmail) {
-        setEmailVerified(true) // Current email is valid for edit
+        setEmailVerified(true)
       }
       return
     }
@@ -185,7 +182,6 @@ export function Tenants() {
     }
   }, [])
 
-  // All hooks must be called before any conditional returns
   const isAdminOrCeo = user?.role === 'CEO' || user?.role === 'ADMIN'
   const canLinkBrokers = user?.role === 'AGENCY_MANAGER' || user?.role === 'AGENCY_ADMIN'
 
@@ -208,7 +204,6 @@ export function Tenants() {
     enabled: canLinkBrokers,
   })
 
-  // Check tenant creation limits
   const isAgencyUser = ['AGENCY_ADMIN', 'AGENCY_MANAGER', 'BROKER'].includes(user?.role || '')
   const isOwnerUser = ['INDEPENDENT_OWNER', 'PROPRIETARIO'].includes(user?.role || '')
 
@@ -227,7 +222,6 @@ export function Tenants() {
 
   const canCreateTenant = tenantLimits?.allowed !== false
 
-  // Permission check after all hooks
   if (!canViewUsers) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -294,33 +288,26 @@ export function Tenants() {
   const handleProceedToRegistration = () => {
     if (!analysisResult) return
 
-    // Extract data from basicData
     const basicData = analysisResult.basicData || {}
     const phone = basicData.phone || ''
 
-    // Parse birthDate
     let birthDate = ''
     if (basicData.birthDate) {
       let rawDate = String(basicData.birthDate).trim()
-      // If it contains 'T' (ISO format like 1996-05-24T00:00:00), extract just the date part
       if (rawDate.includes('T')) {
         rawDate = rawDate.split('T')[0]
       }
-      // Check if already in yyyy-MM-dd format - use directly to avoid timezone issues
       if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
         birthDate = rawDate
       } else if (/^\d{2}\/\d{2}\/\d{4}$/.test(rawDate)) {
-        // DD/MM/YYYY format (Brazilian)
         const [day, month, year] = rawDate.split('/')
         birthDate = `${year}-${month}-${day}`
       } else if (/^\d{2}-\d{2}-\d{4}$/.test(rawDate)) {
-        // DD-MM-YYYY format
         const [day, month, year] = rawDate.split('-')
         birthDate = `${year}-${month}-${day}`
       }
     }
 
-    // Parse address - may contain neighborhood in format "STREET, NUMBER - NEIGHBORHOOD"
     let address = ''
     let neighborhood = ''
     if (basicData.address) {
@@ -333,7 +320,6 @@ export function Tenants() {
       }
     }
 
-    // Format CEP
     let cep = basicData.zipCode || ''
     if (cep && !cep.includes('-') && cep.length === 8) {
       cep = `${cep.slice(0, 5)}-${cep.slice(5)}`
@@ -364,7 +350,6 @@ export function Tenants() {
       emergencyContactPhone: '',
     })
 
-    // Reset email verification states
     setEmailVerified(false)
     setEmailError('')
     setCheckingEmail(false)
@@ -374,7 +359,6 @@ export function Tenants() {
   }
 
   const handleSkipVerification = () => {
-    // Reset form to empty state
     setNewTenant({
       name: '',
       email: '',
@@ -400,12 +384,10 @@ export function Tenants() {
       emergencyContactPhone: '',
     })
 
-    // Reset analysis state
     setAnalysisResult(null)
     setAnalysisError('')
     setSearchDocument('')
 
-    // Reset email verification states
     setEmailVerified(false)
     setEmailError('')
     setCheckingEmail(false)
@@ -446,7 +428,6 @@ export function Tenants() {
         }
       }
 
-      // Check if it's a plan limit error
       const isPlanLimitError = error?.response?.status === 403 ||
         errorMessage.toLowerCase().includes('plano') ||
         errorMessage.toLowerCase().includes('limite') ||
@@ -491,7 +472,6 @@ export function Tenants() {
   const handleCreateTenant = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Check plan limits before creating
     if (!canCreateTenant) {
       setUpgradeErrorMessage(tenantLimits?.message || 'Você atingiu o limite de usuários do seu plano.')
       setShowUpgradeModal(true)
@@ -579,7 +559,7 @@ export function Tenants() {
   const handleEditTenant = async (tenant: any) => {
     closeAllModals()
     setEmailError('')
-    setEmailVerified(true) // Current email is already valid
+    setEmailVerified(true)
     setCheckingEmail(false)
     setLoadingEdit(true)
     try {
@@ -2015,7 +1995,6 @@ export function Tenants() {
           </DialogContent>
         </Dialog>
 
-        {/* Upgrade Plan Modal */}
         <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
           <DialogContent className="max-w-md">
             <DialogHeader>

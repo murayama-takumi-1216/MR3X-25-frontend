@@ -415,10 +415,8 @@ const AnalysisDetailModal = ({
         </DialogHeader>
 
         <div className="space-y-4 sm:space-y-6">
-          {/* Basic Data Card */}
           {renderBasicData()}
 
-          {/* Risk Score */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base sm:text-lg">Score de Risco</CardTitle>
@@ -439,7 +437,6 @@ const AnalysisDetailModal = ({
             </CardContent>
           </Card>
 
-          {/* Summary Cards - Mobile Responsive */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-4">
             <Card className="p-2 sm:p-4">
               <div className="flex items-center justify-between">
@@ -483,7 +480,6 @@ const AnalysisDetailModal = ({
             </Card>
           </div>
 
-          {/* Financial Analysis */}
           <Card>
             <CardHeader className="pb-2 sm:pb-4">
               <CardTitle className="text-base sm:text-lg flex items-center gap-2">
@@ -509,7 +505,6 @@ const AnalysisDetailModal = ({
               {analysis.financial.debtDetails.length > 0 && (
                 <div>
                   <p className="text-xs sm:text-sm font-medium mb-2">Detalhes das Dívidas:</p>
-                  {/* Desktop Table */}
                   <div className="hidden sm:block">
                     <Table>
                       <TableHeader>
@@ -530,7 +525,6 @@ const AnalysisDetailModal = ({
                       </TableBody>
                     </Table>
                   </div>
-                  {/* Mobile Cards */}
                   <div className="sm:hidden space-y-2">
                     {analysis.financial.debtDetails.map((debt, i) => (
                       <div key={i} className="p-2 border rounded text-xs">
@@ -547,7 +541,6 @@ const AnalysisDetailModal = ({
             </CardContent>
           </Card>
 
-          {/* Background Check */}
           <Card>
             <CardHeader className="pb-2 sm:pb-4">
               <CardTitle className="text-base sm:text-lg flex items-center gap-2">
@@ -675,7 +668,6 @@ const AnalysisDetailModal = ({
             </CardContent>
           </Card>
 
-          {/* Document Validation */}
           <Card>
             <CardHeader className="pb-2 sm:pb-4">
               <CardTitle className="text-base sm:text-lg flex items-center gap-2">
@@ -721,7 +713,6 @@ const AnalysisDetailModal = ({
             </CardContent>
           </Card>
 
-          {/* Footer */}
           <div className="text-xs sm:text-sm text-muted-foreground flex flex-col sm:flex-row justify-between gap-1">
             <span>Análise realizada em: {formatDate(analysis.analyzedAt)}</span>
             {analysis.validUntil && (
@@ -734,7 +725,6 @@ const AnalysisDetailModal = ({
   );
 };
 
-// LGPD Disclaimer Modal
 const LGPDDisclaimerModal = ({
   open,
   onAccept,
@@ -826,7 +816,6 @@ export function TenantAnalysis() {
     limit: 10,
   });
 
-  // Search states
   const [searchTerm, setSearchTerm] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -841,7 +830,6 @@ export function TenantAnalysis() {
     setFilters(prev => ({ ...prev, page: 1 }));
   }, []);
 
-  // Permission check for PROPRIETARIO
   const { user } = useAuthStore();
   const permissions = getOwnerPermissions(user?.role, 'tenant_analysis');
 
@@ -886,7 +874,6 @@ export function TenantAnalysis() {
       toast.error('CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos');
       return;
     }
-    // Show LGPD modal
     setShowLGPDModal(true);
   };
 
@@ -920,7 +907,6 @@ export function TenantAnalysis() {
         </div>
       </div>
 
-      {/* Stats Cards - Mobile Responsive */}
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-4">
           <Card className="col-span-2 sm:col-span-1">
@@ -981,7 +967,6 @@ export function TenantAnalysis() {
         </div>
       )}
 
-      {/* New Analysis Form - Only visible if user can create */}
       {permissions.canCreate ? (
         <Card>
           <CardHeader className="pb-3 sm:pb-6">
@@ -1034,7 +1019,6 @@ export function TenantAnalysis() {
         </Alert>
       )}
 
-      {/* History Section */}
       <Card>
         <CardHeader className="pb-3 sm:pb-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1111,7 +1095,6 @@ export function TenantAnalysis() {
             </div>
           ) : (
             <>
-              {/* Desktop Table View */}
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
@@ -1167,7 +1150,6 @@ export function TenantAnalysis() {
                 </Table>
               </div>
 
-              {/* Mobile Card View */}
               <div className="md:hidden space-y-3">
                 {history?.data?.map((item: HistoryItem) => (
                   <Card key={item.id} className="p-3 border shadow-sm">
@@ -1221,7 +1203,6 @@ export function TenantAnalysis() {
                 )}
               </div>
 
-              {/* Pagination */}
               {history && history.totalPages > 1 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-2">
                   <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
@@ -1253,14 +1234,12 @@ export function TenantAnalysis() {
         </CardContent>
       </Card>
 
-      {/* Analysis Detail Modal */}
       <AnalysisDetailModal
         analysis={selectedAnalysis}
         open={showDetail}
         onClose={() => setShowDetail(false)}
       />
 
-      {/* LGPD Disclaimer Modal */}
       <LGPDDisclaimerModal
         open={showLGPDModal}
         onAccept={handleLGPDAccept}

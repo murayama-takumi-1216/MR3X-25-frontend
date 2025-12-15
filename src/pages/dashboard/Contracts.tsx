@@ -44,7 +44,6 @@ import {
   TooltipTrigger,
 } from '../../components/ui/tooltip';
 
-// Map user roles to contract template user types
 type ContractUserType = 'AGENCY' | 'INDEPENDENT_OWNER' | 'PLATFORM';
 
 const getUserTypeFromRole = (role: string): ContractUserType[] => {
@@ -52,14 +51,14 @@ const getUserTypeFromRole = (role: string): ContractUserType[] => {
     case 'AGENCY_ADMIN':
     case 'AGENCY_MANAGER':
     case 'BROKER':
-      return ['AGENCY', 'INDEPENDENT_OWNER']; // Agencies can use their own + independent owner templates
+      return ['AGENCY', 'INDEPENDENT_OWNER'];
     case 'INDEPENDENT_OWNER':
     case 'PROPRIETARIO':
       return ['INDEPENDENT_OWNER'];
     case 'CEO':
-      return ['PLATFORM', 'AGENCY', 'INDEPENDENT_OWNER']; // Platform admin sees all
+      return ['PLATFORM', 'AGENCY', 'INDEPENDENT_OWNER'];
     default:
-      return ['INDEPENDENT_OWNER']; // Default to independent owner templates
+      return ['INDEPENDENT_OWNER'];
   }
 };
 
@@ -74,7 +73,6 @@ export function Contracts() {
   const canUpdateContracts = hasPermission('contracts:update') && !isCEO && !isProprietario;
   const canDeleteContracts = hasPermission('contracts:delete') && !isCEO && !isProprietario;
 
-  // Get allowed user types for current user
   const allowedUserTypes = getUserTypeFromRole(user?.role || '');
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -93,7 +91,6 @@ export function Contracts() {
     templateId: '',
     templateType: 'CTR' as 'CTR' | 'ACD' | 'VST',
     creci: '',
-    // Legal required fields
     readjustmentIndex: 'IGPM' as 'IGPM' | 'IPCA' | 'INPC' | 'IGP-DI' | 'OUTRO',
     customReadjustmentIndex: '',
     latePaymentPenaltyPercent: '10',
@@ -132,13 +129,12 @@ export function Contracts() {
   const [deleting] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [isCreatePreview, setIsCreatePreview] = useState(false); // true = create preview (no download/print), false = details view
+  const [isCreatePreview, setIsCreatePreview] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [previewContent, setPreviewContent] = useState<string>('');
   const [previewToken, setPreviewToken] = useState<string>('');
   const [userIp, setUserIp] = useState<string>('');
 
-  // Search states
   const [searchTerm, setSearchTerm] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -151,7 +147,6 @@ export function Contracts() {
     setSearchQuery('');
   }, []);
 
-  // Validate if all required fields are filled for creating a contract
   const isCreateFormValid = useMemo(() => {
     return !!(
       newContract.propertyId &&
@@ -170,7 +165,6 @@ export function Contracts() {
     );
   }, [newContract]);
 
-  // Generate preview token function
   const generatePreviewToken = (templateType: string) => {
     const year = new Date().getFullYear();
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -179,22 +173,16 @@ export function Contracts() {
     return `MR3X-${templateType || 'CTR'}-${year}-${random1}-${random2}`;
   };
 
-  // Helper function to capture barcode SVG as rotated image (-90 degrees)
   const captureBarcodeAsRotatedImage = async (): Promise<{ rotated: string; original: string; width: number; height: number } | null> => {
     try {
-      // Find the CODE128 barcode SVG element (NOT the QR code)
-      // The barcode is wider than tall, QR code is square
       let svgElement: SVGElement | null = null;
 
-      // Get all SVGs in the preview
       const allSvgs = document.querySelectorAll('#contract-preview-content svg');
 
       for (const svg of allSvgs) {
         const bbox = svg.getBoundingClientRect();
         const aspectRatio = bbox.width / bbox.height;
 
-        // CODE128 barcode is much wider than tall (aspect ratio > 2)
-        // QR code is square (aspect ratio ~1)
         if (aspectRatio > 2 && svg.querySelectorAll('rect').length > 10) {
           svgElement = svg as SVGElement;
           break;
@@ -203,12 +191,10 @@ export function Contracts() {
 
       if (!svgElement) return null;
 
-      // Get SVG dimensions
       const bbox = svgElement.getBoundingClientRect();
       const svgWidth = bbox.width || 300;
       const svgHeight = bbox.height || 80;
 
-      // Clone and convert SVG to image
       const svgData = new XMLSerializer().serializeToString(svgElement);
       const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
       const url = URL.createObjectURL(svgBlob);
@@ -216,7 +202,6 @@ export function Contracts() {
       return new Promise((resolve) => {
         const img = new Image();
         img.onload = () => {
-          // Create original canvas
           const originalCanvas = document.createElement('canvas');
           originalCanvas.width = img.width || svgWidth;
           originalCanvas.height = img.height || svgHeight;
@@ -227,9 +212,8 @@ export function Contracts() {
             origCtx.drawImage(img, 0, 0);
           }
 
-          // Create rotated canvas (-90 degrees means width becomes height and vice versa)
           const rotatedCanvas = document.createElement('canvas');
-          rotatedCanvas.width = originalCanvas.height; // Swap dimensions
+          rotatedCanvas.width = originalCanvas.height;
           rotatedCanvas.height = originalCanvas.width;
           const rotCtx = rotatedCanvas.getContext('2d');
 
@@ -237,7 +221,6 @@ export function Contracts() {
             rotCtx.fillStyle = 'white';
             rotCtx.fillRect(0, 0, rotatedCanvas.width, rotatedCanvas.height);
 
-            // Rotate +90 degrees (clockwise) - reading from top to bottom
             rotCtx.translate(rotatedCanvas.width, 0);
             rotCtx.rotate(Math.PI / 2);
             rotCtx.drawImage(originalCanvas, 0, 0);
@@ -263,7 +246,6 @@ export function Contracts() {
     }
   };
 
-  // Handle contract preview PDF download
   const handleDownloadPreviewPDF = async () => {
     const element = document.getElementById('contract-preview-content');
     if (!element) {
@@ -271,12 +253,11 @@ export function Contracts() {
       return;
     }
 
-    // Capture pre-rotated barcode image before generating PDF
     const barcodeData = await captureBarcodeAsRotatedImage();
     console.log('Barcode data captured:', barcodeData ? 'yes' : 'no');
 
     const opt = {
-      margin: [10, 20, 10, 10] as [number, number, number, number], // Extra right margin for barcode
+      margin: [10, 20, 10, 10] as [number, number, number, number],
       filename: `contrato-previa-${previewToken || 'draft'}.pdf`,
       image: { type: 'jpeg' as const, quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
@@ -285,10 +266,8 @@ export function Contracts() {
     };
 
     try {
-      // Generate PDF and get jsPDF instance to add barcode to each page
       const pdfInstance = await html2pdf().set(opt).from(element).toPdf().get('pdf');
 
-      // Add vertical barcode to each page
       const pageCount = pdfInstance.internal.getNumberOfPages();
       const pageHeight = pdfInstance.internal.pageSize.getHeight();
       const pageWidth = pdfInstance.internal.pageSize.getWidth();
@@ -297,25 +276,18 @@ export function Contracts() {
       for (let i = 1; i <= pageCount; i++) {
         pdfInstance.setPage(i);
 
-        // Add the pre-rotated barcode image if available
         if (barcodeData && barcodeData.rotated) {
-          // Barcode dimensions - the rotated image (width/height are swapped)
-          // Original barcode is wide and short, rotated it's tall and narrow
-          const finalWidth = 10; // mm - narrow strip
-          const finalHeight = pageHeight * 0.5; // 50% of page height
+          const finalWidth = 10;
+          const finalHeight = pageHeight * 0.5;
 
-          // Position on right edge, centered vertically
-          const xPos = pageWidth - finalWidth - 3; // 3mm from right edge
+          const xPos = pageWidth - finalWidth - 3;
           const yPos = (pageHeight - finalHeight) / 2;
 
-          // Draw white background
           pdfInstance.setFillColor(255, 255, 255);
           pdfInstance.rect(xPos - 2, yPos - 2, finalWidth + 4, finalHeight + 4, 'F');
 
-          // Add the pre-rotated barcode image
           pdfInstance.addImage(barcodeData.rotated, 'PNG', xPos, yPos, finalWidth, finalHeight);
         } else {
-          // Fallback: draw token text vertically if barcode capture failed
           pdfInstance.setFillColor(255, 255, 255);
           pdfInstance.rect(pageWidth - 15, pageHeight / 2 - 40, 12, 80, 'F');
 
@@ -325,18 +297,15 @@ export function Contracts() {
         }
       }
 
-      // Save the PDF
       pdfInstance.save(opt.filename);
       toast.success('PDF baixado com sucesso!');
     } catch (error) {
       console.error('PDF generation error:', error);
-      // Fallback to simple PDF without barcode
       await html2pdf().set(opt).from(element).save();
       toast.success('PDF baixado com sucesso!');
     }
   };
 
-  // Handle contract preview print
   const handlePrintPreview = async () => {
     const element = document.getElementById('contract-preview-content');
     if (!element) {
@@ -344,7 +313,6 @@ export function Contracts() {
       return;
     }
 
-    // Capture the pre-rotated barcode image
     const barcodeData = await captureBarcodeAsRotatedImage();
 
     const printWindow = window.open('', '_blank');
@@ -398,7 +366,6 @@ export function Contracts() {
       </style>
     `;
 
-    // Create barcode HTML - use pre-rotated image (no CSS rotation needed)
     const barcodeHtml = barcodeData && barcodeData.rotated
       ? `<img src="${barcodeData.rotated}" class="barcode-img" alt="barcode" />`
       : `<div style="writing-mode: vertical-rl; transform: rotate(180deg); font-family: monospace; font-size: 8pt;">${token}</div>`;
@@ -451,11 +418,10 @@ export function Contracts() {
     enabled: canCreateContracts,
   });
 
-  // Fetch agency data for CRECI auto-fill
   const { data: agencyData } = useQuery({
     queryKey: ['agency', user?.agencyId],
     queryFn: () => agenciesAPI.getAgencyById(user!.agencyId!),
-    enabled: !!user?.agencyId, // Load for all users with an agency, not just those who can create
+    enabled: !!user?.agencyId,
   });
 
   useEffect(() => {
@@ -477,7 +443,6 @@ export function Contracts() {
     }
   }, [canCreateContracts, canUpdateContracts]);
 
-  // Auto-fill CRECI from user's agency when available
   useEffect(() => {
     if (agencyData?.creci && !newContract.creci) {
       setNewContract(prev => ({
@@ -487,7 +452,6 @@ export function Contracts() {
     }
   }, [agencyData?.creci]);
 
-  // Fetch user IP address
   useEffect(() => {
     const fetchIp = async () => {
       try {
@@ -502,7 +466,6 @@ export function Contracts() {
     fetchIp();
   }, []);
 
-  // Regenerate preview when form fields change and a template is selected
   useEffect(() => {
     if (selectedTemplate) {
       generatePreview(selectedTemplate);
@@ -677,7 +640,6 @@ export function Contracts() {
     setLoading(true);
 
     try {
-      // Get full contract details
       const fullContract = await contractsAPI.getContractById(contract.id.toString());
 
       if (!fullContract) {
@@ -688,12 +650,9 @@ export function Contracts() {
       setSelectedContract(fullContract);
       setContractDetail(fullContract);
 
-      // Try to generate preview if template exists
       if (fullContract.templateId) {
-        // First try to find template in the local list
         let template = templates?.find((t: any) => t.id?.toString() === fullContract.templateId?.toString());
 
-        // If not found in local list, fetch it by ID (for roles like PROPRIETARIO that may not have access to templates list)
         if (!template) {
           try {
             template = await contractTemplatesAPI.getTemplateById(fullContract.templateId.toString());
@@ -703,22 +662,18 @@ export function Contracts() {
         }
 
         if (template) {
-          // Generate preview for existing contract
           generateContractPreview(template, fullContract);
-          setIsCreatePreview(false); // Details view - show download/print icons
+          setIsCreatePreview(false);
           setShowPreviewModal(true);
         } else {
-          // Template not found, show simple detail modal
           setShowDetailModal(true);
         }
       } else {
-        // No template, show simple detail modal
         setShowDetailModal(true);
       }
     } catch (error: any) {
       console.error('Error loading contract:', error);
       toast.error(error?.message || 'Erro ao carregar contrato');
-      // Fallback to simple detail modal
       setContractDetail(contract);
       setShowDetailModal(true);
     } finally {
@@ -726,11 +681,9 @@ export function Contracts() {
     }
   };
 
-  // Generate preview for an existing contract (different from newContract preview)
   const generateContractPreview = (template: any, contractData: any) => {
     if (!template || !contractData) return;
 
-    // Get related data
     const contractProperty = contractData.property || properties.find((p: any) =>
       p.id?.toString() === contractData.propertyId?.toString()
     );
@@ -749,14 +702,12 @@ export function Contracts() {
 
     let content = template.content;
 
-    // Format address helper
     const formatAddress = (obj: any) => {
       if (!obj) return '';
       const parts = [obj.address, obj.number, obj.complement, obj.neighborhood, obj.city, obj.state, obj.cep, obj.zipCode].filter(Boolean);
       return parts.join(', ');
     };
 
-    // Format CPF/CNPJ helper
     const formatDocument = (doc: string | null | undefined) => {
       if (!doc) return '';
       const cleaned = doc.replace(/\D/g, '');
@@ -768,7 +719,6 @@ export function Contracts() {
       return doc;
     };
 
-    // Helper functions for contract data
     const getIndexName = (index: string): string => {
       const names: Record<string, string> = {
         'IGPM': 'IGP-M (Índice Geral de Preços - Mercado)',
@@ -807,11 +757,9 @@ export function Contracts() {
     };
 
     const replacements: Record<string, string> = {
-      // Corretor/Broker
       NOME_CORRETOR: agencyData?.name || user?.name || '',
       CRECI_CORRETOR: contractData.creci || agencyData?.creci || user?.creci || '',
 
-      // Locador (Owner) - PF (both naming conventions)
       NOME_LOCADOR: contractOwner?.name || '',
       LOCADOR_NOME: contractOwner?.name || '',
       CPF_LOCADOR: formatDocument(contractOwner?.document) || '',
@@ -828,7 +776,6 @@ export function Contracts() {
       LOCADOR_RG: contractOwner?.rg || '',
       LOCADOR_DATA_NASC: contractOwner?.birthDate ? new Date(contractOwner.birthDate).toLocaleDateString('pt-BR') : '',
 
-      // Locador (Owner) - PJ (both naming conventions)
       RAZAO_SOCIAL_LOCADOR: contractOwner?.companyName || contractOwner?.company?.name || contractOwner?.name || '',
       LOCADOR_RAZAO_SOCIAL: contractOwner?.companyName || contractOwner?.company?.name || contractOwner?.name || '',
       CNPJ_LOCADOR: formatDocument(contractOwner?.cnpj || contractOwner?.company?.cnpj || contractOwner?.document) || '',
@@ -840,7 +787,6 @@ export function Contracts() {
       CARGO_LOCADOR: contractOwner?.representativePosition || '',
       LOCADOR_CARGO: contractOwner?.representativePosition || '',
 
-      // Locatário (Tenant) - PF (both naming conventions)
       NOME_LOCATARIO: contractTenant?.name || '',
       LOCATARIO_NOME: contractTenant?.name || '',
       CPF_LOCATARIO: formatDocument(contractTenant?.document) || '',
@@ -858,7 +804,6 @@ export function Contracts() {
       LOCATARIO_RG: contractTenant?.rg || '',
       LOCATARIO_DATA_NASC: contractTenant?.birthDate ? new Date(contractTenant.birthDate).toLocaleDateString('pt-BR') : '',
 
-      // Locatário (Tenant) - PJ (both naming conventions)
       RAZAO_SOCIAL_LOCATARIO: contractTenant?.companyName || contractTenant?.company?.name || contractTenant?.name || '',
       LOCATARIO_RAZAO_SOCIAL: contractTenant?.companyName || contractTenant?.company?.name || contractTenant?.name || '',
       CNPJ_LOCATARIO: formatDocument(contractTenant?.cnpj || contractTenant?.company?.cnpj || contractTenant?.document) || '',
@@ -870,12 +815,10 @@ export function Contracts() {
       CARGO_LOCATARIO: contractTenant?.representativePosition || '',
       LOCATARIO_CARGO: contractTenant?.representativePosition || '',
 
-      // Additional tenant fields
       LOCATARIO_EMPREGADOR: contractTenant?.employerName || '',
       CONTATO_EMERGENCIA_NOME: contractTenant?.emergencyContactName || '',
       CONTATO_EMERGENCIA_TELEFONE: contractTenant?.emergencyContactPhone || '',
 
-      // Imóvel (Property) - both naming conventions
       ENDERECO_IMOVEL: formatAddress(contractProperty) || contractProperty?.address || '',
       IMOVEL_ENDERECO: formatAddress(contractProperty) || contractProperty?.address || '',
       DESCRICAO_IMOVEL: contractProperty?.description || contractProperty?.name || '',
@@ -889,7 +832,6 @@ export function Contracts() {
       IMOVEL_CONDOMINIO_VALOR: contractProperty?.condominiumFee ? `R$ ${parseFloat(contractProperty.condominiumFee).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'N/A',
       IMOVEL_IPTU_VALOR: contractProperty?.iptuValue ? `R$ ${parseFloat(contractProperty.iptuValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'N/A',
 
-      // Imobiliária (Agency) - both naming conventions
       RAZAO_SOCIAL_IMOBILIARIA: agencyData?.name || contractData.agency?.name || '',
       IMOBILIARIA_RAZAO_SOCIAL: agencyData?.name || contractData.agency?.name || '',
       IMOBILIARIA_NOME_FANTASIA: agencyData?.tradeName || agencyData?.name || contractData.agency?.tradeName || contractData.agency?.name || '',
@@ -908,7 +850,6 @@ export function Contracts() {
       CPF_REPRESENTANTE_IMOBILIARIA: formatDocument(agencyData?.representativeDocument || contractData.agency?.representativeDocument) || '',
       IMOBILIARIA_REP_DOC: formatDocument(agencyData?.representativeDocument || contractData.agency?.representativeDocument) || '',
 
-      // Contrato (Contract)
       PRAZO_MESES: calculateMonths(contractData.startDate, contractData.endDate),
       DATA_INICIO: contractData.startDate ? new Date(contractData.startDate).toLocaleDateString('pt-BR') : '',
       DATA_FIM: contractData.endDate ? new Date(contractData.endDate).toLocaleDateString('pt-BR') : '',
@@ -917,37 +858,30 @@ export function Contracts() {
       DEPOSITO_CAUCAO: contractData.deposit ? parseFloat(contractData.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
       VALOR_GARANTIA: contractData.deposit ? parseFloat(contractData.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
 
-      // Índice de Reajuste
       INDICE_REAJUSTE: getIndexName(contractData.readjustmentIndex || 'IGPM'),
 
-      // Tipo de Garantia
       TIPO_GARANTIA: getGuaranteeTypeName(contractData.guaranteeType || ''),
 
-      // Multas e Juros
       MULTA_ATRASO: contractData.latePaymentPenaltyPercent?.toString() || contractData.lateFeePercent?.toString() || '10',
       JUROS_MORA: contractData.monthlyInterestPercent?.toString() || contractData.interestRatePercent?.toString() || '1',
       JUROS_ATRASO: contractData.monthlyInterestPercent?.toString() || contractData.interestRatePercent?.toString() || '1',
       PERCENTUAL_MULTA_ATRASO: contractData.latePaymentPenaltyPercent?.toString() || contractData.lateFeePercent?.toString() || '10',
       PERCENTUAL_JUROS_MORA: contractData.monthlyInterestPercent?.toString() || contractData.interestRatePercent?.toString() || '1',
 
-      // Multa por Rescisão
       MULTA_RESCISAO: contractData.earlyTerminationPenaltyMonths || contractData.earlyTerminationPenaltyPercent || '3',
       MESES_MULTA_RESCISAO: contractData.earlyTerminationPenaltyMonths || '3',
       VALOR_MULTA_RESCISAO: contractData.earlyTerminationFixedValue
         ? `R$ ${parseFloat(contractData.earlyTerminationFixedValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
         : `${contractData.earlyTerminationPenaltyMonths || '3'} meses de aluguel`,
 
-      // Características do Imóvel
       CARACTERISTICAS_IMOVEL: contractData.propertyCharacteristics || '',
       DESCRICAO_VISTORIA: contractData.propertyCharacteristics || '',
 
-      // Localização e Jurisdição
       COMARCA: contractData.jurisdiction || contractProperty?.city || '',
       FORO: contractData.jurisdiction || contractProperty?.city || '',
       FORO_CIDADE_ESTADO: `${contractProperty?.city || ''} - ${contractProperty?.state || ''}`,
       CIDADE: contractProperty?.city || '',
 
-      // Encargos e Responsabilidades
       AGUA_RESPONSAVEL: 'Locatário',
       GAS_RESPONSAVEL: 'Locatário',
       ENERGIA_RESPONSAVEL: 'Locatário',
@@ -955,12 +889,10 @@ export function Contracts() {
       IPTU_RESPONSAVEL: 'Locatário',
       SEGURO_INCENDIO_VALOR: 'A contratar',
 
-      // Administração
       TAXA_ADMINISTRACAO: agencyData?.agencyFee?.toString() || contractData.agency?.agencyFee?.toString() || '10',
       DIA_REPASSE: '10',
       DIAS_AVISO_PREVIO: '30',
 
-      // Fiador
       FIADOR_DADOS: '',
       FIADOR_NOME: contractData.guarantorName || '',
       FIADOR_CPF: formatDocument(contractData.guarantorDocument) || '',
@@ -971,26 +903,20 @@ export function Contracts() {
       IP_FIADOR: contractData.guarantorSignatureIP || '[IP registrado na assinatura]',
       DATA_ASS_FIADOR: contractData.guarantorSignedAt ? new Date(contractData.guarantorSignedAt).toLocaleDateString('pt-BR') : '________________________________',
 
-      // Finalidade
       FINALIDADE_ESPECIAL: contractData.specialPurpose || 'N/A',
 
-      // Pagamento
       FORMA_PAGAMENTO: contractData.paymentMethod || 'Depósito bancário / PIX',
       USO_IMOBILIARIA: contractData.useRealEstate ? 'SIM' : 'NÃO',
       DADOS_BANCARIOS: contractOwner?.bankName ? `Banco: ${contractOwner.bankName}, Ag: ${contractOwner.bankBranch || ''}, Conta: ${contractOwner.bankAccount || ''}, PIX: ${contractOwner.pixKey || ''}` : 'A ser informado',
 
-      // Garantia
       GARANTIA_DADOS: contractData.guaranteeDetails || '',
 
-      // Correção e Multas
       INDICE_CORRECAO: contractData.readjustmentIndex || 'IGP-M',
       MULTA_RESCISAO_MESES: contractData.earlyTerminationPenaltyMonths || '3',
 
-      // Vistoria
       DATA_VISTORIA_INICIAL: contractData.startDate ? new Date(contractData.startDate).toLocaleDateString('pt-BR') : '',
       RESP_VISTORIA_INICIAL: agencyData?.name || user?.name || '',
 
-      // Datas
       DATA_CONTRATO: contractData.createdAt ? new Date(contractData.createdAt).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'),
       DATA_ASSINATURA: contractData.tenantSignedAt ? new Date(contractData.tenantSignedAt).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'),
       DATA_ACEITE: new Date().toLocaleDateString('pt-BR'),
@@ -999,7 +925,6 @@ export function Contracts() {
       DATA_ASS_LOCATARIO: contractData.tenantSignedAt ? new Date(contractData.tenantSignedAt).toLocaleDateString('pt-BR') : '________________________________',
       DATA_ASS_IMOBILIARIA: contractData.agencySignedAt ? new Date(contractData.agencySignedAt).toLocaleDateString('pt-BR') : '________________________________',
 
-      // Digital Signatures and Security
       ASSINATURA_LOCADOR: contractData.ownerSignature || '________________________________',
       ASSINATURA_LOCATARIO: contractData.tenantSignature || '________________________________',
       ASSINATURA_TESTEMUNHA: contractData.witnessSignature || '________________________________',
@@ -1008,13 +933,11 @@ export function Contracts() {
       IP_LOCATARIO: contractData.tenantSignatureIP || '[IP registrado na assinatura]',
       IP_IMOBILIARIA: contractData.agencySignatureIP || '[IP registrado na assinatura]',
 
-      // Anexos
       ANEXO_VISTORIA_INICIAL: 'Anexo I - Laudo de Vistoria Inicial',
       ANEXO_VISTORIA_FINAL: 'Anexo II - Laudo de Vistoria Final',
       ANEXO_GARANTIA: 'Anexo III - Comprovante de Garantia',
       ANEXOS_DOCUMENTOS: 'Anexos Digitais do Contrato',
 
-      // Contract Type 2 - Property Administration specific variables
       IMOVEL_AREA_CONSTRUIDA: contractProperty?.builtArea ? `${parseFloat(contractProperty.builtArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} m²` : 'N/A',
       IMOVEL_AREA_TOTAL: contractProperty?.totalArea ? `${parseFloat(contractProperty.totalArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '',
       IMOVEL_AREA: contractProperty?.builtArea ? `${parseFloat(contractProperty.builtArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} m²` : (contractProperty?.totalArea ? `${parseFloat(contractProperty.totalArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} m²` : 'N/A'),
@@ -1033,8 +956,6 @@ export function Contracts() {
       VALOR_LIMITE_SERVICOS: '300,00',
       MODELO_AUTORIZACAO: 'Sistema digital da imobiliária',
 
-      // Contract Type 4 - Rural Property Rental specific variables
-      // Multiple Landlords (Locador 1 = primary owner)
       LOCADOR1_NOME: contractOwner?.name || '',
       LOCADOR1_NACIONALIDADE: contractOwner?.nationality || 'Brasileira',
       LOCADOR1_ESTADO_CIVIL: contractOwner?.maritalStatus || '',
@@ -1043,7 +964,6 @@ export function Contracts() {
       LOCADOR1_CPF: formatDocument(contractOwner?.document) || '',
       LOCADOR1_ENDERECO: formatAddress(contractOwner) || '',
 
-      // Multiple Landlords (Locador 2 - secondary owner/spouse)
       LOCADOR2_NOME: contractOwner?.spouseName || '',
       LOCADOR2_NACIONALIDADE: contractOwner?.spouseNationality || 'Brasileira',
       LOCADOR2_ESTADO_CIVIL: contractOwner?.maritalStatus || '',
@@ -1052,7 +972,6 @@ export function Contracts() {
       LOCADOR2_CPF: formatDocument(contractOwner?.spouseDocument) || '',
       LOCADOR2_ENDERECO: formatAddress(contractOwner) || '',
 
-      // Tenant Representative (PJ)
       LOCATARIO_REP_NOME: contractTenant?.representativeName || contractTenant?.company?.responsible || contractTenant?.name || '',
       LOCATARIO_REP_NACIONALIDADE: contractTenant?.representativeNationality || contractTenant?.nationality || 'Brasileira',
       LOCATARIO_REP_ESTADO_CIVIL: contractTenant?.representativeMaritalStatus || contractTenant?.maritalStatus || '',
@@ -1060,24 +979,20 @@ export function Contracts() {
       LOCATARIO_REP_RG: contractTenant?.representativeRg || contractTenant?.rg || '',
       LOCATARIO_REP_ENDERECO: contractTenant?.representativeAddress || formatAddress(contractTenant) || '',
 
-      // Rural Property Specific
       IMOVEL_LOCALIDADE: contractProperty?.locality || formatAddress(contractProperty) || '',
       IMOVEL_AREA_LOCADA: contractProperty?.rentedArea ? `${parseFloat(contractProperty.rentedArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : (contractProperty?.builtArea || ''),
       IMOVEL_COMARCA: contractProperty?.county || contractProperty?.city || '',
       FINALIDADE_USO: contractData.purposeOfUse || 'Exploração agrícola',
 
-      // Payment Information (from owner's banking data)
       BANCO: contractOwner?.bankName || '[A ser informado]',
       AGENCIA: contractOwner?.bankBranch || '[A ser informado]',
       CONTA: contractOwner?.bankAccount || '[A ser informado]',
       CHAVE_PIX: contractOwner?.pixKey || '[A ser informado]',
 
-      // Rural Contract Penalties
       MULTA_RESTITUICAO_MESES: contractData.restitutionPenaltyMonths || '3',
       MULTA_INFRACAO_MESES: contractData.infractionPenaltyMonths || '3',
       DATA_VISTORIA_FINAL: contractData.endDate ? new Date(contractData.endDate).toLocaleDateString('pt-BR') : '',
 
-      // Multiple Signatures
       DATA_ASS_LOCADOR1: contractData.ownerSignedAt ? new Date(contractData.ownerSignedAt).toLocaleDateString('pt-BR') : '________________________________',
       DATA_ASS_LOCADOR2: contractData.secondOwnerSignedAt ? new Date(contractData.secondOwnerSignedAt).toLocaleDateString('pt-BR') : '________________________________',
       IP_LOCADORES: contractData.ownerSignedIP || '[IP registrado na assinatura]',
@@ -1088,13 +1003,11 @@ export function Contracts() {
       content = content.replace(new RegExp(`\\[${key}\\]`, 'g'), value || '');
     }
 
-    // Use the contract's actual token
     setPreviewToken(contractData.contractToken || '');
     setPreviewContent(content);
   };
 
   const handleEditContract = async (contract: any) => {
-    // Check immutability before opening edit modal
     if (!canEditContract(contract)) {
       toast.error(getImmutabilityMessage(contract) || 'Este contrato não pode ser editado');
       return;
@@ -1171,20 +1084,16 @@ export function Contracts() {
     }
   };
 
-  // Immutability check: Only PENDENTE contracts can be edited
-  // AGUARDANDO_ASSINATURAS, ASSINADO, ATIVO, REVOGADO, ENCERRADO are immutable
   const canEditContract = (contract: any): boolean => {
     const immutableStatuses = ['AGUARDANDO_ASSINATURAS', 'ASSINADO', 'ATIVO', 'REVOGADO', 'ENCERRADO'];
     return !immutableStatuses.includes(contract.status);
   };
 
-  // Check if contract can be deleted (not archived statuses)
   const canDeleteContract = (contract: any): boolean => {
     const nonDeletableStatuses = ['REVOGADO', 'ENCERRADO'];
     return !nonDeletableStatuses.includes(contract.status);
   };
 
-  // Get immutability message for tooltip
   const getImmutabilityMessage = (contract: any): string => {
     switch (contract.status) {
       case 'AGUARDANDO_ASSINATURAS':
@@ -1227,14 +1136,12 @@ export function Contracts() {
 
     let content = template.content;
 
-    // Format address helper
     const formatAddress = (obj: any) => {
       if (!obj) return '';
       const parts = [obj.address, obj.number, obj.complement, obj.neighborhood, obj.city, obj.state, obj.cep].filter(Boolean);
       return parts.join(', ');
     };
 
-    // Format CPF/CNPJ helper
     const formatDocument = (doc: string | null | undefined) => {
       if (!doc) return '';
       const cleaned = doc.replace(/\D/g, '');
@@ -1246,14 +1153,11 @@ export function Contracts() {
       return doc;
     };
 
-    // Get agency data for broker/agency fields (agencyData is from the useQuery hook)
 
     const replacements: Record<string, string> = {
-      // Corretor/Broker
       NOME_CORRETOR: agencyData?.name || user?.name || '',
       CRECI_CORRETOR: newContract.creci || agencyData?.creci || user?.creci || '',
 
-      // Locador (Owner) - PF (both naming conventions)
       NOME_LOCADOR: owner?.name || '',
       LOCADOR_NOME: owner?.name || '',
       CPF_LOCADOR: formatDocument(owner?.document) || '',
@@ -1270,7 +1174,6 @@ export function Contracts() {
       LOCADOR_RG: owner?.rg || '',
       LOCADOR_DATA_NASC: owner?.birthDate ? new Date(owner.birthDate).toLocaleDateString('pt-BR') : '',
 
-      // Locador (Owner) - PJ
       RAZAO_SOCIAL_LOCADOR: owner?.company?.name || owner?.name || '',
       LOCADOR_RAZAO_SOCIAL: owner?.company?.name || owner?.name || '',
       CNPJ_LOCADOR: formatDocument(owner?.company?.cnpj || owner?.document) || '',
@@ -1282,7 +1185,6 @@ export function Contracts() {
       CARGO_LOCADOR: '',
       LOCADOR_CARGO: '',
 
-      // Locatário (Tenant) - PF (both naming conventions)
       NOME_LOCATARIO: selectedTenant?.name || '',
       LOCATARIO_NOME: selectedTenant?.name || '',
       CPF_LOCATARIO: formatDocument(selectedTenant?.document) || '',
@@ -1300,7 +1202,6 @@ export function Contracts() {
       LOCATARIO_RG: selectedTenant?.rg || '',
       LOCATARIO_DATA_NASC: selectedTenant?.birthDate ? new Date(selectedTenant.birthDate).toLocaleDateString('pt-BR') : '',
 
-      // Locatário (Tenant) - PJ
       RAZAO_SOCIAL_LOCATARIO: selectedTenant?.company?.name || selectedTenant?.name || '',
       LOCATARIO_RAZAO_SOCIAL: selectedTenant?.company?.name || selectedTenant?.name || '',
       CNPJ_LOCATARIO: formatDocument(selectedTenant?.company?.cnpj || selectedTenant?.document) || '',
@@ -1312,12 +1213,10 @@ export function Contracts() {
       CARGO_LOCATARIO: '',
       LOCATARIO_CARGO: '',
 
-      // Additional tenant fields
       LOCATARIO_EMPREGADOR: selectedTenant?.employerName || '',
       CONTATO_EMERGENCIA_NOME: selectedTenant?.emergencyContactName || '',
       CONTATO_EMERGENCIA_TELEFONE: selectedTenant?.emergencyContactPhone || '',
 
-      // Imóvel (Property) - both naming conventions
       ENDERECO_IMOVEL: formatAddress(selectedProperty) || selectedProperty?.address || '',
       IMOVEL_ENDERECO: formatAddress(selectedProperty) || selectedProperty?.address || '',
       DESCRICAO_IMOVEL: selectedProperty?.description || selectedProperty?.name || '',
@@ -1331,7 +1230,6 @@ export function Contracts() {
       IMOVEL_CONDOMINIO_VALOR: selectedProperty?.condominiumFee ? `R$ ${parseFloat(selectedProperty.condominiumFee).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'N/A',
       IMOVEL_IPTU_VALOR: selectedProperty?.iptuValue ? `R$ ${parseFloat(selectedProperty.iptuValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'N/A',
 
-      // Imobiliária (Agency) - both naming conventions
       RAZAO_SOCIAL_IMOBILIARIA: agencyData?.name || '',
       IMOBILIARIA_RAZAO_SOCIAL: agencyData?.name || '',
       IMOBILIARIA_NOME_FANTASIA: agencyData?.tradeName || agencyData?.name || '',
@@ -1350,7 +1248,6 @@ export function Contracts() {
       CPF_REPRESENTANTE_IMOBILIARIA: formatDocument(agencyData?.representativeDocument) || '',
       IMOBILIARIA_REP_DOC: formatDocument(agencyData?.representativeDocument) || '',
 
-      // Contrato (Contract)
       PRAZO_MESES: calculateMonths(newContract.startDate, newContract.endDate),
       DATA_INICIO: newContract.startDate ? new Date(newContract.startDate).toLocaleDateString('pt-BR') : '',
       DATA_FIM: newContract.endDate ? new Date(newContract.endDate).toLocaleDateString('pt-BR') : '',
@@ -1359,37 +1256,30 @@ export function Contracts() {
       DEPOSITO_CAUCAO: newContract.deposit ? parseFloat(newContract.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
       VALOR_GARANTIA: newContract.deposit ? parseFloat(newContract.deposit).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
 
-      // Índice de Reajuste (Cláusula 3)
       INDICE_REAJUSTE: newContract.readjustmentIndex === 'OUTRO'
         ? newContract.customReadjustmentIndex
         : getIndexName(newContract.readjustmentIndex),
 
-      // Tipo de Garantia
       TIPO_GARANTIA: getGuaranteeTypeName(newContract.guaranteeType),
 
-      // Multas e Juros (editáveis pelas partes)
       MULTA_ATRASO: newContract.latePaymentPenaltyPercent || '10',
       JUROS_MORA: newContract.monthlyInterestPercent || '1',
       JUROS_ATRASO: newContract.monthlyInterestPercent || '1',
       PERCENTUAL_MULTA_ATRASO: newContract.latePaymentPenaltyPercent || '10',
       PERCENTUAL_JUROS_MORA: newContract.monthlyInterestPercent || '1',
 
-      // Multa por Rescisão (Cláusula 7)
       MULTA_RESCISAO: newContract.earlyTerminationPenaltyMonths || '3',
       MESES_MULTA_RESCISAO: newContract.earlyTerminationPenaltyMonths || '3',
       VALOR_MULTA_RESCISAO: calculateTerminationPenalty(),
 
-      // Características do Imóvel (Cláusula 3)
       CARACTERISTICAS_IMOVEL: newContract.propertyCharacteristics || '',
       DESCRICAO_VISTORIA: newContract.propertyCharacteristics || '',
 
-      // Localização e Jurisdição
       COMARCA: newContract.jurisdiction || selectedProperty?.city || '',
       FORO: newContract.jurisdiction || selectedProperty?.city || '',
       FORO_CIDADE_ESTADO: `${selectedProperty?.city || ''} - ${selectedProperty?.state || ''}`,
       CIDADE: selectedProperty?.city || '',
 
-      // Encargos e Responsabilidades
       AGUA_RESPONSAVEL: 'Locatário',
       GAS_RESPONSAVEL: 'Locatário',
       ENERGIA_RESPONSAVEL: 'Locatário',
@@ -1397,12 +1287,10 @@ export function Contracts() {
       IPTU_RESPONSAVEL: 'Locatário',
       SEGURO_INCENDIO_VALOR: 'A contratar',
 
-      // Administração
       TAXA_ADMINISTRACAO: agencyData?.agencyFee?.toString() || '10',
       DIA_REPASSE: '10',
       DIAS_AVISO_PREVIO: '30',
 
-      // Fiador
       FIADOR_DADOS: '',
       FIADOR_NOME: (newContract as any).guarantorName || '',
       FIADOR_CPF: formatDocument((newContract as any).guarantorDocument) || '',
@@ -1413,26 +1301,20 @@ export function Contracts() {
       IP_FIADOR: '[IP registrado na assinatura]',
       DATA_ASS_FIADOR: '________________________________',
 
-      // Finalidade
       FINALIDADE_ESPECIAL: (newContract as any).specialPurpose || 'N/A',
 
-      // Pagamento
       FORMA_PAGAMENTO: (newContract as any).paymentMethod || 'Depósito bancário / PIX',
       USO_IMOBILIARIA: (newContract as any).useRealEstate ? 'SIM' : 'NÃO',
       DADOS_BANCARIOS: owner?.bankName ? `Banco: ${owner.bankName}, Ag: ${owner.bankBranch || ''}, Conta: ${owner.bankAccount || ''}, PIX: ${owner.pixKey || ''}` : 'A ser informado',
 
-      // Garantia
       GARANTIA_DADOS: (newContract as any).guaranteeDetails || '',
 
-      // Correção e Multas
       INDICE_CORRECAO: newContract.readjustmentIndex || 'IGP-M',
       MULTA_RESCISAO_MESES: newContract.earlyTerminationPenaltyMonths || '3',
 
-      // Vistoria
       DATA_VISTORIA_INICIAL: newContract.startDate ? new Date(newContract.startDate).toLocaleDateString('pt-BR') : '',
       RESP_VISTORIA_INICIAL: agencyData?.name || user?.name || '',
 
-      // Datas
       DATA_CONTRATO: newContract.contractDate ? new Date(newContract.contractDate).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'),
       DATA_ASSINATURA: newContract.contractDate ? new Date(newContract.contractDate).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'),
       DATA_ACEITE: new Date().toLocaleDateString('pt-BR'),
@@ -1441,7 +1323,6 @@ export function Contracts() {
       DATA_ASS_LOCATARIO: '________________________________',
       DATA_ASS_IMOBILIARIA: '________________________________',
 
-      // Digital Signatures and Security
       ASSINATURA_LOCADOR: '________________________________',
       ASSINATURA_LOCATARIO: '________________________________',
       ASSINATURA_TESTEMUNHA: '________________________________',
@@ -1450,13 +1331,11 @@ export function Contracts() {
       IP_LOCATARIO: '[Será registrado na assinatura]',
       IP_IMOBILIARIA: '[Será registrado na assinatura]',
 
-      // Anexos
       ANEXO_VISTORIA_INICIAL: 'Anexo I - Laudo de Vistoria Inicial',
       ANEXO_VISTORIA_FINAL: 'Anexo II - Laudo de Vistoria Final',
       ANEXO_GARANTIA: 'Anexo III - Comprovante de Garantia',
       ANEXOS_DOCUMENTOS: 'Anexos Digitais do Contrato',
 
-      // Contract Type 2 - Property Administration specific variables
       IMOVEL_AREA_CONSTRUIDA: selectedProperty?.builtArea ? `${parseFloat(selectedProperty.builtArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} m²` : 'N/A',
       IMOVEL_AREA_TOTAL: selectedProperty?.totalArea ? `${parseFloat(selectedProperty.totalArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '',
       IMOVEL_AREA: selectedProperty?.builtArea ? `${parseFloat(selectedProperty.builtArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} m²` : (selectedProperty?.totalArea ? `${parseFloat(selectedProperty.totalArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} m²` : 'N/A'),
@@ -1475,8 +1354,6 @@ export function Contracts() {
       VALOR_LIMITE_SERVICOS: '300,00',
       MODELO_AUTORIZACAO: 'Sistema digital da imobiliária',
 
-      // Contract Type 4 - Rural Property Rental specific variables
-      // Multiple Landlords (Locador 1 = primary owner)
       LOCADOR1_NOME: owner?.name || '',
       LOCADOR1_NACIONALIDADE: owner?.nationality || 'Brasileira',
       LOCADOR1_ESTADO_CIVIL: owner?.maritalStatus || '',
@@ -1485,7 +1362,6 @@ export function Contracts() {
       LOCADOR1_CPF: formatDocument(owner?.document) || '',
       LOCADOR1_ENDERECO: formatAddress(owner) || '',
 
-      // Multiple Landlords (Locador 2 - secondary owner/spouse)
       LOCADOR2_NOME: owner?.spouseName || '',
       LOCADOR2_NACIONALIDADE: owner?.spouseNationality || 'Brasileira',
       LOCADOR2_ESTADO_CIVIL: owner?.maritalStatus || '',
@@ -1494,7 +1370,6 @@ export function Contracts() {
       LOCADOR2_CPF: formatDocument(owner?.spouseDocument) || '',
       LOCADOR2_ENDERECO: formatAddress(owner) || '',
 
-      // Tenant Representative (PJ)
       LOCATARIO_REP_NOME: selectedTenant?.representativeName || selectedTenant?.company?.responsible || selectedTenant?.name || '',
       LOCATARIO_REP_NACIONALIDADE: selectedTenant?.representativeNationality || selectedTenant?.nationality || 'Brasileira',
       LOCATARIO_REP_ESTADO_CIVIL: selectedTenant?.representativeMaritalStatus || selectedTenant?.maritalStatus || '',
@@ -1502,31 +1377,26 @@ export function Contracts() {
       LOCATARIO_REP_RG: selectedTenant?.representativeRg || selectedTenant?.rg || '',
       LOCATARIO_REP_ENDERECO: selectedTenant?.representativeAddress || formatAddress(selectedTenant) || '',
 
-      // Rural Property Specific
       IMOVEL_LOCALIDADE: selectedProperty?.locality || formatAddress(selectedProperty) || '',
       IMOVEL_AREA_LOCADA: selectedProperty?.rentedArea ? `${parseFloat(selectedProperty.rentedArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : (selectedProperty?.builtArea || ''),
       IMOVEL_COMARCA: selectedProperty?.county || selectedProperty?.city || '',
       FINALIDADE_USO: (newContract as any).purposeOfUse || 'Exploração agrícola',
 
-      // Payment Information (from owner's banking data)
       BANCO: owner?.bankName || '[A ser informado]',
       AGENCIA: owner?.bankBranch || '[A ser informado]',
       CONTA: owner?.bankAccount || '[A ser informado]',
       CHAVE_PIX: owner?.pixKey || '[A ser informado]',
 
-      // Rural Contract Penalties
       MULTA_RESTITUICAO_MESES: (newContract as any).restitutionPenaltyMonths || '3',
       MULTA_INFRACAO_MESES: (newContract as any).infractionPenaltyMonths || '3',
       DATA_VISTORIA_FINAL: newContract.endDate ? new Date(newContract.endDate).toLocaleDateString('pt-BR') : '',
 
-      // Multiple Signatures
       DATA_ASS_LOCADOR1: '________________________________',
       DATA_ASS_LOCADOR2: '________________________________',
       IP_LOCADORES: '[Será registrado na assinatura]',
 
     };
 
-    // Helper function to get readable index name
     function getIndexName(index: string): string {
       const names: Record<string, string> = {
         'IGPM': 'IGP-M (Índice Geral de Preços - Mercado)',
@@ -1537,7 +1407,6 @@ export function Contracts() {
       return names[index] || index;
     }
 
-    // Helper function to get readable guarantee type name
     function getGuaranteeTypeName(type: string): string {
       const names: Record<string, string> = {
         'CAUCAO': 'Caução em dinheiro',
@@ -1549,7 +1418,6 @@ export function Contracts() {
       return names[type] || type;
     }
 
-    // Helper function to calculate termination penalty
     function calculateTerminationPenalty(): string {
       if (newContract.useFixedTerminationValue && newContract.earlyTerminationFixedValue) {
         return `R$ ${parseFloat(newContract.earlyTerminationFixedValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
@@ -1558,7 +1426,6 @@ export function Contracts() {
       return `${months} meses de aluguel`;
     }
 
-    // Helper function to format date in extensive format (por extenso)
     function formatDateExtensive(dateStr: string): string {
       const months = [
         'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
@@ -1575,7 +1442,6 @@ export function Contracts() {
       content = content.replace(new RegExp(`\\[${key}\\]`, 'g'), value || '');
     }
 
-    // Generate preview token
     const token = generatePreviewToken(newContract.templateType || 'CTR');
     setPreviewToken(token);
     setPreviewContent(content);
@@ -2168,7 +2034,6 @@ export function Contracts() {
                     <SelectContent>
                       {properties.filter(p => !p.isFrozen).map((property) => {
                         const propId = property.id?.toString() || String(property.id);
-                        // Check if property already has an active contract
                         const hasActiveContract = contracts?.some((c: any) => {
                           const contractPropId = c.propertyId?.toString() || c.property?.id?.toString();
                           const status = c.status?.toUpperCase();
@@ -2304,7 +2169,6 @@ export function Contracts() {
                 </div>
               </div>
 
-              {/* Cláusula 3 - Índice de Reajuste */}
               <div className="p-4 border rounded-lg bg-muted/30">
                 <h4 className="font-semibold mb-3 text-sm">Cláusula 3 - Índice de Reajuste Anual</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2341,7 +2205,6 @@ export function Contracts() {
                 </div>
               </div>
 
-              {/* Multas e Juros */}
               <div className="p-4 border rounded-lg bg-muted/30">
                 <h4 className="font-semibold mb-3 text-sm">Multas e Juros por Atraso</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2380,7 +2243,6 @@ export function Contracts() {
                 </div>
               </div>
 
-              {/* Cláusula 7 - Rescisão Antecipada */}
               <div className="p-4 border rounded-lg bg-muted/30">
                 <h4 className="font-semibold mb-3 text-sm">Cláusula 7 - Multa por Rescisão Antecipada</h4>
                 <div className="space-y-4">
@@ -2445,7 +2307,6 @@ export function Contracts() {
                 </div>
               </div>
 
-              {/* Tipo de Garantia */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="guaranteeType">Tipo de Garantia <span className="text-red-500">*</span></Label>
@@ -2485,7 +2346,7 @@ export function Contracts() {
                     type="button"
                     variant="outline"
                     onClick={() => {
-                      setIsCreatePreview(true); // Create preview - hide download/print
+                      setIsCreatePreview(true);
                       setShowPreviewModal(true);
                     }}
                     disabled={creating}
@@ -2515,7 +2376,6 @@ export function Contracts() {
                 <DialogTitle>Prévia do Contrato</DialogTitle>
                 <DialogDescription className="hidden sm:block">Visualize como ficará o contrato com as informações preenchidas.</DialogDescription>
               </div>
-              {/* Download/Print icons in header - only show for details view */}
               {!isCreatePreview && previewContent && (
                 <div className="flex gap-2">
                   <Button variant="ghost" size="icon" onClick={handleDownloadPreviewPDF} title="Baixar PDF">
@@ -2604,7 +2464,6 @@ export function Contracts() {
                 <div className="prose prose-sm max-w-none bg-white p-4 sm:p-6 border rounded-lg">
                   <div className="text-sm leading-relaxed" style={{ wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>
                     {previewContent.split('\n').map((line, index) => {
-                      // Check if line is a separator (dashes)
                       const isSeparator = line.trim().match(/^[─═\-]{20,}$/);
                       if (isSeparator) {
                         return (
@@ -2614,7 +2473,6 @@ export function Contracts() {
                         );
                       }
 
-                      // Check if line is a contract title (e.g., "CONTRATO 2 – ...")
                       const isContractTitle = line.startsWith('CONTRATO') && line.includes('–');
                       if (isContractTitle) {
                         return (
@@ -2624,7 +2482,6 @@ export function Contracts() {
                         );
                       }
 
-                      // Check if line is a section title (wrapped in **)
                       const isSectionTitle = line.startsWith('**') && line.endsWith('**');
                       const isBold = isSectionTitle || line.includes('CLÁUSULA');
                       const cleanLine = line.replace(/\*\*/g, '');

@@ -68,7 +68,6 @@ const statusColors: Record<string, string> = {
   SUSPENDED: 'bg-red-100 text-red-800',
 }
 
-// Get display status based on user data (checks isFrozen for plan limits)
 const getDisplayStatus = (userData: any): string => {
   if (userData.isFrozen) {
     return 'FROZEN'
@@ -98,11 +97,9 @@ export function AgencyUsers() {
     setSearchQuery('')
   }, [])
 
-  // Fetch users created by this AGENCY_ADMIN or in the same agency
   const { data: myUsers, isLoading } = useQuery({
     queryKey: ['agency-users', user?.id, user?.agencyId],
     queryFn: async () => {
-      // Get all users that are BROKER, PROPRIETARIO, AGENCY_MANAGER, or INQUILINO
       const [brokers, owners, managers, tenants] = await Promise.all([
         usersAPI.getBrokers(),
         usersAPI.listUsers({ role: 'PROPRIETARIO', pageSize: 100 }),
@@ -113,9 +110,6 @@ export function AgencyUsers() {
       const userId = user?.id?.toString()
       const agencyId = user?.agencyId?.toString()
 
-      // Filter users by either:
-      // 1. Created by this AGENCY_ADMIN (createdBy matches)
-      // 2. In the same agency (agencyId matches)
       const filterByAgency = (u: any) => {
         const userCreatedBy = u.createdBy?.toString()
         const userAgencyId = u.agencyId?.toString()
@@ -146,7 +140,6 @@ export function AgencyUsers() {
     }
   }
 
-  // Filter users based on search query
   const filteredUsers = (myUsers || []).filter((userData: any) => {
     if (!searchQuery.trim()) return true
     const query = searchQuery.toLowerCase()
@@ -214,7 +207,6 @@ export function AgencyUsers() {
           </div>
         </div>
 
-        {/* Search Box */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex w-full sm:max-w-lg gap-2">
             <div className="relative flex-1">
@@ -248,7 +240,6 @@ export function AgencyUsers() {
           </div>
         </div>
 
-        {/* Users List */}
         {filteredUsers.length > 0 ? (
           viewMode === 'table' ? (
             <div className="bg-card border border-border rounded-lg overflow-hidden">
@@ -317,7 +308,6 @@ export function AgencyUsers() {
                 </table>
               </div>
 
-              {/* Mobile view */}
               <div className="md:hidden">
                 {filteredUsers.map((userData: any) => {
                   const RoleIcon = roleIcons[userData.role as UserRole] || Users
@@ -423,7 +413,6 @@ export function AgencyUsers() {
           </div>
         )}
 
-        {/* Detail Modal */}
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>

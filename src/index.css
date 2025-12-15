@@ -57,7 +57,6 @@
   }
 }
 
-/* Fix date/month inputs to take full width */
 input[type="date"],
 input[type="month"],
 input[type="datetime-local"] {
@@ -67,7 +66,6 @@ input[type="datetime-local"] {
   display: block !important;
 }
 
-/* Ensure date input stretches in grid/flex containers */
 .grid > input[type="date"],
 .grid > input[type="month"],
 .flex > input[type="date"],

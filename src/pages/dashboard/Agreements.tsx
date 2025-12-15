@@ -404,12 +404,10 @@ export function Agreements() {
   const [filterStatus, _setFilterStatus] = useState<string>('');
   const [filterProperty, _setFilterProperty] = useState<string>('');
 
-  // Suppress unused variable warnings - filters will be implemented later
   void _setFilterType;
   void _setFilterStatus;
   void _setFilterProperty;
 
-  // Search states
   const [searchTerm, setSearchTerm] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 

@@ -100,11 +100,9 @@ export function Managers() {
   const [emailVerified, setEmailVerified] = useState(false)
   const [checkingEmail, setCheckingEmail] = useState(false)
 
-  // Upgrade modal states
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [upgradeErrorMessage, setUpgradeErrorMessage] = useState('')
 
-  // Search states
   const [searchTerm, setSearchTerm] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -216,7 +214,6 @@ export function Managers() {
     },
     onError: (error: any) => {
       let errorMessage = 'Erro ao criar gerente'
-      // Extract error message from axios error response
       const backendMessage = error.response?.data?.message || error.message
       if (backendMessage) {
         const message = backendMessage.toLowerCase()
@@ -227,7 +224,6 @@ export function Managers() {
         }
       }
 
-      // Check if it's a plan limit error
       const isPlanLimitError = error?.response?.status === 403 ||
         errorMessage.toLowerCase().includes('plano') ||
         errorMessage.toLowerCase().includes('limite') ||
@@ -373,7 +369,7 @@ export function Managers() {
         city: fullManagerDetails.city || '',
         state: fullManagerDetails.state || '',
       })
-      setEmailVerified(true) // Current email is valid
+      setEmailVerified(true)
       setShowEditModal(true)
     } catch {
       toast.error('Erro ao carregar detalhes do gerente')
@@ -1068,7 +1064,6 @@ export function Managers() {
           </DialogContent>
         </Dialog>
 
-        {/* Upgrade Plan Modal */}
         <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
           <DialogContent className="max-w-md">
             <DialogHeader>

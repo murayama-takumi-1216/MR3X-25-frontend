@@ -215,13 +215,11 @@ export function Register() {
   return (
     <div className="min-h-screen flex items-start sm:items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 px-4 py-6 sm:py-8">
       <div className="w-full max-w-lg">
-        {/* Logo */}
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-primary">MR3X</h1>
           <p className="text-sm text-muted-foreground mt-1">Gestão de Aluguéis</p>
         </div>
 
-        {/* Step Indicator */}
         <div className="mb-6">
           <div className="flex items-center justify-center gap-2 sm:gap-4">
             {steps.map((s, index) => {
@@ -281,7 +279,6 @@ export function Register() {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Step 1: Email */}
               {step === 'email' && (
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -323,7 +320,6 @@ export function Register() {
                 </div>
               )}
 
-              {/* Step 2: Verification Code */}
               {step === 'code' && (
                 <div className="space-y-6">
                   <div className="flex flex-col items-center space-y-4">
@@ -389,10 +385,8 @@ export function Register() {
                 </div>
               )}
 
-              {/* Step 3: Details */}
               {step === 'details' && (
                 <div className="space-y-6 max-h-[60vh] overflow-y-auto px-1 -mx-1">
-                  {/* Personal Info Section */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm font-semibold text-foreground border-b pb-2">
                       <User className="w-4 h-4 text-primary" />
@@ -459,7 +453,6 @@ export function Register() {
                     </div>
                   </div>
 
-                  {/* Security Section */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm font-semibold text-foreground border-b pb-2">
                       <Shield className="w-4 h-4 text-primary" />
@@ -519,7 +512,6 @@ export function Register() {
                     </div>
                   </div>
 
-                  {/* Contact Section */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm font-semibold text-foreground border-b pb-2">
                       <Phone className="w-4 h-4 text-primary" />
@@ -577,7 +569,6 @@ export function Register() {
                     </div>
                   </div>
 
-                  {/* Address Section */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm font-semibold text-foreground border-b pb-2">
                       <MapPin className="w-4 h-4 text-primary" />
@@ -642,7 +633,6 @@ export function Register() {
                     </div>
                   </div>
 
-                  {/* Agency Fields (conditional) */}
                   {formData.role === 'AGENCY_ADMIN' && (
                     <>
                       <div className="space-y-4">
