@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   Scale, Shield, MapPin, CheckCircle, FileText, AlertTriangle,
-  ArrowLeft, Download, Printer, Clock, User, Building2, Phone, Mail
+  ArrowLeft, Download, Clock, User, Mail
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -25,7 +25,7 @@ export function ExtrajudicialAcknowledgment() {
   const queryClient = useQueryClient();
 
   // State
-  const [signature, setSignature] = useState<string>('');
+  const [signature, setSignature] = useState<string | null>(null);
   const [geoLocation, setGeoLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [geoConsent, setGeoConsent] = useState(false);
   const [userIp, setUserIp] = useState<string>('');
@@ -84,12 +84,12 @@ export function ExtrajudicialAcknowledgment() {
         geoLng: geoLocation?.lng,
         geoConsent,
         userAgent: navigator.userAgent,
-        signature,
+        signature: signature || undefined,
       });
 
       // Then, sign the notification
       return extrajudicialNotificationsAPI.signNotification(notificationId!, {
-        debtorSignature: signature,
+        debtorSignature: signature || undefined,
         geoLat: geoLocation?.lat,
         geoLng: geoLocation?.lng,
       });
@@ -253,7 +253,7 @@ export function ExtrajudicialAcknowledgment() {
                 </div>
                 <div>
                   <span className="text-gray-500">CPF/CNPJ:</span>
-                  <span className="ml-2 font-medium">{notification.debtorDocument || user?.cpf}</span>
+                  <span className="ml-2 font-medium">{notification.debtorDocument || '-'}</span>
                 </div>
                 {notification.debtorEmail && (
                   <div className="flex items-center gap-1">

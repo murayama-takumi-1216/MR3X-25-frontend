@@ -5,7 +5,7 @@ import {
   FileText, DollarSign, Bell, Clock,
   CheckCircle, AlertTriangle, User, Phone, Mail,
   CreditCard, Receipt, TrendingUp, Calendar, Building2,
-  Scale, Handshake, AlertOctagon, Shield, MapPin, X
+  Scale, Handshake, AlertOctagon, Shield, MapPin
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
