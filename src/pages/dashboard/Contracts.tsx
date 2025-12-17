@@ -24,7 +24,8 @@ import {
   Lock,
   PenLine
 } from 'lucide-react';
-import html2pdf from 'html2pdf.js';
+import html2canvas from 'html2canvas-pro';
+import { jsPDF } from 'jspdf';
 import { formatCurrency, formatDate } from '../../lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
 import { Input } from '../../components/ui/input';
@@ -272,53 +273,91 @@ export function Contracts() {
     const barcodeData = await captureBarcodeAsRotatedImage();
     console.log('Barcode data captured:', barcodeData ? 'yes' : 'no');
 
-    const opt = {
-      margin: [10, 20, 10, 10] as [number, number, number, number],
-      filename: `contrato-previa-${previewToken || 'draft'}.pdf`,
-      image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
+    const filename = `contrato-previa-${previewToken || 'draft'}.pdf`;
 
     try {
-      const pdfInstance = await html2pdf().set(opt).from(element).toPdf().get('pdf');
+      // Clone the element to avoid modifying the original
+      const clone = element.cloneNode(true) as HTMLElement;
+      clone.style.width = `${element.scrollWidth}px`;
+      document.body.appendChild(clone);
 
-      const pageCount = pdfInstance.internal.getNumberOfPages();
-      const pageHeight = pdfInstance.internal.pageSize.getHeight();
-      const pageWidth = pdfInstance.internal.pageSize.getWidth();
+      // Use html2canvas-pro which supports OKLCH colors
+      const canvas = await html2canvas(clone, {
+        scale: 2,
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        backgroundColor: '#ffffff',
+      });
+
+      document.body.removeChild(clone);
+
+      // Create PDF with proper dimensions
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      const pdf = new jsPDF('portrait', 'mm', 'a4');
       const token = previewToken || 'DRAFT';
 
-      for (let i = 1; i <= pageCount; i++) {
-        pdfInstance.setPage(i);
+      let heightLeft = imgHeight;
+      let position = 10; // top margin
+      let pageNum = 1;
 
+      // Add first page
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 10, position, imgWidth - 30, imgHeight);
+
+      // Add barcode or token to first page
+      if (barcodeData && barcodeData.rotated) {
+        const finalWidth = 10;
+        const finalHeight = pageHeight * 0.5;
+        const xPos = imgWidth - finalWidth - 3;
+        const yPos = (pageHeight - finalHeight) / 2;
+        pdf.setFillColor(255, 255, 255);
+        pdf.rect(xPos - 2, yPos - 2, finalWidth + 4, finalHeight + 4, 'F');
+        pdf.addImage(barcodeData.rotated, 'PNG', xPos, yPos, finalWidth, finalHeight);
+      } else {
+        pdf.setFillColor(255, 255, 255);
+        pdf.rect(imgWidth - 15, pageHeight / 2 - 40, 12, 80, 'F');
+        pdf.setFontSize(8);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text(token, imgWidth - 5, pageHeight / 2, { angle: 90 });
+      }
+
+      heightLeft -= pageHeight - 20;
+
+      // Add remaining pages if needed
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pageNum++;
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 10, position, imgWidth - 30, imgHeight);
+
+        // Add barcode or token to each page
         if (barcodeData && barcodeData.rotated) {
           const finalWidth = 10;
           const finalHeight = pageHeight * 0.5;
-
-          const xPos = pageWidth - finalWidth - 3;
+          const xPos = imgWidth - finalWidth - 3;
           const yPos = (pageHeight - finalHeight) / 2;
-
-          pdfInstance.setFillColor(255, 255, 255);
-          pdfInstance.rect(xPos - 2, yPos - 2, finalWidth + 4, finalHeight + 4, 'F');
-
-          pdfInstance.addImage(barcodeData.rotated, 'PNG', xPos, yPos, finalWidth, finalHeight);
+          pdf.setFillColor(255, 255, 255);
+          pdf.rect(xPos - 2, yPos - 2, finalWidth + 4, finalHeight + 4, 'F');
+          pdf.addImage(barcodeData.rotated, 'PNG', xPos, yPos, finalWidth, finalHeight);
         } else {
-          pdfInstance.setFillColor(255, 255, 255);
-          pdfInstance.rect(pageWidth - 15, pageHeight / 2 - 40, 12, 80, 'F');
-
-          pdfInstance.setFontSize(8);
-          pdfInstance.setTextColor(0, 0, 0);
-          pdfInstance.text(token, pageWidth - 5, pageHeight / 2, { angle: 90 });
+          pdf.setFillColor(255, 255, 255);
+          pdf.rect(imgWidth - 15, pageHeight / 2 - 40, 12, 80, 'F');
+          pdf.setFontSize(8);
+          pdf.setTextColor(0, 0, 0);
+          pdf.text(token, imgWidth - 5, pageHeight / 2, { angle: 90 });
         }
+
+        heightLeft -= pageHeight;
       }
 
-      pdfInstance.save(opt.filename);
+      pdf.save(filename);
       toast.success('PDF baixado com sucesso!');
     } catch (error) {
       console.error('PDF generation error:', error);
-      await html2pdf().set(opt).from(element).save();
-      toast.success('PDF baixado com sucesso!');
+      toast.error('Erro ao gerar PDF. Tente novamente.');
     }
   };
 

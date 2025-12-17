@@ -7,6 +7,7 @@ export interface GeolocationState {
   longitude: number | null;
   accuracy: number | null;
   timestamp: number | null;
+  isSecureOrigin: boolean;
 }
 
 export interface UseGeolocationOptions {
@@ -24,6 +25,13 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
     autoFetch = false,
   } = options;
 
+  // Check if running on secure origin (HTTPS or localhost)
+  const isSecureOrigin = typeof window !== 'undefined' && (
+    window.location.protocol === 'https:' ||
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+  );
+
   const [state, setState] = useState<GeolocationState>({
     loading: false,
     error: null,
@@ -31,6 +39,7 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
     longitude: null,
     accuracy: null,
     timestamp: null,
+    isSecureOrigin,
   });
 
   const [supported, setSupported] = useState<boolean>(true);
@@ -42,13 +51,33 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
         ...prev,
         error: 'Geolocalização não é suportada pelo seu navegador',
       }));
+    } else if (!isSecureOrigin) {
+      // On HTTP, geolocation won't work - set a warning but don't block
+      setState((prev) => ({
+        ...prev,
+        error: 'Geolocalização requer conexão segura (HTTPS). Continuando sem localização.',
+      }));
     }
-  }, []);
+  }, [isSecureOrigin]);
 
-  const getLocation = useCallback((): Promise<GeolocationPosition> => {
+  const getLocation = useCallback((): Promise<GeolocationPosition | null> => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         reject(new Error('Geolocalização não é suportada pelo seu navegador'));
+        return;
+      }
+
+      // If not on secure origin, resolve with null instead of failing
+      if (!isSecureOrigin) {
+        console.warn('Geolocation requires HTTPS. Skipping geolocation.');
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: 'Geolocalização requer HTTPS. Continuando sem localização.',
+          latitude: null,
+          longitude: null,
+        }));
+        resolve(null);
         return;
       }
 
@@ -63,6 +92,7 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
             longitude: position.coords.longitude,
             accuracy: position.coords.accuracy,
             timestamp: position.timestamp,
+            isSecureOrigin,
           });
           resolve(position);
         },
@@ -98,7 +128,7 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
         }
       );
     });
-  }, [enableHighAccuracy, timeout, maximumAge]);
+  }, [enableHighAccuracy, timeout, maximumAge, isSecureOrigin]);
 
   useEffect(() => {
     if (autoFetch && supported) {
@@ -120,12 +150,14 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
       longitude: null,
       accuracy: null,
       timestamp: null,
+      isSecureOrigin,
     });
-  }, []);
+  }, [isSecureOrigin]);
 
   return {
     ...state,
     supported,
+    isSecureOrigin,
     getLocation,
     clearError,
     reset,
