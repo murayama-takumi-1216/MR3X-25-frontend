@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Building2, Search, Eye,
-  Calendar, CreditCard, Activity, ArrowUpRight, ArrowDownRight, Loader2
+  Calendar, CreditCard, Activity, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
+import { Skeleton } from '../../../components/ui/skeleton';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Badge } from '../../../components/ui/badge';
@@ -89,8 +90,79 @@ export function ManagerAgencies() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div>
+          <Skeleton className="h-8 w-32 mb-2" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+
+        {/* Stats Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-9 h-9 rounded-lg" />
+                  <div>
+                    <Skeleton className="h-8 w-12 mb-1" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Filters Skeleton */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <Skeleton className="h-10 flex-1 rounded" />
+              <Skeleton className="h-10 w-[180px] rounded" />
+              <Skeleton className="h-10 w-[180px] rounded" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Table Skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-5 w-40 mb-1" />
+            <Skeleton className="h-4 w-32" />
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    {[...Array(7)].map((_, i) => (
+                      <th key={i} className="py-3 px-4">
+                        <Skeleton className="h-4 w-20" />
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...Array(6)].map((_, i) => (
+                    <tr key={i} className="border-b">
+                      <td className="py-3 px-4">
+                        <Skeleton className="h-5 w-32 mb-1" />
+                        <Skeleton className="h-4 w-40" />
+                      </td>
+                      <td className="py-3 px-4"><Skeleton className="h-6 w-20 rounded" /></td>
+                      <td className="py-3 px-4"><Skeleton className="h-6 w-16 rounded-full" /></td>
+                      <td className="py-3 px-4"><Skeleton className="h-6 w-16 rounded-full" /></td>
+                      <td className="py-3 px-4"><Skeleton className="h-4 w-8" /></td>
+                      <td className="py-3 px-4"><Skeleton className="h-4 w-8" /></td>
+                      <td className="py-3 px-4"><Skeleton className="h-8 w-20 rounded" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

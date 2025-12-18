@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Skeleton } from '../../components/ui/skeleton';
 import { useAuth } from '../../contexts/AuthContext';
 import { salesRepAPI } from '../../api';
 import {
@@ -10,7 +11,7 @@ import {
 import type { PieLabelRenderProps } from 'recharts';
 import {
   TrendingUp, Users, FileText, DollarSign, Target, Award,
-  Clock, CheckCircle, Loader2, Inbox
+  Clock, CheckCircle, Inbox
 } from 'lucide-react';
 
 const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'];
@@ -90,8 +91,52 @@ export function SalesRepDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-6">
+        {/* Hero Skeleton */}
+        <div className="bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl p-6">
+          <Skeleton className="h-8 w-64 bg-white/20 mb-2" />
+          <Skeleton className="h-5 w-80 bg-white/20" />
+          <div className="mt-4 flex items-center gap-4">
+            <Skeleton className="h-16 w-40 bg-white/20 rounded-lg" />
+            <Skeleton className="h-16 w-32 bg-white/20 rounded-lg" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <Skeleton className="w-10 h-10 rounded-lg mb-3" />
+                <Skeleton className="h-4 w-20 mb-2" />
+                <Skeleton className="h-7 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <Skeleton className="w-10 h-10 rounded-lg mb-3" />
+                <Skeleton className="h-4 w-24 mb-2" />
+                <Skeleton className="h-7 w-20" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {[...Array(2)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader><Skeleton className="h-6 w-40" /></CardHeader>
+              <CardContent>
+                <div className="h-[256px] flex items-end gap-2">
+                  {[...Array(7)].map((_, j) => (
+                    <Skeleton key={j} className="flex-1" style={{ height: `${Math.random() * 60 + 40}%` }} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }

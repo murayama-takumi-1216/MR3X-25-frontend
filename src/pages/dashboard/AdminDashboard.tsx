@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Skeleton } from '../../components/ui/skeleton';
 import { dashboardAPI } from '../../api';
 import { formatCurrency } from '../../lib/utils';
 import {
   Building2, FileText, DollarSign,
   AlertCircle, CheckCircle, Clock, Home,
-  PieChart as PieChartIcon, Loader2, Inbox
+  PieChart as PieChartIcon, Inbox
 } from 'lucide-react';
 import {
   ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
@@ -57,8 +58,83 @@ export function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div>
+          <Skeleton className="h-9 w-72 mb-2" />
+          <Skeleton className="h-5 w-56" />
+        </div>
+
+        {/* First KPI Row Skeleton */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-3 sm:p-6">
+                <div className="flex items-center justify-between mb-2 sm:mb-4">
+                  <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
+                </div>
+                <Skeleton className="h-4 w-24 mb-2" />
+                <Skeleton className="h-8 w-20" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Second KPI Row Skeleton */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-3 sm:p-6">
+                <div className="flex items-center justify-between mb-2 sm:mb-4">
+                  <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
+                </div>
+                <Skeleton className="h-4 w-28 mb-2" />
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-3 w-20 mt-1" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Charts Row Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          {[...Array(2)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2 sm:pb-6">
+                <Skeleton className="h-6 w-48" />
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-center h-[280px]">
+                  <Skeleton className="w-48 h-48 rounded-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Table Skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-64 mt-1" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex gap-4 border-b pb-3">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-4 flex-1" />
+                ))}
+              </div>
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex gap-4 py-2">
+                  {[...Array(5)].map((_, j) => (
+                    <Skeleton key={j} className="h-4 flex-1" />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

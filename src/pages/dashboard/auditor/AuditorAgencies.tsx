@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
+import { Skeleton } from '../../../components/ui/skeleton';
 import { Input } from '../../../components/ui/input';
 import {
-  Building2, Search, Eye, FileText, Clock, CheckCircle, XCircle, Package, Loader2
+  Building2, Search, Eye, FileText, Clock, CheckCircle, XCircle, Package
 } from 'lucide-react';
 import { auditorAPI } from '../../../api';
 
@@ -45,8 +46,80 @@ export function AuditorAgencies() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-12 h-12 rounded-lg" />
+          <div>
+            <Skeleton className="h-8 w-56 mb-2" />
+            <Skeleton className="h-4 w-72" />
+          </div>
+        </div>
+
+        {/* Stats Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4 flex items-center gap-3">
+                <Skeleton className="w-9 h-9 rounded-lg" />
+                <div>
+                  <Skeleton className="h-3 w-20 mb-2" />
+                  <Skeleton className="h-6 w-12" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Search Skeleton */}
+        <Card>
+          <CardContent className="p-4">
+            <Skeleton className="h-10 w-full rounded" />
+          </CardContent>
+        </Card>
+
+        {/* Content Grid Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <Skeleton className="h-5 w-40" />
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="divide-y">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Skeleton className="h-5 w-40" />
+                          <Skeleton className="h-5 w-16 rounded-full" />
+                        </div>
+                        <Skeleton className="h-3 w-32 mb-2" />
+                        <div className="flex gap-4">
+                          <Skeleton className="h-3 w-24" />
+                          <Skeleton className="h-3 w-24" />
+                        </div>
+                      </div>
+                      <Skeleton className="h-6 w-20 rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-5 w-36" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Skeleton className="w-12 h-12 mx-auto mb-3 rounded" />
+                <Skeleton className="h-4 w-48 mx-auto" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }

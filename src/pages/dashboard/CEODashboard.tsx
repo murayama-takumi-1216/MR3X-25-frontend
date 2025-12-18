@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Skeleton } from '../../components/ui/skeleton';
 import { dashboardAPI } from '../../api';
 import { formatCurrency } from '../../lib/utils';
 import {
   Building2, Users, FileText, DollarSign, TrendingUp,
   AlertCircle, CheckCircle, Clock, Briefcase, Award,
-  PieChart as PieChartIcon, Loader2, Inbox, Percent
+  PieChart as PieChartIcon, Inbox, Percent
 } from 'lucide-react';
 import {
   ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
@@ -59,8 +60,55 @@ export function CEODashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-9 w-64 mb-2" />
+          <Skeleton className="h-5 w-80" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-3 sm:p-6">
+                <Skeleton className="w-10 h-10 rounded-lg mb-4" />
+                <Skeleton className="h-4 w-24 mb-2" />
+                <Skeleton className="h-8 w-20" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-3 sm:p-6">
+                <Skeleton className="w-10 h-10 rounded-lg mb-4" />
+                <Skeleton className="h-4 w-28 mb-2" />
+                <Skeleton className="h-8 w-24" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {[...Array(2)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader><Skeleton className="h-6 w-48" /></CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-center h-[280px]">
+                  <Skeleton className="w-48 h-48 rounded-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Card>
+          <CardHeader><Skeleton className="h-6 w-48" /></CardHeader>
+          <CardContent>
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex gap-4 py-2 border-b last:border-0">
+                {[...Array(5)].map((_, j) => (<Skeleton key={j} className="h-4 flex-1" />))}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     );
   }
