@@ -224,6 +224,57 @@ export function AgencyPlanConfig() {
     checkPendingPayment();
   }, [agencyId, checkPaymentStatus]);
 
+  // Auto-check payment status when payment modal is open (polling every 5 seconds)
+  useEffect(() => {
+    if (!showPaymentModal || !paymentData?.paymentId || !selectedPlan) return;
+
+    let isChecking = false;
+    const checkPayment = async () => {
+      if (isChecking || checkingPayment) return;
+      isChecking = true;
+      await checkPaymentStatus(paymentData.paymentId!, selectedPlan, false);
+      isChecking = false;
+    };
+
+    // Check immediately when modal opens
+    checkPayment();
+
+    // Set up polling interval (every 5 seconds)
+    const intervalId = setInterval(checkPayment, 5000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [showPaymentModal, paymentData?.paymentId, selectedPlan, checkPaymentStatus, checkingPayment]);
+
+  // Check payment when window gets focus (user returns from payment page)
+  useEffect(() => {
+    if (!paymentData?.paymentId || !selectedPlan) return;
+
+    const handleFocus = async () => {
+      // Small delay to ensure page is fully focused
+      setTimeout(async () => {
+        await checkPaymentStatus(paymentData.paymentId!, selectedPlan, false);
+      }, 500);
+    };
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && paymentData?.paymentId && selectedPlan) {
+        setTimeout(async () => {
+          await checkPaymentStatus(paymentData.paymentId!, selectedPlan, false);
+        }, 500);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [paymentData?.paymentId, selectedPlan, checkPaymentStatus]);
+
   const { data: agency, isLoading: agencyLoading } = useQuery({
     queryKey: ['agency', agencyId],
     queryFn: () => agenciesAPI.getAgencyById(agencyId!),
@@ -446,38 +497,24 @@ export function AgencyPlanConfig() {
         <Alert className="border-yellow-400 bg-yellow-50">
           <CreditCard className="h-4 w-4 text-yellow-600" />
           <AlertDescription className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="text-yellow-800">
+            <div className="text-yellow-800 flex items-center gap-2">
               <span className="font-medium">Pagamento pendente: </span>
               Upgrade para plano {getPlanNameInPortuguese(selectedPlan)}
+              {checkingPayment && (
+                <span className="flex items-center text-sm text-yellow-600">
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                  Verificando...
+                </span>
+              )}
             </div>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-yellow-400 text-yellow-800 hover:bg-yellow-100"
-                onClick={() => setShowPaymentModal(true)}
-              >
-                Ver Detalhes
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => checkPaymentStatus(paymentData.paymentId!, selectedPlan)}
-                disabled={checkingPayment}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                {checkingPayment ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                    Verificando...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-1" />
-                    Verificar Pagamento
-                  </>
-                )}
-              </Button>
-            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-yellow-400 text-yellow-800 hover:bg-yellow-100"
+              onClick={() => setShowPaymentModal(true)}
+            >
+              Ver Detalhes do Pagamento
+            </Button>
           </AlertDescription>
         </Alert>
       )}
@@ -1212,7 +1249,7 @@ export function AgencyPlanConfig() {
               </Alert>
             </div>
           )}
-          <DialogFooter className="flex flex-col sm:flex-row gap-2">
+          <DialogFooter>
             <Button
               variant="outline"
               onClick={() => {
@@ -1223,25 +1260,6 @@ export function AgencyPlanConfig() {
             >
               Fechar
             </Button>
-            {paymentData?.paymentId && selectedPlan && (
-              <Button
-                onClick={() => checkPaymentStatus(paymentData.paymentId!, selectedPlan)}
-                disabled={checkingPayment}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                {checkingPayment ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Verificando...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Já Paguei - Verificar Pagamento
-                  </>
-                )}
-              </Button>
-            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
