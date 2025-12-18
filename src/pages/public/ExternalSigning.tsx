@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import { Skeleton } from '../../components/ui/skeleton';
 import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -107,9 +108,42 @@ export function ExternalSigning() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-4">
         <Card className="w-full max-w-md">
-          <CardContent className="py-8 sm:py-12 text-center">
-            <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-primary mx-auto mb-3 sm:mb-4" />
-            <p className="text-sm text-muted-foreground">Carregando dados do contrato...</p>
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <Skeleton className="w-12 h-12 rounded-full" />
+            </div>
+            <Skeleton className="h-6 w-48 mx-auto mb-2" />
+            <Skeleton className="h-4 w-64 mx-auto" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Contract Info Skeleton */}
+            <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Skeleton className="w-4 h-4" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="w-4 h-4" />
+                <Skeleton className="h-4 w-40" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="w-4 h-4" />
+                <Skeleton className="h-4 w-28" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="w-4 h-4" />
+                <Skeleton className="h-4 w-36" />
+              </div>
+            </div>
+
+            {/* Signature Area Skeleton */}
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-32 w-full rounded-lg" />
+            </div>
+
+            {/* Button Skeleton */}
+            <Skeleton className="h-10 w-full rounded" />
           </CardContent>
         </Card>
       </div>

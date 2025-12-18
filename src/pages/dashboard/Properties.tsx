@@ -38,6 +38,7 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Card, CardContent } from '../../components/ui/card';
+import { Skeleton } from '../../components/ui/skeleton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -1085,8 +1086,72 @@ export function Properties() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-12 h-12 rounded-lg" />
+            <div>
+              <Skeleton className="h-8 w-32 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="w-10 h-10 rounded" />
+            <Skeleton className="w-10 h-10 rounded" />
+          </div>
+        </div>
+
+        {/* Search Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex w-full sm:max-w-lg gap-2">
+            <Skeleton className="h-10 flex-1 rounded" />
+            <Skeleton className="h-10 w-20 rounded" />
+          </div>
+        </div>
+
+        {/* Properties Grid Skeleton */}
+        <div className="flex justify-center w-full">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-6 w-full max-w-7xl px-2 items-stretch justify-center">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="w-[400px] mx-auto overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="flex h-full">
+                    {/* Image Skeleton */}
+                    <Skeleton className="w-[160px] h-[200px] rounded-none" />
+
+                    {/* Content Skeleton */}
+                    <div className="flex-1 p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <Skeleton className="h-5 w-32" />
+                          <Skeleton className="h-6 w-16 rounded-full" />
+                        </div>
+                        <Skeleton className="h-4 w-full mb-1" />
+                        <Skeleton className="h-4 w-3/4 mb-3" />
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="w-4 h-4" />
+                            <Skeleton className="h-3 w-24" />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="w-4 h-4" />
+                            <Skeleton className="h-3 w-28" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-1 mt-3">
+                        <Skeleton className="w-8 h-8 rounded" />
+                        <Skeleton className="w-8 h-8 rounded" />
+                        <Skeleton className="w-8 h-8 rounded" />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

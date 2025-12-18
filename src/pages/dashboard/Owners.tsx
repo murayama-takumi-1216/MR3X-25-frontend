@@ -48,6 +48,7 @@ import { Button } from '@/components/ui/button'
 import { validateDocument, isValidCEPFormat } from '@/lib/validation'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -431,8 +432,70 @@ export function Owners() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-12 h-12 rounded-lg" />
+            <div>
+              <Skeleton className="h-8 w-40 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="w-20 h-10 rounded" />
+            <Skeleton className="w-40 h-10 rounded" />
+          </div>
+        </div>
+
+        {/* Search Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex w-full sm:max-w-lg gap-2">
+            <Skeleton className="h-10 flex-1 rounded" />
+            <Skeleton className="h-10 w-20 rounded" />
+          </div>
+        </div>
+
+        {/* Table Skeleton */}
+        <div className="bg-card border border-border rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr>
+                  {[...Array(7)].map((_, i) => (
+                    <th key={i} className="p-4">
+                      <Skeleton className="h-4 w-20" />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[...Array(6)].map((_, i) => (
+                  <tr key={i} className="border-t border-border">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-9 w-9 rounded-full" />
+                        <Skeleton className="h-5 w-32" />
+                      </div>
+                    </td>
+                    <td className="p-4"><Skeleton className="h-5 w-28" /></td>
+                    <td className="p-4"><Skeleton className="h-5 w-28" /></td>
+                    <td className="p-4"><Skeleton className="h-5 w-40" /></td>
+                    <td className="p-4"><Skeleton className="h-5 w-36" /></td>
+                    <td className="p-4"><Skeleton className="h-6 w-16 rounded-full" /></td>
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        <Skeleton className="h-9 w-9 rounded" />
+                        <Skeleton className="h-9 w-9 rounded" />
+                        <Skeleton className="h-9 w-9 rounded" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     )
   }
