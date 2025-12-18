@@ -563,6 +563,11 @@ export const agenciesAPI = {
     const response = await apiClient.post(`/agencies/${id}/create-plan-payment`, { newPlan });
     return response.data;
   },
+
+  confirmPlanPayment: async (id: string, paymentId: string, newPlan: string) => {
+    const response = await apiClient.post(`/agencies/${id}/confirm-plan-payment`, { paymentId, newPlan });
+    return response.data;
+  },
 };
 
 export const plansAPI = {
