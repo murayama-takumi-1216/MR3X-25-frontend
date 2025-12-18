@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
-import { agenciesAPI, plansAPI } from '../../api';
+import { agenciesAPI, plansAPI, usersAPI } from '../../api';
 
 // Storage key for pending payment
 const PENDING_PAYMENT_KEY = 'pending_plan_payment';
@@ -25,7 +25,6 @@ import {
   QrCode,
   Copy,
   ExternalLink,
-  RefreshCw,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -175,15 +174,19 @@ export function AgencyPlanConfig() {
         toast.success(`Plano atualizado para ${getPlanNameInPortuguese(newPlan)} com sucesso!`);
         return true;
       } else {
-        if (showToast) {
-          toast.error('Pagamento ainda não confirmado. Tente novamente em alguns instantes.');
-        }
+        // Payment not confirmed yet - silently continue (no toast during polling)
         return false;
       }
     } catch (error: any) {
-      console.error('Error checking payment:', error);
-      if (showToast) {
-        toast.error(error.response?.data?.message || 'Erro ao verificar pagamento');
+      // Check if this is a "payment not confirmed" error - don't show toast for this during polling
+      const errorMessage = error.response?.data?.message || '';
+      const isPaymentPending = errorMessage.includes('não confirmado') ||
+                               errorMessage.includes('not confirmed') ||
+                               errorMessage.includes('PENDING');
+
+      if (!isPaymentPending && showToast) {
+        // Only show toast for actual errors, not for "payment pending"
+        toast.error(errorMessage || 'Erro ao verificar pagamento');
       }
       return false;
     } finally {
@@ -290,6 +293,55 @@ export function AgencyPlanConfig() {
   const { data: frozenEntities } = useQuery({
     queryKey: ['agency-frozen-entities', agencyId],
     queryFn: () => agenciesAPI.getFrozenEntities(agencyId!),
+    enabled: !!agencyId && canViewPlan,
+  });
+
+  // Fetch actual user counts
+  const { data: brokers = [] } = useQuery({
+    queryKey: ['agency-brokers-count', agencyId],
+    queryFn: async () => {
+      const response = await usersAPI.listUsers({ role: 'BROKER', pageSize: 100 });
+      const agencyIdStr = agencyId?.toString();
+      return (response.items || []).filter((broker: any) => 
+        !broker.isFrozen && !broker.deleted && broker.agencyId?.toString() === agencyIdStr
+      );
+    },
+    enabled: !!agencyId && canViewPlan,
+  });
+
+  const { data: tenants = [] } = useQuery({
+    queryKey: ['agency-tenants-count', agencyId],
+    queryFn: async () => {
+      const data = await usersAPI.getTenants();
+      const agencyIdStr = agencyId?.toString();
+      return (Array.isArray(data) ? data : []).filter((tenant: any) => 
+        !tenant.isFrozen && !tenant.deleted && tenant.agencyId?.toString() === agencyIdStr
+      );
+    },
+    enabled: !!agencyId && canViewPlan,
+  });
+
+  const { data: managers = [] } = useQuery({
+    queryKey: ['agency-managers-count', agencyId],
+    queryFn: async () => {
+      const response = await usersAPI.listUsers({ role: 'AGENCY_MANAGER', pageSize: 100 });
+      const agencyIdStr = agencyId?.toString();
+      return (response.items || []).filter((manager: any) => 
+        !manager.isFrozen && !manager.deleted && manager.agencyId?.toString() === agencyIdStr
+      );
+    },
+    enabled: !!agencyId && canViewPlan,
+  });
+
+  const { data: owners = [] } = useQuery({
+    queryKey: ['agency-owners-count', agencyId],
+    queryFn: async () => {
+      const response = await usersAPI.listUsers({ role: 'PROPRIETARIO', pageSize: 100 });
+      const agencyIdStr = agencyId?.toString();
+      return (response.items || []).filter((owner: any) => 
+        !owner.isFrozen && !owner.deleted && owner.agencyId?.toString() === agencyIdStr
+      );
+    },
     enabled: !!agencyId && canViewPlan,
   });
 
@@ -473,10 +525,6 @@ export function AgencyPlanConfig() {
     ? Math.min(100, (planUsage.contracts.active / planUsage.contracts.limit) * 100)
     : 0;
 
-  const userPercent = planUsage?.users?.limit > 0
-    ? Math.min(100, (planUsage.users.active / planUsage.users.limit) * 100)
-    : 0;
-
   return (
     <div className="space-y-6">
       {}
@@ -520,170 +568,227 @@ export function AgencyPlanConfig() {
       )}
 
       {}
-      <Card className="relative overflow-visible">
-        <div className={`absolute top-0 left-0 right-0 h-2 rounded-t-lg ${currentPlanColor}`} />
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-lg ${currentPlanColor} text-white`}>
-                <CurrentPlanIcon className="w-6 h-6" />
-              </div>
-              <div>
-                <CardTitle className="text-xl">Plano {getPlanNameInPortuguese(currentPlanName)}</CardTitle>
-                <CardDescription>{currentPlanData?.description || 'Seu plano atual'}</CardDescription>
-              </div>
-            </div>
-            <Badge className={`${currentPlanColor} text-white`}>
-              Plano Atual
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <div className="text-3xl font-bold">
-              {currentPlanData?.price === 0 ? 'Grátis' : `R$ ${currentPlanData?.price?.toFixed(2) || '0.00'}`}
-              {currentPlanData?.price > 0 && <span className="text-sm text-muted-foreground">/mês</span>}
-            </div>
-          </div>
-
-          <div className="space-y-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {}
+        <Card className="relative overflow-visible lg:col-span-2">
+          <div className={`absolute top-0 left-0 right-0 h-2 rounded-t-lg ${currentPlanColor}`} />
+          <CardHeader>
             <div className="flex items-center justify-between">
-              <span className="text-sm">Imóveis:</span>
-              <Badge variant="outline">
-                {currentPlanData?.propertyLimit || 1}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Inquilinos:</span>
-              <Badge variant="outline">
-                {currentPlanData?.tenantLimit || currentPlanData?.maxTenants || currentPlanData?.propertyLimit || 1}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Proprietários:</span>
-              <Badge variant="outline">
-                {currentPlanData?.ownerLimit || currentPlanData?.maxOwners || currentPlanData?.propertyLimit || 1}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Corretores:</span>
-              <Badge variant="outline">
-                {currentPlanData?.brokerLimit || currentPlanData?.maxBrokers || 1}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Gerentes:</span>
-              <Badge variant="outline">
-                {currentPlanData?.managerLimit || currentPlanData?.maxManagers || 1}
-              </Badge>
-            </div>
-          </div>
-
-          {/* Free Usage Limits Display */}
-          <div className="space-y-2 border-t pt-2">
-            <h4 className="text-sm font-semibold">Limites Gratuitos/mês:</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Vistorias:</span>
-                <Badge variant="secondary" className="text-xs">
-                  {currentPlanData?.freeInspections === -1 ? '∞' : (currentPlanData?.freeInspections ?? 0)}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Análises:</span>
-                <Badge variant="secondary" className="text-xs">
-                  {currentPlanData?.freeSearches === -1 ? '∞' : (currentPlanData?.freeSearches ?? 0)}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Acordos:</span>
-                <Badge variant="secondary" className="text-xs">
-                  {currentPlanData?.freeSettlements === -1 ? '∞' : (currentPlanData?.freeSettlements ?? 0)}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">API:</span>
-                <Badge variant="secondary" className="text-xs">
-                  {currentPlanData?.freeApiCalls === -1 ? '∞' : (currentPlanData?.freeApiCalls ?? 0)}
-                </Badge>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-2 border-t">
-            <h4 className="text-sm font-semibold mb-2">Recursos:</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {(currentPlanData?.features || []).map((feature: string, index: number) => (
-                <div key={index} className="flex items-center gap-2 text-sm">
-                  <Check className="w-4 h-4 text-green-600" />
-                  <span>{feature}</span>
+              <div className="flex items-center gap-3">
+                <div className={`p-3 rounded-lg ${currentPlanColor} text-white`}>
+                  <CurrentPlanIcon className="w-6 h-6" />
                 </div>
-              ))}
+                <div>
+                  <CardTitle className="text-xl">Plano {getPlanNameInPortuguese(currentPlanName)}</CardTitle>
+                  <CardDescription>{currentPlanData?.description || 'Seu plano atual'}</CardDescription>
+                </div>
+              </div>
+              <Badge className={`${currentPlanColor} text-white`}>
+                Plano Atual
+              </Badge>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-
-      {}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Building2 className="w-5 h-5" />
-              Uso de Imóveis
-            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between text-sm">
-              <span>Ativas</span>
-              <span className="font-medium">
-                {planUsage?.contracts?.active || 0} / {planUsage?.contracts?.limit === -1 ? 'Ilimitado' : planUsage?.contracts?.limit || 0}
-              </span>
-            </div>
-            {planUsage?.contracts?.limit !== -1 && (
-              <Progress value={propertyPercent} className="h-3" />
-            )}
-            {(planUsage?.contracts?.frozen || 0) > 0 && (
-              <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-lg">
-                <Lock className="w-4 h-4 text-amber-600" />
-                <span className="text-sm text-amber-800">
-                  {planUsage.contracts.frozen} imóvel(eis) congelado(s)
-                </span>
+            <div>
+              <div className="text-3xl font-bold">
+                {currentPlanData?.price === 0 ? 'Grátis' : `R$ ${currentPlanData?.price?.toFixed(2) || '0.00'}`}
+                {currentPlanData?.price > 0 && <span className="text-sm text-muted-foreground">/mês</span>}
               </div>
-            )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Imóveis:</span>
+                <Badge variant="outline">
+                  {currentPlanData?.propertyLimit || 1}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Inquilinos:</span>
+                <Badge variant="outline">
+                  {currentPlanData?.tenantLimit || currentPlanData?.maxTenants || currentPlanData?.propertyLimit || 1}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Proprietários:</span>
+                <Badge variant="outline">
+                  {currentPlanData?.ownerLimit || currentPlanData?.maxOwners || currentPlanData?.propertyLimit || 1}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Corretores:</span>
+                <Badge variant="outline">
+                  {currentPlanData?.brokerLimit || currentPlanData?.maxBrokers || 1}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Gerentes:</span>
+                <Badge variant="outline">
+                  {currentPlanData?.managerLimit || currentPlanData?.maxManagers || 1}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Free Usage Limits Display */}
+            <div className="space-y-2 border-t pt-2">
+              <h4 className="text-sm font-semibold">Limites Gratuitos/mês:</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Vistorias:</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {currentPlanData?.freeInspections === -1 ? '∞' : (currentPlanData?.freeInspections ?? 0)}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Análises:</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {currentPlanData?.freeSearches === -1 ? '∞' : (currentPlanData?.freeSearches ?? 0)}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Acordos:</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {currentPlanData?.freeSettlements === -1 ? '∞' : (currentPlanData?.freeSettlements ?? 0)}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">API:</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {currentPlanData?.freeApiCalls === -1 ? '∞' : (currentPlanData?.freeApiCalls ?? 0)}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t">
+              <h4 className="text-sm font-semibold mb-2">Recursos:</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {(currentPlanData?.features || []).map((feature: string, index: number) => (
+                  <div key={index} className="flex items-center gap-2 text-sm">
+                    <Check className="w-4 h-4 text-green-600" />
+                    <span>{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         {}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Uso de Usuários
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between text-sm">
-              <span>Ativos</span>
-              <span className="font-medium">
-                {planUsage?.users?.active || 0} / {planUsage?.users?.limit === -1 ? 'Ilimitado' : planUsage?.users?.limit || 0}
-              </span>
-            </div>
-            {planUsage?.users?.limit !== -1 && (
-              <Progress value={userPercent} className="h-3" />
-            )}
-            {planUsage?.users?.frozen > 0 && (
-              <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-lg">
-                <Lock className="w-4 h-4 text-amber-600" />
-                <span className="text-sm text-amber-800">
-                  {planUsage.users.frozen} usuário(s) congelado(s)
+        <div className="flex flex-col gap-6 lg:col-span-1">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Building2 className="w-5 h-5" />
+                Uso de Imóveis
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between text-sm">
+                <span>Ativas</span>
+                <span className="font-medium">
+                  {planUsage?.contracts?.active || 0} / {planUsage?.contracts?.limit === -1 ? 'Ilimitado' : planUsage?.contracts?.limit || 0}
                 </span>
               </div>
-            )}
-          </CardContent>
-        </Card>
+              {planUsage?.contracts?.limit !== -1 && (
+                <Progress value={propertyPercent} className="h-3" />
+              )}
+              {(planUsage?.contracts?.frozen || 0) > 0 && (
+                <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-lg">
+                  <Lock className="w-4 h-4 text-amber-600" />
+                  <span className="text-sm text-amber-800">
+                    {planUsage.contracts.frozen} imóvel(eis) congelado(s)
+                  </span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                Uso de Usuários
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                {/* Inquilinos */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Inquilinos</span>
+                    <span className="font-medium">
+                      {tenants.length} / {currentPlanData?.tenantLimit === -1 ? 'Ilimitado' : currentPlanData?.tenantLimit || currentPlanData?.maxTenants || currentPlanData?.propertyLimit || 0}
+                    </span>
+                  </div>
+                  {currentPlanData?.tenantLimit !== -1 && (currentPlanData?.tenantLimit || currentPlanData?.maxTenants || currentPlanData?.propertyLimit) && (
+                    <Progress 
+                      value={currentPlanData?.tenantLimit ? Math.min(100, (tenants.length / (currentPlanData.tenantLimit || 1)) * 100) : 0} 
+                      className="h-2" 
+                    />
+                  )}
+                </div>
+
+                {/* Proprietários */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Proprietários</span>
+                    <span className="font-medium">
+                      {owners.length} / {currentPlanData?.ownerLimit === -1 ? 'Ilimitado' : currentPlanData?.ownerLimit || currentPlanData?.maxOwners || currentPlanData?.propertyLimit || 0}
+                    </span>
+                  </div>
+                  {currentPlanData?.ownerLimit !== -1 && (currentPlanData?.ownerLimit || currentPlanData?.maxOwners || currentPlanData?.propertyLimit) && (
+                    <Progress 
+                      value={currentPlanData?.ownerLimit ? Math.min(100, (owners.length / (currentPlanData.ownerLimit || 1)) * 100) : 0} 
+                      className="h-2" 
+                    />
+                  )}
+                </div>
+
+                {/* Corretores */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Corretores</span>
+                    <span className="font-medium">
+                      {brokers.length} / {currentPlanData?.brokerLimit === -1 ? 'Ilimitado' : currentPlanData?.brokerLimit || currentPlanData?.maxBrokers || 1}
+                    </span>
+                  </div>
+                  {currentPlanData?.brokerLimit !== -1 && currentPlanData?.brokerLimit && (
+                    <Progress 
+                      value={currentPlanData?.brokerLimit ? Math.min(100, (brokers.length / (currentPlanData.brokerLimit || 1)) * 100) : 0} 
+                      className="h-2" 
+                    />
+                  )}
+                </div>
+
+                {/* Gerentes */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Gerentes</span>
+                    <span className="font-medium">
+                      {managers.length} / {currentPlanData?.managerLimit === -1 ? 'Ilimitado' : currentPlanData?.managerLimit || currentPlanData?.maxManagers || 1}
+                    </span>
+                  </div>
+                  {currentPlanData?.managerLimit !== -1 && currentPlanData?.managerLimit && (
+                    <Progress 
+                      value={currentPlanData?.managerLimit ? Math.min(100, (managers.length / (currentPlanData.managerLimit || 1)) * 100) : 0} 
+                      className="h-2" 
+                    />
+                  )}
+                </div>
+              </div>
+
+              {planUsage?.users?.frozen > 0 && (
+                <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-lg border-t pt-3 mt-3">
+                  <Lock className="w-4 h-4 text-amber-600" />
+                  <span className="text-sm text-amber-800">
+                    {planUsage.users.frozen} usuário(s) congelado(s)
+                  </span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {}
@@ -771,7 +876,7 @@ export function AgencyPlanConfig() {
       ) : (
         <div>
           <h2 className="text-xl font-semibold mb-4">Planos Disponíveis</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {plans.map((plan: any) => {
               const isCurrentPlan = currentPlanName.toUpperCase() === plan.name.toUpperCase();
               const PlanIcon = getPlanIcon(plan.name);
