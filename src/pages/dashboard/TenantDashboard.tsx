@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
+import { Skeleton } from '../../components/ui/skeleton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -348,8 +349,70 @@ export function TenantDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {/* Welcome Banner Skeleton */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6">
+          <Skeleton className="h-8 w-64 mb-2 bg-blue-500/20" />
+          <Skeleton className="h-4 w-96 bg-blue-500/20" />
+        </div>
+
+        {/* Metrics Cards Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <Skeleton className="h-4 w-24 mb-2" />
+                <Skeleton className="h-8 w-32" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Charts Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {[...Array(2)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-64 mt-1" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-[250px] w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Property Card Skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-64" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i}>
+                  <Skeleton className="h-4 w-32 mb-2" />
+                  <Skeleton className="h-6 w-24" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions Skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4 text-center">
+                <Skeleton className="w-8 h-8 mx-auto mb-2 rounded-full" />
+                <Skeleton className="h-4 w-24 mx-auto" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }

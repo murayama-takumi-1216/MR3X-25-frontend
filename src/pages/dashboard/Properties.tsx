@@ -126,10 +126,13 @@ export function Properties() {
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [propertyToDelete, setPropertyToDelete] = useState<any>(null);
   const [propertyDetail, setPropertyDetail] = useState<any>(null);
+  const [propertyDetailLoading, setPropertyDetailLoading] = useState(false);
   const [tenants, setTenants] = useState<any[]>([]);
   const [tenantsLoading, setTenantsLoading] = useState(false);
   const [owners, setOwners] = useState<any[]>([]);
   const [ownersLoading, setOwnersLoading] = useState(false);
+  const [documentsLoading, setDocumentsLoading] = useState(false);
+  const [editModalLoading, setEditModalLoading] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [propertyToAssign, setPropertyToAssign] = useState<any>(null);
   const [selectedBrokerId, setSelectedBrokerId] = useState<string>('none');
@@ -645,37 +648,60 @@ export function Properties() {
   const handleViewProperty = async (property: any) => {
     closeAllModals();
     setSelectedProperty(property);
-    setPropertyDetail(property);
+    setPropertyDetailLoading(true);
+    setPropertyDetail(null);
     setShowDetailModal(true);
+    
+    try {
+      // Simulate loading or fetch additional data if needed
+      // For now, we'll use the property data directly but show loading state
+      await new Promise(resolve => setTimeout(resolve, 300)); // Small delay for UX
+      setPropertyDetail(property);
+    } catch (error) {
+      console.error('Error loading property details:', error);
+      toast.error('Erro ao carregar detalhes do imóvel');
+    } finally {
+      setPropertyDetailLoading(false);
+    }
   };
 
   const handleEditProperty = async (property: any) => {
     closeAllModals();
     setSelectedProperty(property);
     setExistingImageCount(0);
-    setEditForm({
-      name: property.name || '',
-      address: property.address || '',
-      city: property.city || '',
-      state: property.stateNumber || '',
-      neighborhood: property.neighborhood || '',
-      cep: property.cep || '',
-      monthlyRent: property.monthlyRent ? String(property.monthlyRent) : '',
-      dueDay: property.dueDay ? String(property.dueDay) : '',
-      ownerId: property.ownerId ? String(property.ownerId) : property.owner?.id ? String(property.owner.id) : '',
-      agencyFee: property.agencyFee ? String(property.agencyFee) : '',
-      registrationNumber: property.registrationNumber || '',
-      builtArea: property.builtArea ? String(property.builtArea) : '',
-      totalArea: property.totalArea ? String(property.totalArea) : '',
-      description: property.description || '',
-      furnitureList: property.furnitureList || '',
-      condominiumName: property.condominiumName || '',
-      condominiumFee: property.condominiumFee ? String(property.condominiumFee) : '',
-      iptuValue: property.iptuValue ? String(property.iptuValue) : '',
-    });
-    loadTenants();
-    await loadOwners();
+    setEditModalLoading(true);
     setShowEditModal(true);
+    
+    try {
+      // Load tenants and owners in parallel
+      await Promise.all([loadTenants(), loadOwners()]);
+      
+      setEditForm({
+        name: property.name || '',
+        address: property.address || '',
+        city: property.city || '',
+        state: property.stateNumber || '',
+        neighborhood: property.neighborhood || '',
+        cep: property.cep || '',
+        monthlyRent: property.monthlyRent ? String(property.monthlyRent) : '',
+        dueDay: property.dueDay ? String(property.dueDay) : '',
+        ownerId: property.ownerId ? String(property.ownerId) : property.owner?.id ? String(property.owner.id) : '',
+        agencyFee: property.agencyFee ? String(property.agencyFee) : '',
+        registrationNumber: property.registrationNumber || '',
+        builtArea: property.builtArea ? String(property.builtArea) : '',
+        totalArea: property.totalArea ? String(property.totalArea) : '',
+        description: property.description || '',
+        furnitureList: property.furnitureList || '',
+        condominiumName: property.condominiumName || '',
+        condominiumFee: property.condominiumFee ? String(property.condominiumFee) : '',
+        iptuValue: property.iptuValue ? String(property.iptuValue) : '',
+      });
+    } catch (error) {
+      console.error('Error loading edit data:', error);
+      toast.error('Erro ao carregar dados para edição');
+    } finally {
+      setEditModalLoading(false);
+    }
   };
 
   const handleDeleteProperty = (property: any) => {
@@ -693,10 +719,24 @@ export function Properties() {
     }
   };
 
-  const handleViewDocuments = (property: any) => {
+  const handleViewDocuments = async (property: any) => {
     closeAllModals();
     setSelectedProperty(property);
+    setDocumentsLoading(true);
     setShowDocumentsModal(true);
+    
+    try {
+      // Simulate loading documents - replace with actual API call if needed
+      await new Promise(resolve => setTimeout(resolve, 300));
+      // If you have an API to fetch documents, call it here
+      // const docs = await propertiesAPI.getPropertyDocuments(property.id);
+      // setDocuments(docs);
+    } catch (error) {
+      console.error('Error loading documents:', error);
+      toast.error('Erro ao carregar documentos');
+    } finally {
+      setDocumentsLoading(false);
+    }
   };
 
   const handleWhatsAppNotification = (property: any) => {
@@ -1243,14 +1283,8 @@ export function Properties() {
           <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-6 w-full max-w-7xl px-2 items-stretch justify-center">
             {properties && properties.length > 0 ? (
               properties.map((property: any) => (
-                <Card key={property.id} className="transition-all hover:shadow-md flex flex-col w-[400px] mx-auto overflow-hidden relative">
+                <Card key={property.id} className="transition-all hover:shadow-md flex flex-col w-[400px] mx-auto overflow-hidden">
                   <CardContent className="p-0 h-full flex flex-col overflow-hidden min-w-0">
-                    {}
-                    {property.token && (
-                      <div className="absolute top-2 right-2 z-10 bg-background/90 backdrop-blur-sm border border-border rounded-md px-2 py-1 shadow-sm">
-                        <p className="text-[10px] text-muted-foreground font-mono">{property.token}</p>
-                      </div>
-                    )}
                     <div className="flex h-full min-w-0">
                       {}
                       <div className="w-40 min-w-40 h-full bg-gray-100 flex items-center justify-center rounded-l-md overflow-hidden">
@@ -1260,6 +1294,9 @@ export function Properties() {
                       <div className="flex-1 flex flex-col justify-between p-4 min-w-0 overflow-hidden">
                         <div className="min-w-0 space-y-1">
                           <h3 className="text-lg font-bold truncate" title={property.name}>{property.name}</h3>
+                          {property.token && (
+                            <p className="text-[10px] text-muted-foreground font-mono truncate" title={property.token}>{property.token}</p>
+                          )}
                           <p className="text-sm font-semibold text-gray-700 truncate" title={property.address}>
                             {property.address}
                           </p>
@@ -1716,6 +1753,36 @@ export function Properties() {
             <DialogHeader>
               <DialogTitle>Editar imóvel</DialogTitle>
             </DialogHeader>
+            {editModalLoading ? (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Skeleton className="h-10 w-24" />
+                  <Skeleton className="h-10 w-24" />
+                </div>
+              </div>
+            ) : (
             <form className="space-y-4" onSubmit={handleUpdateProperty}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -1999,6 +2066,7 @@ export function Properties() {
                 </Button>
               </div>
             </form>
+            )}
           </DialogContent>
         </Dialog>
 
@@ -2008,7 +2076,25 @@ export function Properties() {
             <DialogHeader>
               <DialogTitle>Detalhes do Imóvel</DialogTitle>
             </DialogHeader>
-            {propertyDetail ? (
+            {propertyDetailLoading ? (
+              <div className="space-y-4">
+                <div>
+                  <Skeleton className="h-6 w-40 mb-2" />
+                  <Skeleton className="h-64 w-full rounded-md" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-6 w-32 mb-2" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-4/5" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              </div>
+            ) : propertyDetail ? (
               <div className="space-y-4">
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Imagens do Imóvel</h3>
@@ -2116,7 +2202,25 @@ export function Properties() {
             <DialogHeader>
               <DialogTitle>Documentos do Imóvel</DialogTitle>
             </DialogHeader>
-            {selectedProperty ? (
+            {documentsLoading ? (
+              <div className="space-y-4">
+                <Skeleton className="h-4 w-64" />
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-48" />
+                  <div className="space-y-3">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="w-4 h-4" />
+                          <Skeleton className="h-4 w-48" />
+                        </div>
+                        <Skeleton className="h-8 w-24" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : selectedProperty ? (
               <div className="space-y-4">
                 <div className="text-sm text-muted-foreground">
                   <strong>Imóvel:</strong> {selectedProperty.name || selectedProperty.address}

@@ -15,6 +15,7 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Label } from '../../components/ui/label';
 import { Checkbox } from '../../components/ui/checkbox';
+import { Skeleton } from '../../components/ui/skeleton';
 import { SignatureCapture } from '../../components/contracts/SignatureCapture';
 import { QRCodeSVG } from 'qrcode.react';
 import Barcode from 'react-barcode';
@@ -220,8 +221,80 @@ export function ExtrajudicialAcknowledgment() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-10 w-24" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+
+        {/* Main Card Skeleton */}
+        <Card className="border-red-200">
+          <CardHeader className="bg-red-50 border-b border-red-200">
+            <div className="flex items-center gap-4">
+              <Skeleton className="w-16 h-16 rounded-full" />
+              <div className="flex-1">
+                <Skeleton className="h-8 w-64 mb-2" />
+                <Skeleton className="h-4 w-48" />
+              </div>
+              <Skeleton className="h-6 w-32" />
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-6 space-y-6">
+            {/* Token and QR Code Skeleton */}
+            <div className="flex gap-6 p-6 bg-gray-50 rounded-lg border">
+              <Skeleton className="w-32 h-32" />
+              <Skeleton className="flex-1 h-32" />
+            </div>
+
+            {/* Details Grid Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[...Array(2)].map((_, i) => (
+                <Card key={i}>
+                  <CardHeader className="pb-2">
+                    <Skeleton className="h-5 w-40" />
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {[...Array(3)].map((_, j) => (
+                      <Skeleton key={j} className="h-4 w-full" />
+                    ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Tracking Info Skeleton */}
+            <Card className="bg-blue-50 border-blue-200">
+              <CardHeader className="pb-2">
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-4 w-56 mt-1" />
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i}>
+                      <Skeleton className="h-4 w-24 mb-1" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Signature Section Skeleton */}
+            <Card className="border-2 border-dashed border-gray-300">
+              <CardHeader>
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-4 w-64 mt-1" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Skeleton className="h-40 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </CardContent>
+            </Card>
+          </CardContent>
+        </Card>
       </div>
     );
   }

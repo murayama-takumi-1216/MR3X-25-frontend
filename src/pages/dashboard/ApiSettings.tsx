@@ -8,6 +8,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
+import { Skeleton } from '../../components/ui/skeleton';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Switch } from '../../components/ui/switch';
@@ -178,8 +179,51 @@ export function ApiSettings() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-72" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+
+        {/* Status card skeleton */}
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-5 h-5 rounded" />
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-48" />
+                  <Skeleton className="h-4 w-96" />
+                </div>
+              </div>
+              <Skeleton className="h-6 w-24" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Main settings cards skeleton */}
+        {[...Array(5)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader>
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-full max-w-2xl" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }

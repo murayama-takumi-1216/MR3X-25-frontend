@@ -25,6 +25,7 @@ import { Label } from '../../components/ui/label';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Card, CardContent } from '../../components/ui/card';
+import { Skeleton } from '../../components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import {
   DropdownMenu,
@@ -279,9 +280,61 @@ export function Payments() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <TooltipProvider>
+        <div className="space-y-6">
+          {/* Header Skeleton */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <Skeleton className="w-12 h-12 rounded-lg" />
+              <div>
+                <Skeleton className="h-8 w-32 mb-2" />
+                <Skeleton className="h-4 w-48" />
+              </div>
+            </div>
+            <Skeleton className="h-10 w-10 rounded" />
+          </div>
+
+          {/* Search Bar Skeleton */}
+          <Skeleton className="h-10 w-full max-w-lg" />
+
+          {/* Summary Cards Skeleton */}
+          <div className="grid grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Skeleton className="w-10 h-10 rounded-lg" />
+                  </div>
+                  <Skeleton className="h-4 w-24 mb-1" />
+                  <Skeleton className="h-8 w-32" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Payment Cards Skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-0">
+                  <div className="flex">
+                    <Skeleton className="w-28 h-36 rounded-l-md" />
+                    <div className="flex-1 p-4 space-y-2">
+                      <Skeleton className="h-6 w-32" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <div className="flex items-center justify-between mt-auto">
+                        <Skeleton className="h-6 w-16" />
+                        <Skeleton className="w-10 h-10" />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </TooltipProvider>
     );
   }
 

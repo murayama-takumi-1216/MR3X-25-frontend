@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
@@ -175,8 +176,43 @@ export function Notifications() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-12 h-12 rounded-lg" />
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+          </div>
+          <Skeleton className="h-10 w-56" />
+        </div>
+
+        {/* Notifications skeleton */}
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <div className="flex items-start gap-4">
+                  <Skeleton className="w-5 h-5 rounded flex-shrink-0 mt-1" />
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Skeleton className="h-5 w-48" />
+                      <Skeleton className="h-5 w-20" />
+                    </div>
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-3 w-40" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="w-9 h-9 rounded" />
+                    <Skeleton className="w-9 h-9 rounded" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     )
   }

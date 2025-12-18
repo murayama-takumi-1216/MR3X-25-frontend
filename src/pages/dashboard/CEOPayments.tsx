@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { formatCurrency, formatDate } from '../../lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import { Skeleton } from '../../components/ui/skeleton';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Badge } from '../../components/ui/badge';
@@ -101,8 +102,79 @@ export function CEOPayments() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Skeleton className="w-7 h-7 rounded" />
+              <Skeleton className="h-8 w-64" />
+            </div>
+            <Skeleton className="h-4 w-96" />
+          </div>
+        </div>
+
+        {/* Stats cards skeleton */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-3 sm:p-4 space-y-2">
+                <Skeleton className="w-8 h-8 rounded-lg" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-6 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Plan distribution cards skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[...Array(2)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-5 w-64" />
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {[...Array(4)].map((_, j) => (
+                    <Skeleton key={j} className="h-6 w-24" />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Filter card skeleton */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="w-full sm:w-48 space-y-2">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* List skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-24 w-full" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

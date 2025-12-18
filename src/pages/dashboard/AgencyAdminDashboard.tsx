@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { dashboardAPI } from '../../api';
+import { dashboardAPI, contractsAPI, paymentsAPI } from '../../api';
 import { formatCurrency } from '../../lib/utils';
 import {
   Building2,
@@ -102,6 +102,16 @@ export function AgencyAdminDashboard() {
   const { data: dueDates, isLoading: dueDatesLoading } = useQuery({
     queryKey: ['due-dates', 'agency-admin'],
     queryFn: () => dashboardAPI.getDueDates(),
+  });
+
+  const { data: contracts } = useQuery({
+    queryKey: ['contracts', 'agency-admin'],
+    queryFn: () => contractsAPI.getContracts(),
+  });
+
+  const { data: payments } = useQuery({
+    queryKey: ['payments', 'agency-admin'],
+    queryFn: () => paymentsAPI.getPayments(),
   });
 
   if (isLoading) {
@@ -222,7 +232,6 @@ export function AgencyAdminDashboard() {
   const monthlyRevenue = overview.monthlyRevenue || 0;
   const receivedValue = overview.receivedValue || 0;
   const overdueValue = overview.overdueValue || 0;
-  const pendingPaymentsCount = overview.pendingPayments || 0;
   const occupancyRate = totalProperties > 0 ? Math.round((occupiedProperties / totalProperties) * 100) : 0;
 
   const revenueData = [
@@ -238,17 +247,255 @@ export function AgencyAdminDashboard() {
     { name: 'Manutenção', value: overview.maintenanceProperties || 0, color: COLORS.yellow },
   ].filter(item => item.value > 0);
 
-  const contractStatusData = [
-    { name: 'Ativos', value: activeContracts, color: COLORS.green },
-    { name: 'A vencer', value: Math.round(activeContracts * 0.15), color: COLORS.yellow },
-    { name: 'Vencidos', value: Math.max(0, pendingPaymentsCount), color: COLORS.red },
-  ].filter(item => item.value > 0);
+  // Calculate contract status from actual contracts data
+  const contractStatusData = (() => {
+    if (!contracts || !Array.isArray(contracts) || contracts.length === 0) {
+      return [];
+    }
 
-  const dueDatesChartData = dueDates?.slice(0, 10).map((item: any, index: number) => ({
-    name: item.propertyName?.substring(0, 15) || `Imóvel ${index + 1}`,
-    valor: Number(item.amount) || Number(item.monthlyRent) || 0,
-    status: item.status,
-  })) || [];
+    const now = new Date();
+    now.setHours(0, 0, 0, 0); // Normalize to start of day
+    const thirtyDaysFromNow = new Date(now);
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+    let activeCount = 0;
+    let expiringSoonCount = 0;
+    let expiredCount = 0;
+
+    contracts.forEach((contract: any) => {
+      const status = (contract.status || '').toUpperCase();
+      const startDate = contract.startDate ? new Date(contract.startDate) : null;
+      const endDate = contract.endDate ? new Date(contract.endDate) : null;
+      
+      // Normalize dates to start of day for comparison
+      if (startDate) {
+        startDate.setHours(0, 0, 0, 0);
+      }
+      if (endDate) {
+        endDate.setHours(0, 0, 0, 0);
+      }
+
+      // Contracts that are considered for this card (excluding drafts and clearly closed ones):
+      // - ATIVO: Definitely active
+      // - ASSINADO: Signed
+      // - AGUARDANDO_ASSINATURAS: Awaiting signatures
+      // - PENDENTE: Pending (but has dates, so should be shown)
+      const isRelevantStatus = status === 'ATIVO' || 
+                              status === 'ASSINADO' || 
+                              status === 'AGUARDANDO_ASSINATURAS' ||
+                              status === 'PENDENTE' ||
+                              status === 'AWAITING_SIGNATURE' || // Alternative format
+                              status === 'PENDING'; // Alternative format
+      
+      // Check if contract has started (no startDate means it's considered started, or startDate has passed)
+      const hasStarted = !startDate || startDate <= now;
+      // Show contracts that have started, or contracts with dates that are relevant (even if not started yet)
+      const shouldShow = hasStarted || (isRelevantStatus && (startDate || endDate));
+
+      if (isRelevantStatus) {
+        // For active status contracts, check dates
+        if (endDate) {
+          if (endDate < now) {
+            // Contract has expired (past end date)
+            expiredCount++;
+          } else if (shouldShow) {
+            // Contract is active or should be shown (hasn't expired and meets criteria)
+            activeCount++;
+            // Check if contract is expiring within 30 days
+            if (endDate <= thirtyDaysFromNow) {
+              expiringSoonCount++;
+            }
+          }
+        } else {
+          // Active status contract without end date - consider it active if it has started or is AGUARDANDO_ASSINATURAS
+          if (shouldShow) {
+            activeCount++;
+          }
+        }
+      } else if (status === 'ENCERRADO' || status === 'REVOGADO' || status === 'FINALIZADO') {
+        // Closed/ended/revoked contracts
+        expiredCount++;
+      } else if (endDate && endDate < now) {
+        // Any other contract that has passed its end date
+        expiredCount++;
+      }
+    });
+
+    return [
+      { name: 'Ativos', value: activeCount, color: COLORS.green },
+      { name: 'A vencer', value: expiringSoonCount, color: COLORS.yellow },
+      { name: 'Vencidos', value: expiredCount, color: COLORS.red },
+    ].filter(item => item.value > 0);
+  })();
+
+  // Derive due dates from contracts and payments if dueDates API is empty
+  const derivedDueDates = (() => {
+    if (dueDates && dueDates.length > 0) {
+      return dueDates;
+    }
+    
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const results: any[] = [];
+
+    // First, try to derive from contracts
+    if (contracts && Array.isArray(contracts) && contracts.length > 0) {
+      contracts.forEach((contract: any) => {
+        const status = (contract.status || '').toUpperCase();
+        const endDate = contract.endDate ? new Date(contract.endDate) : null;
+        const startDate = contract.startDate ? new Date(contract.startDate) : null;
+        
+        // Include active contracts or contracts awaiting signatures
+        const isRelevant = status === 'ATIVO' || 
+                          status === 'ASSINADO' || 
+                          status === 'AGUARDANDO_ASSINATURAS' ||
+                          status === 'PENDENTE';
+        
+        if (!isRelevant) return;
+        
+        if (endDate) {
+          endDate.setHours(0, 0, 0, 0);
+          if (endDate < now) return; // Contract expired
+        }
+        
+        const monthlyRent = Number(contract.monthlyRent) || Number(contract.valorMensal) || 0;
+        if (monthlyRent <= 0) return;
+        
+        // Calculate next payment date
+        let nextDueDate = new Date(now);
+        nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+        nextDueDate.setDate(1); // First day of next month
+        
+        if (startDate) {
+          startDate.setHours(0, 0, 0, 0);
+          if (startDate > now) {
+            // Contract hasn't started yet, use start date
+            nextDueDate = new Date(startDate);
+          } else {
+            // Contract has started, calculate next payment based on start date
+            // Find next payment date after start date
+            let paymentDate = new Date(startDate);
+            while (paymentDate <= now) {
+              paymentDate.setMonth(paymentDate.getMonth() + 1);
+            }
+            nextDueDate = paymentDate;
+          }
+        }
+        
+        // Don't show if next due date is past end date
+        if (endDate && nextDueDate > endDate) {
+          return;
+        }
+
+        results.push({
+          propertyName: contract.property?.name || contract.property?.address || 'Imóvel',
+          tenant: contract.tenantUser?.name || contract.tenant?.name || contract.tenantUser || 'Inquilino',
+          amount: monthlyRent,
+          monthlyRent: monthlyRent,
+          nextDueDate: nextDueDate.toISOString(),
+          dueDate: nextDueDate.toISOString(),
+          status: nextDueDate < now ? 'overdue' : 'upcoming',
+        });
+      });
+    }
+
+    // If still no results, try to derive from payments (calculate next payment based on last payment)
+    if (results.length === 0 && payments && Array.isArray(payments) && payments.length > 0) {
+      // Group payments by property and tenant
+      const paymentMap = new Map<string, any>();
+      
+      payments.forEach((payment: any) => {
+        const propertyId = payment.propertyId || payment.property?.id;
+        const tenantId = payment.tenantId || payment.user?.id || payment.tenantUser?.id;
+        const key = `${propertyId}-${tenantId}`;
+        
+        if (!paymentMap.has(key)) {
+          paymentMap.set(key, []);
+        }
+        paymentMap.get(key)!.push(payment);
+      });
+
+      paymentMap.forEach((paymentList) => {
+        // Get the most recent payment
+        const sortedPayments = paymentList.sort((a: any, b: any) => {
+          const dateA = new Date(a.paymentDate || a.dataPagamento || 0);
+          const dateB = new Date(b.paymentDate || b.dataPagamento || 0);
+          return dateB.getTime() - dateA.getTime();
+        });
+        
+        const lastPayment = sortedPayments[0];
+        if (!lastPayment) return;
+        
+        const lastPaymentDate = new Date(lastPayment.paymentDate || lastPayment.dataPagamento);
+        if (isNaN(lastPaymentDate.getTime())) return;
+        
+        lastPaymentDate.setHours(0, 0, 0, 0);
+        
+        // Calculate next payment date (one month after last payment)
+        const nextDueDate = new Date(lastPaymentDate);
+        nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+        
+        // Only show if next due date is in the future
+        if (nextDueDate >= now) {
+          const amount = Number(lastPayment.amount || lastPayment.valorPago || 0);
+          if (amount > 0) {
+            results.push({
+              propertyName: lastPayment.property?.name || lastPayment.property?.address || 'Imóvel',
+              tenant: lastPayment.user?.name || lastPayment.tenantUser?.name || 'Inquilino',
+              amount: amount,
+              monthlyRent: amount,
+              nextDueDate: nextDueDate.toISOString(),
+              dueDate: nextDueDate.toISOString(),
+              status: nextDueDate < now ? 'overdue' : 'upcoming',
+            });
+          }
+        }
+      });
+    }
+
+    // Sort by due date
+    return results.sort((a: any, b: any) => {
+      const dateA = new Date(a.nextDueDate || a.dueDate);
+      const dateB = new Date(b.nextDueDate || b.dueDate);
+      return dateA.getTime() - dateB.getTime();
+    });
+  })();
+
+  // Process chart data - group by property, avoid duplicates, use highest amount
+  const dueDatesChartData = (() => {
+    if (!derivedDueDates || derivedDueDates.length === 0) {
+      return [];
+    }
+
+    // Group by property name, use the highest amount if duplicates exist
+    const propertyMap = new Map<string, { name: string; valor: number; status: string }>();
+    
+    derivedDueDates.slice(0, 10).forEach((item: any) => {
+      const propertyName = (item.propertyName || 'Imóvel').substring(0, 15);
+      const amount = Number(item.amount) || Number(item.monthlyRent) || 0;
+      
+      if (amount <= 0) return; // Skip zero amounts
+      
+      if (propertyMap.has(propertyName)) {
+        // If property already exists, use the maximum amount (avoid summing different sources)
+        const existing = propertyMap.get(propertyName)!;
+        if (amount > existing.valor) {
+          existing.valor = amount;
+        }
+      } else {
+        // New property entry
+        propertyMap.set(propertyName, {
+          name: propertyName,
+          valor: amount,
+          status: item.status || 'upcoming',
+        });
+      }
+    });
+
+    return Array.from(propertyMap.values())
+      .filter(item => item.valor > 0)
+      .sort((a, b) => b.valor - a.valor);
+  })();
 
   const paymentTrendData = [
     { month: 'Jan', recebido: Math.round(monthlyRevenue * 0.85), pendente: Math.round(monthlyRevenue * 0.15) },
@@ -503,7 +750,10 @@ export function AgencyAdminDashboard() {
           <CardContent>
             <div className="w-full">
               <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={dueDatesChartData} margin={{ top: 10, right: 10, left: 0, bottom: 50 }}>
+                <BarChart 
+                  data={dueDatesChartData} 
+                  margin={{ top: 10, right: 10, left: 60, bottom: 50 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="name"
@@ -512,7 +762,12 @@ export function AgencyAdminDashboard() {
                     textAnchor="end"
                     height={80}
                   />
-                  <YAxis fontSize={12} tickFormatter={(value) => formatCurrency(value)} />
+                  <YAxis 
+                    fontSize={12} 
+                    tickFormatter={(value) => formatCurrency(value)}
+                    width={55}
+                    domain={[0, 'dataMax']}
+                  />
                   <Tooltip formatter={(value: number) => formatCurrency(value)} />
                   <Bar dataKey="valor" fill={COLORS.blue} radius={[4, 4, 0, 0]} name="Valor" />
                 </BarChart>
@@ -553,7 +808,7 @@ export function AgencyAdminDashboard() {
                       </tr>
                     ))}
                   </>
-                ) : !dueDates || dueDates.length === 0 ? (
+                ) : !derivedDueDates || derivedDueDates.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-12">
                       <div className="flex flex-col items-center justify-center text-muted-foreground">
@@ -563,7 +818,7 @@ export function AgencyAdminDashboard() {
                     </td>
                   </tr>
                 ) : (
-                  dueDates.slice(0, 10).map((item: any, idx: number) => (
+                  derivedDueDates.slice(0, 10).map((item: any, idx: number) => (
                     <tr key={idx} className="border-b last:border-0 hover:bg-muted/50">
                       <td className="p-2">{item.propertyName || item.name || '-'}</td>
                       <td className="p-2">{item.tenant?.name || item.tenant || '-'}</td>

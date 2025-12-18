@@ -8,6 +8,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
+import { Skeleton } from '../../components/ui/skeleton';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
@@ -227,8 +228,61 @@ export function ApiTokens() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-4 w-72" />
+          </div>
+          <Skeleton className="h-10 w-36" />
+        </div>
+
+        {/* Stats cards skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-8 w-12" />
+                </div>
+                <Skeleton className="w-8 h-8 rounded" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Tokens card skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-48" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-5 w-48" />
+                      <Skeleton className="h-8 w-full max-w-md" />
+                    </div>
+                    <Skeleton className="h-9 w-20" />
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[...Array(4)].map((_, j) => (
+                      <div key={j} className="space-y-1">
+                        <Skeleton className="h-3 w-16" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

@@ -7,6 +7,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
+import { Skeleton } from '../../components/ui/skeleton';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import {
@@ -213,8 +214,59 @@ export function ApiLogs() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-10 w-28" />
+        </div>
+
+        {/* Stats cards skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4 text-center space-y-2">
+                <Skeleton className="h-4 w-24 mx-auto" />
+                <Skeleton className="h-8 w-16 mx-auto" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Filters card skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-24" />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Logs card skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-48" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

@@ -8,6 +8,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
+import { Skeleton } from '../../components/ui/skeleton';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import {
@@ -112,8 +113,45 @@ export function ApiCredentials() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+
+        {/* Warning card skeleton */}
+        <Card className="border-yellow-200 bg-yellow-50">
+          <CardContent className="p-4 flex items-start gap-3">
+            <Skeleton className="w-5 h-5 rounded" />
+            <div className="space-y-2 flex-1">
+              <Skeleton className="h-5 w-64" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Badge skeleton */}
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-6 w-24" />
+          <Skeleton className="h-4 w-48" />
+        </div>
+
+        {/* Credentials cards skeleton */}
+        {[...Array(5)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader>
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-4 w-full max-w-2xl" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="w-10 h-10 rounded" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }

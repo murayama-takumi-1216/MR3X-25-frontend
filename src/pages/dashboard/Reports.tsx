@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 import { Button } from '../../components/ui/button'
+import { Skeleton } from '../../components/ui/skeleton'
 import { paymentsAPI, propertiesAPI, usersAPI } from '../../api'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts'
 import { toast } from 'sonner'
@@ -199,6 +200,99 @@ export default function Reports() {
     toast.success('Relatório exportado com sucesso!')
   }
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-12 h-12 rounded-lg" />
+            <div>
+              <Skeleton className="h-8 w-48 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Skeleton className="h-10 w-full sm:w-40 rounded" />
+            <Skeleton className="h-10 w-full sm:w-40 rounded" />
+            <Skeleton className="h-10 w-full sm:w-auto sm:w-32 rounded" />
+          </div>
+        </div>
+
+        {/* Main chart card skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-64 mb-2" />
+            <Skeleton className="h-4 w-80" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="w-full h-[320px] rounded" />
+            <div className="mt-4 text-center">
+              <Skeleton className="h-5 w-48 mx-auto" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Stats cards skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="w-4 h-4" />
+                  <Skeleton className="h-5 w-24" />
+                </div>
+                <Skeleton className="h-4 w-32 mt-2" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-32 mb-2" />
+                <Skeleton className="h-3 w-40" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Bottom section skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Pie chart skeleton */}
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-48 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="w-full h-[256px] rounded" />
+            </CardContent>
+          </Card>
+
+          {/* Top properties skeleton */}
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-32 mb-2" />
+              <Skeleton className="h-4 w-48" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="w-8 h-8 rounded-full" />
+                      <div>
+                        <Skeleton className="h-4 w-32 mb-2" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {}
@@ -257,14 +351,7 @@ export default function Reports() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="text-muted-foreground py-8 sm:py-12 text-center">
-              <div className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-1/4 mx-auto mb-4"></div>
-                <div className="h-64 bg-gray-200 rounded"></div>
-              </div>
-            </div>
-          ) : error ? (
+          {error ? (
             <div className="text-destructive py-8 sm:py-12 text-center">
               <div className="text-sm sm:text-base">{error}</div>
             </div>

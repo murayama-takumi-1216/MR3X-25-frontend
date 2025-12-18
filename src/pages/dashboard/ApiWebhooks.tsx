@@ -8,6 +8,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
+import { Skeleton } from '../../components/ui/skeleton';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Switch } from '../../components/ui/switch';
@@ -315,8 +316,60 @@ export function ApiWebhooks() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-4 w-96" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+
+        {/* Secret card skeleton */}
+        <Card className="border-purple-200 bg-purple-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-5 h-5 rounded" />
+                <div className="space-y-1">
+                  <Skeleton className="h-5 w-48" />
+                  <Skeleton className="h-4 w-64" />
+                </div>
+              </div>
+              <Skeleton className="h-8 w-40" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Webhooks list skeleton */}
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-6 w-48" />
+                    <Skeleton className="h-8 w-full max-w-lg" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="w-12 h-6" />
+                    <Skeleton className="w-9 h-9 rounded" />
+                    <Skeleton className="w-9 h-9 rounded" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[...Array(4)].map((_, j) => (
+                    <div key={j} className="space-y-1">
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-5 w-16" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }

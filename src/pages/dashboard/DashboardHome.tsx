@@ -3,6 +3,7 @@ import { dashboardAPI } from '../../api';
 import { formatCurrency } from '../../lib/utils';
 import { Building2, Users, FileText, DollarSign, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Skeleton } from '../../components/ui/skeleton';
 import { ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { useAuth } from '../../contexts/AuthContext';
 import { PlanUsageWidget } from '../../components/dashboard/PlanUsageWidget';
@@ -95,8 +96,61 @@ export function DashboardHome() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6 sm:space-y-8">
+        {/* Header skeleton */}
+        <div className="space-y-2">
+          <Skeleton className="h-8 sm:h-10 w-48" />
+          <Skeleton className="h-4 sm:h-5 w-64" />
+        </div>
+
+        {/* Stats cards skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4 sm:p-6 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
+                </div>
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-20" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Charts skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {[...Array(2)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-56" />
+                <Skeleton className="h-4 w-48" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="w-full h-[320px]" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Tables skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {[...Array(2)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-40" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[...Array(5)].map((_, j) => (
+                    <Skeleton key={j} className="h-12 w-full" />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
