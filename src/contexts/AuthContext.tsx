@@ -264,21 +264,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const token = localStorage.getItem('accessToken');
-        if (token && !storeUser) {
-        }
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-        clearAuth();
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    // No localStorage check needed - auth is memory-only
+    // Just set loading to false after initial render
     const timeout = setTimeout(() => {
-      initAuth();
+      setLoading(false);
     }, 100);
 
     return () => clearTimeout(timeout);

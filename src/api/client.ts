@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { useAuthStore } from '../stores/authStore';
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -9,7 +10,8 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('accessToken');
+    // Get token from memory store instead of localStorage
+    const token = useAuthStore.getState().accessToken;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -27,9 +29,8 @@ apiClient.interceptors.response.use(
       const isAlreadyOnLoginPage = window.location.pathname.includes('/auth/login');
 
       if (!isLoginRequest && !isAlreadyOnLoginPage) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
+        // Clear auth from memory store
+        useAuthStore.getState().clearAuth();
         window.location.href = '/auth/login';
       }
     }

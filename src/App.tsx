@@ -91,6 +91,24 @@ import { SubscriptionPage } from './pages/dashboard/SubscriptionPage';
 import { SplitConfiguration } from './pages/dashboard/SplitConfiguration';
 import './index.css';
 
+// Clear any old auth data from localStorage and sessionStorage on app load
+// Auth is now memory-only, so we don't need persistent storage
+const clearOldAuthData = () => {
+  const keysToRemove = [
+    'accessToken',
+    'refreshToken',
+    'user',
+    'auth-storage',
+    'token',
+    'extrajudicial_geolocation'
+  ];
+  keysToRemove.forEach(key => {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  });
+};
+clearOldAuthData();
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
