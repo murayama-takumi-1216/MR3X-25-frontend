@@ -7,6 +7,7 @@ import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
+import { Skeleton } from '../../components/ui/skeleton';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 import { FrozenUserBadge } from '../../components/ui/FrozenBadge';
@@ -270,9 +271,86 @@ export function UsersPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
+        isMobile ? (
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="border border-border rounded-lg p-4 space-y-3 bg-card">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-8 w-full" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="overflow-x-auto border border-border rounded-lg">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Nome
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Função
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Plano
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-card divide-y divide-border">
+                {[...Array(5)].map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-4 py-2">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-9 w-9 rounded-full" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-3 w-24" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-2">
+                      <Skeleton className="h-4 w-40" />
+                    </td>
+                    <td className="px-4 py-2">
+                      <Skeleton className="h-6 w-20" />
+                    </td>
+                    <td className="px-4 py-2">
+                      <Skeleton className="h-6 w-16" />
+                    </td>
+                    <td className="px-4 py-2">
+                      <Skeleton className="h-6 w-20" />
+                    </td>
+                    <td className="px-4 py-2">
+                      <div className="flex items-center gap-2 justify-center">
+                        <Skeleton className="h-8 w-8" />
+                        <Skeleton className="h-8 w-8" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
       ) : isMobile ? (
         <div className="space-y-3">
           {items.length === 0 ? (

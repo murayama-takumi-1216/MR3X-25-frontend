@@ -264,20 +264,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    // No localStorage check needed - auth is memory-only
-    // Just set loading to false after initial render
-    const timeout = setTimeout(() => {
-      setLoading(false);
-    }, 100);
+    // On page load, verify session with server using HTTP-only cookie
+    const verifySession = async () => {
+      try {
+        setLoading(true);
+        const userData = await authApi.getMe();
+        // If successful, user is authenticated (cookie is valid)
+        setAuth({
+          id: userData.id,
+          email: userData.email,
+          name: userData.name || '',
+          role: userData.role,
+          plan: userData.plan,
+          emailVerified: userData.emailVerified,
+          agencyId: userData.agencyId,
+          agencyName: userData.agencyName,
+          creci: userData.creci,
+        });
+      } catch (error) {
+        // If 401 or any error, user is not authenticated
+        clearAuth();
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timeout);
-  }, []);
+    verifySession();
+  }, [setAuth, clearAuth]);
 
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
       const response = await authApi.login({ email, password });
-      setAuth(response.user, response.accessToken, response.refreshToken);
+      // Tokens are now in HTTP-only cookies, only user info is returned
+      setAuth(response.user);
       toast.success('Login realizado com sucesso!');
     } catch (error: any) {
       // Don't show toast - let Login component show modal instead

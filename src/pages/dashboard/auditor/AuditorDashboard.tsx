@@ -246,8 +246,8 @@ export function AuditorDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer height={220}>
-              <PieChart>
+            <ChartContainer height={280}>
+              <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                 <Pie
                   data={agencyPlanData}
                   dataKey="value"
@@ -285,14 +285,14 @@ export function AuditorDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer height={220}>
-              <PieChart>
+            <ChartContainer height={280}>
+              <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                 <Pie
                   data={contractStatusData}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
-                  cy="50%"
+                  cy="45%"
                   innerRadius={40}
                   outerRadius={70}
                   label={({ percent }: any) => `${((percent || 0) * 100).toFixed(0)}%`}
@@ -317,8 +317,8 @@ export function AuditorDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer height={220}>
-              <PieChart>
+            <ChartContainer height={280}>
+              <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                 <Pie
                   data={paymentStatusData}
                   dataKey="value"

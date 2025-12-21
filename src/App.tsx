@@ -91,14 +91,15 @@ import { SubscriptionPage } from './pages/dashboard/SubscriptionPage';
 import { SplitConfiguration } from './pages/dashboard/SplitConfiguration';
 import './index.css';
 
-// Clear any old auth data from localStorage and sessionStorage on app load
-// Auth is now memory-only, so we don't need persistent storage
+// Clear any old auth data from localStorage and sessionStorage
+// We don't use any client-side storage - auth is fully HTTP-only cookie based
 const clearOldAuthData = () => {
   const keysToRemove = [
     'accessToken',
     'refreshToken',
     'user',
     'auth-storage',
+    'auth-user-storage',
     'token',
     'extrajudicial_geolocation'
   ];

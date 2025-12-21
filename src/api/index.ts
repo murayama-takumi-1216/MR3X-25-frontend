@@ -452,6 +452,16 @@ export const usersAPI = {
     const response = await apiClient.delete(`/users/${userId}/photo`);
     return response.data;
   },
+
+  getOwners: async () => {
+    const response = await apiClient.get('/users/owners');
+    return response.data;
+  },
+
+  updateOwnerFee: async (ownerId: string, ownerFee: number) => {
+    const response = await apiClient.patch(`/users/owners/${ownerId}/fee`, { ownerFee });
+    return response.data;
+  },
 };
 
 export const chatAPI = {

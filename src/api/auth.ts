@@ -37,8 +37,8 @@ export interface CompleteRegistrationRequest {
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
+  // Tokens are now in HTTP-only cookies, not in response body
+  message: string;
   user: {
     id: string;
     email: string;
@@ -48,6 +48,7 @@ export interface AuthResponse {
     emailVerified: boolean;
     agencyId?: string;
     agencyName?: string;
+    creci?: string;
   };
 }
 
@@ -61,6 +62,12 @@ export interface ConfirmCodeResponse {
 }
 
 export const authApi = {
+  // Verify session and get current user info (using HTTP-only cookie)
+  getMe: async (): Promise<AuthResponse['user']> => {
+    const response = await apiClient.get('/users/me');
+    return response.data;
+  },
+
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await apiClient.post('/auth/login', data);
     return response.data;

@@ -608,8 +608,8 @@ export function AgencyAdminDashboard() {
           <CardContent>
             <div className="w-full">
               {revenueData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={220}>
-                  <PieChart>
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                     <Pie
                       data={revenueData}
                       dataKey="value"
@@ -628,7 +628,7 @@ export function AgencyAdminDashboard() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex flex-col items-center justify-center h-[220px] text-muted-foreground">
+                <div className="flex flex-col items-center justify-center h-[280px] text-muted-foreground">
                   <DollarSign className="w-12 h-12 mb-3 opacity-30" />
                   <p className="text-sm">Nenhum dado de receita disponível</p>
                 </div>
@@ -646,8 +646,8 @@ export function AgencyAdminDashboard() {
           <CardContent>
             <div className="w-full">
               {propertyStatusData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={220}>
-                  <PieChart>
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                     <Pie
                       data={propertyStatusData}
                       dataKey="value"
@@ -666,7 +666,7 @@ export function AgencyAdminDashboard() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex flex-col items-center justify-center h-[220px] text-muted-foreground">
+                <div className="flex flex-col items-center justify-center h-[280px] text-muted-foreground">
                   <Building2 className="w-12 h-12 mb-3 opacity-30" />
                   <p className="text-sm">Nenhum imóvel cadastrado</p>
                 </div>
@@ -687,14 +687,14 @@ export function AgencyAdminDashboard() {
           <CardContent>
             <div className="w-full">
               {contractStatusData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={220}>
-                  <PieChart>
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                     <Pie
                       data={contractStatusData}
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
-                      cy="50%"
+                      cy="45%"
                       outerRadius={70}
                       label={({ name, value }) => `${name}: ${value}`}
                     >
@@ -707,7 +707,7 @@ export function AgencyAdminDashboard() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex flex-col items-center justify-center h-[220px] text-muted-foreground">
+                <div className="flex flex-col items-center justify-center h-[280px] text-muted-foreground">
                   <FileText className="w-12 h-12 mb-3 opacity-30" />
                   <p className="text-sm">Nenhum contrato cadastrado</p>
                 </div>
