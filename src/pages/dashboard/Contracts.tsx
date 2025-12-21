@@ -62,8 +62,8 @@ const getUserTypeFromRole = (role: string): ContractUserType[] => {
     case 'AGENCY_ADMIN':
     case 'AGENCY_MANAGER':
     case 'BROKER':
-      return ['AGENCY', 'INDEPENDENT_OWNER'];
     case 'INDEPENDENT_OWNER':
+      return ['AGENCY', 'INDEPENDENT_OWNER'];
     case 'PROPRIETARIO':
       return ['INDEPENDENT_OWNER'];
     case 'CEO':

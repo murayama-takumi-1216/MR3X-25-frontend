@@ -229,6 +229,7 @@ export function AgencyAdminDashboard() {
   const occupiedProperties = overview.occupiedProperties || 0;
   const availableProperties = overview.vacantUnits || overview.availableProperties || 0;
   const activeContracts = overview.activeContracts || 0;
+  const tenantCount = overview.tenantCount || 0;
   const monthlyRevenue = overview.monthlyRevenue || 0;
   const receivedValue = overview.receivedValue || 0;
   const overdueValue = overview.overdueValue || 0;
@@ -591,7 +592,7 @@ export function AgencyAdminDashboard() {
         />
         <KPICard
           title="Inquilinos"
-          value={occupiedProperties}
+          value={tenantCount}
           icon={Users}
           color="cyan"
         />

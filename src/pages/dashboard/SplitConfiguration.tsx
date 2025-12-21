@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
@@ -38,8 +38,8 @@ export function SplitConfiguration() {
   const [savingPlatformFee, setSavingPlatformFee] = useState(false);
   const [savingOwnerFee, setSavingOwnerFee] = useState(false);
   const [exampleRent] = useState<number>(10000);
-  const [selectedAgencyId, setSelectedAgencyId] = useState<string | undefined>(undefined);
-  const [selectedOwnerId, setSelectedOwnerId] = useState<string | undefined>(undefined);
+  const [selectedAgencyId, setSelectedAgencyId] = useState<string>('');
+  const [selectedOwnerId, setSelectedOwnerId] = useState<string>('');
   const [selectedOwnerFee, setSelectedOwnerFee] = useState<number>(90);
 
   const canViewSplit = hasPermission('payments:read') ||
@@ -50,7 +50,7 @@ export function SplitConfiguration() {
     ['AGENCY_ADMIN', 'INDEPENDENT_OWNER', 'CEO', 'ADMIN'].includes(user?.role || '');
 
   // For CEO/ADMIN, use selected agency; for others, use their own agency
-  const agencyId = isCeoOrAdmin ? selectedAgencyId : user?.agencyId;
+  const agencyId = isCeoOrAdmin ? (selectedAgencyId || undefined) : user?.agencyId;
 
   // Fetch agencies list for CEO/ADMIN users
   const { data: agenciesList, isLoading: agenciesLoading } = useQuery({
@@ -86,11 +86,22 @@ export function SplitConfiguration() {
     }
   }, [agency]);
 
+  // Track the last saved value to prevent overwriting after save
+  const lastSavedPlatformFee = useRef<number | null>(null);
+  
   useEffect(() => {
-    if (paymentConfig?.platformFee !== undefined) {
+    // Only update from paymentConfig if we're not saving and value is defined
+    if (paymentConfig?.platformFee !== undefined && !savingPlatformFee) {
+      // Don't overwrite if this is the value we just saved
+      if (lastSavedPlatformFee.current !== null && 
+          Math.abs(paymentConfig.platformFee - lastSavedPlatformFee.current) < 0.01) {
+        // This is likely the value we just saved, keep our local state
+        return;
+      }
+      // Update from paymentConfig (initial load or significant change)
       setPlatformFeeValue(paymentConfig.platformFee);
     }
-  }, [paymentConfig]);
+  }, [paymentConfig, savingPlatformFee]);
 
   // Set owner fee when an owner is selected
   useEffect(() => {
@@ -117,9 +128,23 @@ export function SplitConfiguration() {
   });
 
   const updatePlatformFeeMutation = useMutation({
-    mutationFn: (data: { platformFee: number }) =>
-      settingsAPI.updatePaymentConfig({ platformFee: data.platformFee, agencyFee: 0 }),
-    onSuccess: () => {
+    mutationFn: (data: { platformFee: number }) => {
+      const currentAgencyFee = paymentConfig?.agencyFee ?? 0;
+      return settingsAPI.updatePaymentConfig({ 
+        platformFee: data.platformFee, 
+        agencyFee: currentAgencyFee 
+      });
+    },
+    onSuccess: (data) => {
+      // Update cache optimistically with the saved value
+      const updatedConfig = {
+        platformFee: data.platformFee,
+        agencyFee: data.agencyFee ?? paymentConfig?.agencyFee ?? 0,
+      };
+      queryClient.setQueryData(['paymentConfig'], updatedConfig);
+      // Update local state to match the saved value
+      setPlatformFeeValue(data.platformFee);
+      // Invalidate to ensure consistency with server
       queryClient.invalidateQueries({ queryKey: ['paymentConfig'] });
       toast.success('Taxa da plataforma atualizada com sucesso');
     },
@@ -202,9 +227,11 @@ export function SplitConfiguration() {
       return;
     }
 
+    const valueToSave = platformFeeValue;
+    lastSavedPlatformFee.current = valueToSave; // Track the value we're saving
     setSavingPlatformFee(true);
     try {
-      await updatePlatformFeeMutation.mutateAsync({ platformFee: platformFeeValue });
+      await updatePlatformFeeMutation.mutateAsync({ platformFee: valueToSave });
     } finally {
       setSavingPlatformFee(false);
     }
