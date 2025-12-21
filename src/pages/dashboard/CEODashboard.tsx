@@ -121,14 +121,6 @@ export function CEODashboard() {
     { name: 'Vencido', value: overview.overdueRevenue ?? 0, color: COLORS.danger },
   ];
 
-  const propertyStatusData = dashboard?.propertyStatus
-    ? [
-        { name: 'Disponíveis', value: dashboard.propertyStatus.available ?? 0, color: COLORS.success },
-        { name: 'Ocupados', value: dashboard.propertyStatus.occupied ?? 0, color: COLORS.primary },
-        { name: 'Vencidos', value: dashboard.propertyStatus.overdue ?? 0, color: COLORS.danger },
-        { name: 'Manutenção', value: dashboard.propertyStatus.maintenance ?? 0, color: COLORS.warning },
-      ]
-    : [];
 
   const topAgenciesData = dashboard?.topAgencies?.map((agency: any) => ({
     name: agency.name?.substring(0, 15) + (agency.name?.length > 15 ? '...' : ''),
@@ -280,45 +272,77 @@ export function CEODashboard() {
           </CardContent>
         </Card>
 
-        {}
+        {/* Platform Metrics Summary */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-blue-500" />
-              Status dos Imóveis
+              <TrendingUp className="w-5 h-5 text-cyan-500" />
+              Métricas da Plataforma
             </CardTitle>
-            <CardDescription>Distribuição por situação</CardDescription>
+            <CardDescription>Indicadores de desempenho</CardDescription>
           </CardHeader>
           <CardContent>
-            {propertyStatusData.some(d => d.value > 0) ? (
-              <ChartContainer height={280}>
-                <PieChart>
-                  <Pie
-                    data={propertyStatusData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={90}
-                    label={(props: any) => props.value > 0 ? `${props.value}` : ''}
-                  >
-                    {propertyStatusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: number) => `${value} imóveis`} />
-                  <Legend />
-                </PieChart>
-              </ChartContainer>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[280px] text-muted-foreground">
-                <Inbox className="w-12 h-12 mb-2 opacity-50" />
-                <p>Nenhum dado disponível</p>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Building2 className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Média de Imóveis/Agência</p>
+                    <p className="text-xl font-bold text-blue-600">
+                      {overview.totalAgencies && overview.totalAgencies > 0
+                        ? (totalProperties / overview.totalAgencies).toFixed(1)
+                        : '0'}
+                    </p>
+                  </div>
+                </div>
               </div>
-            )}
-            <div className="text-center mt-2 font-semibold text-sm">
-              Total: {totalProperties} imóveis
+              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <FileText className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Média de Contratos/Agência</p>
+                    <p className="text-xl font-bold text-green-600">
+                      {overview.totalAgencies && overview.totalAgencies > 0
+                        ? ((overview.activeContracts ?? 0) / overview.totalAgencies).toFixed(1)
+                        : '0'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Users className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Média de Usuários/Agência</p>
+                    <p className="text-xl font-bold text-purple-600">
+                      {overview.totalAgencies && overview.totalAgencies > 0
+                        ? ((overview.totalUsers ?? 0) / overview.totalAgencies).toFixed(1)
+                        : '0'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-amber-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-100 rounded-lg">
+                    <DollarSign className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Receita Média/Agência</p>
+                    <p className="text-xl font-bold text-amber-600">
+                      {overview.totalAgencies && overview.totalAgencies > 0
+                        ? formatCurrency((overview.monthlyRevenue ?? 0) / overview.totalAgencies)
+                        : formatCurrency(0)}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
