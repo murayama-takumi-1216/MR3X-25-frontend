@@ -44,11 +44,46 @@ import {
 interface PlanChangePreview {
   currentPlan: string;
   newPlan: string;
-  currentLimits: { properties: number; users: number };
-  newLimits: { properties: number; users: number };
-  currentUsage: { properties: number; users: number };
-  willFreeze: { properties: number; users: number };
-  willUnfreeze: { properties: number; users: number };
+  currentLimits: { 
+    properties: number; 
+    users: number;
+    tenants: number;
+    owners: number;
+    brokers: number;
+    managers: number;
+  };
+  newLimits: { 
+    properties: number; 
+    users: number;
+    tenants: number;
+    owners: number;
+    brokers: number;
+    managers: number;
+  };
+  currentUsage: { 
+    properties: number; 
+    users: number;
+    tenants: number;
+    owners: number;
+    brokers: number;
+    managers: number;
+  };
+  willFreeze: { 
+    properties: number; 
+    users: number;
+    tenants: number;
+    owners: number;
+    brokers: number;
+    managers: number;
+  };
+  willUnfreeze: { 
+    properties: number; 
+    users: number;
+    tenants: number;
+    owners: number;
+    brokers: number;
+    managers: number;
+  };
   isUpgrade: boolean;
 }
 
@@ -1016,24 +1051,61 @@ export function AgencyPlanConfig() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span>Limite de Usuários</span>
-                  <span className={!previewData.isUpgrade && (previewData.newLimits?.users ?? 0) < (previewData.currentLimits?.users ?? 0) ? 'text-amber-600 font-medium' : ''}>
-                    {previewData.currentLimits?.users === -1 ? 'Ilimitado' : (previewData.currentLimits?.users ?? 0)}
+                  <span>Limite de Inquilinos</span>
+                  <span className={!previewData.isUpgrade && (previewData.newLimits?.tenants ?? 0) < (previewData.currentLimits?.tenants ?? 0) ? 'text-amber-600 font-medium' : ''}>
+                    {previewData.currentLimits?.tenants === -1 ? 'Ilimitado' : (previewData.currentLimits?.tenants ?? 0)}
                     {' '}&rarr;{' '}
-                    {previewData.newLimits?.users === -1 ? 'Ilimitado' : (previewData.newLimits?.users ?? 0)}
+                    {previewData.newLimits?.tenants === -1 ? 'Ilimitado' : (previewData.newLimits?.tenants ?? 0)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span>Limite de Proprietários</span>
+                  <span className={!previewData.isUpgrade && (previewData.newLimits?.owners ?? 0) < (previewData.currentLimits?.owners ?? 0) ? 'text-amber-600 font-medium' : ''}>
+                    {previewData.currentLimits?.owners === -1 ? 'Ilimitado' : (previewData.currentLimits?.owners ?? 0)}
+                    {' '}&rarr;{' '}
+                    {previewData.newLimits?.owners === -1 ? 'Ilimitado' : (previewData.newLimits?.owners ?? 0)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span>Limite de Corretores</span>
+                  <span className={!previewData.isUpgrade && (previewData.newLimits?.brokers ?? 0) < (previewData.currentLimits?.brokers ?? 0) ? 'text-amber-600 font-medium' : ''}>
+                    {previewData.currentLimits?.brokers === -1 ? 'Ilimitado' : (previewData.currentLimits?.brokers ?? 0)}
+                    {' '}&rarr;{' '}
+                    {previewData.newLimits?.brokers === -1 ? 'Ilimitado' : (previewData.newLimits?.brokers ?? 0)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span>Limite de Gerentes</span>
+                  <span className={!previewData.isUpgrade && (previewData.newLimits?.managers ?? 0) < (previewData.currentLimits?.managers ?? 0) ? 'text-amber-600 font-medium' : ''}>
+                    {previewData.currentLimits?.managers === -1 ? 'Ilimitado' : (previewData.currentLimits?.managers ?? 0)}
+                    {' '}&rarr;{' '}
+                    {previewData.newLimits?.managers === -1 ? 'Ilimitado' : (previewData.newLimits?.managers ?? 0)}
                   </span>
                 </div>
               </div>
 
-              {(previewData.willUnfreeze?.properties ?? 0) > 0 || (previewData.willUnfreeze?.users ?? 0) > 0 ? (
+              {(previewData.willUnfreeze?.properties ?? 0) > 0 || 
+               (previewData.willUnfreeze?.tenants ?? 0) > 0 || 
+               (previewData.willUnfreeze?.owners ?? 0) > 0 || 
+               (previewData.willUnfreeze?.brokers ?? 0) > 0 || 
+               (previewData.willUnfreeze?.managers ?? 0) > 0 ? (
                 <Alert className="border-green-300 bg-green-50">
                   <Unlock className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-800 text-sm">
                     {(previewData.willUnfreeze?.properties ?? 0) > 0 && (
                       <span>{previewData.willUnfreeze?.properties} contrato(s) serão desbloqueados. </span>
                     )}
-                    {(previewData.willUnfreeze?.users ?? 0) > 0 && (
-                      <span>{previewData.willUnfreeze?.users} usuário(s) serão reativados.</span>
+                    {(previewData.willUnfreeze?.tenants ?? 0) > 0 && (
+                      <span>{previewData.willUnfreeze?.tenants} inquilino(s) serão reativados. </span>
+                    )}
+                    {(previewData.willUnfreeze?.owners ?? 0) > 0 && (
+                      <span>{previewData.willUnfreeze?.owners} proprietário(s) serão reativados. </span>
+                    )}
+                    {(previewData.willUnfreeze?.brokers ?? 0) > 0 && (
+                      <span>{previewData.willUnfreeze?.brokers} corretor(es) serão reativados. </span>
+                    )}
+                    {(previewData.willUnfreeze?.managers ?? 0) > 0 && (
+                      <span>{previewData.willUnfreeze?.managers} gerente(s) serão reativados.</span>
                     )}
                   </AlertDescription>
                 </Alert>
@@ -1050,12 +1122,24 @@ export function AgencyPlanConfig() {
                     <p className="text-xs font-semibold text-gray-700">Situação Atual:</p>
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Contratos ativos:</span>
+                        <span className="text-gray-600">Imóveis ativos:</span>
                         <span className="font-medium">{previewData.currentUsage?.properties ?? 0}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Usuários ativos:</span>
-                        <span className="font-medium">{previewData.currentUsage?.users ?? 0}</span>
+                        <span className="text-gray-600">Inquilinos ativos:</span>
+                        <span className="font-medium">{previewData.currentUsage?.tenants ?? 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Proprietários ativos:</span>
+                        <span className="font-medium">{previewData.currentUsage?.owners ?? 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Corretores ativos:</span>
+                        <span className="font-medium">{previewData.currentUsage?.brokers ?? 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Gerentes ativos:</span>
+                        <span className="font-medium">{previewData.currentUsage?.managers ?? 0}</span>
                       </div>
                     </div>
                   </div>
@@ -1088,34 +1172,119 @@ export function AgencyPlanConfig() {
                       </div>
                     )}
 
-                    {(previewData.willFreeze?.users ?? 0) > 0 && (
+                    {(previewData.willFreeze?.tenants ?? 0) > 0 && (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                          <p className="text-sm font-semibold text-amber-800">Usuários</p>
+                          <p className="text-sm font-semibold text-amber-800">Inquilinos</p>
                         </div>
                         <div className="ml-6 space-y-1">
                           <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
                             <span className="text-gray-600">Você tem atualmente:</span>
-                            <span className="font-bold text-gray-800">{previewData.currentUsage?.users ?? 0} usuários ativos</span>
+                            <span className="font-bold text-gray-800">{previewData.currentUsage?.tenants ?? 0} inquilinos ativos</span>
                           </div>
                           <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
                             <span className="text-gray-600">Novo limite do plano:</span>
-                            <span className="font-bold text-amber-700">{previewData.newLimits?.users ?? 0} usuários</span>
+                            <span className="font-bold text-amber-700">{previewData.newLimits?.tenants ?? 0} inquilinos</span>
                           </div>
                           <div className="flex items-center justify-between text-xs bg-red-100 p-2 rounded border border-red-200">
                             <span className="text-red-700 font-medium">Serão congelados:</span>
-                            <span className="font-bold text-red-700">{previewData.willFreeze?.users} usuário(s)</span>
+                            <span className="font-bold text-red-700">{previewData.willFreeze?.tenants} inquilino(s)</span>
                           </div>
                           <div className="flex items-center justify-between text-xs bg-green-100 p-2 rounded border border-green-200">
                             <span className="text-green-700 font-medium">Permanecerão ativos:</span>
-                            <span className="font-bold text-green-700">{previewData.newLimits?.users ?? 0} usuário(s) mais antigos</span>
+                            <span className="font-bold text-green-700">{previewData.newLimits?.tenants ?? 0} inquilino(s) mais antigos</span>
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {(previewData.willFreeze?.properties ?? 0) === 0 && (previewData.willFreeze?.users ?? 0) === 0 && (
+                    {(previewData.willFreeze?.owners ?? 0) > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                          <p className="text-sm font-semibold text-amber-800">Proprietários</p>
+                        </div>
+                        <div className="ml-6 space-y-1">
+                          <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
+                            <span className="text-gray-600">Você tem atualmente:</span>
+                            <span className="font-bold text-gray-800">{previewData.currentUsage?.owners ?? 0} proprietários ativos</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
+                            <span className="text-gray-600">Novo limite do plano:</span>
+                            <span className="font-bold text-amber-700">{previewData.newLimits?.owners ?? 0} proprietários</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-red-100 p-2 rounded border border-red-200">
+                            <span className="text-red-700 font-medium">Serão congelados:</span>
+                            <span className="font-bold text-red-700">{previewData.willFreeze?.owners} proprietário(s)</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-green-100 p-2 rounded border border-green-200">
+                            <span className="text-green-700 font-medium">Permanecerão ativos:</span>
+                            <span className="font-bold text-green-700">{previewData.newLimits?.owners ?? 0} proprietário(s) mais antigos</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {(previewData.willFreeze?.brokers ?? 0) > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                          <p className="text-sm font-semibold text-amber-800">Corretores</p>
+                        </div>
+                        <div className="ml-6 space-y-1">
+                          <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
+                            <span className="text-gray-600">Você tem atualmente:</span>
+                            <span className="font-bold text-gray-800">{previewData.currentUsage?.brokers ?? 0} corretores ativos</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
+                            <span className="text-gray-600">Novo limite do plano:</span>
+                            <span className="font-bold text-amber-700">{previewData.newLimits?.brokers ?? 0} corretores</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-red-100 p-2 rounded border border-red-200">
+                            <span className="text-red-700 font-medium">Serão congelados:</span>
+                            <span className="font-bold text-red-700">{previewData.willFreeze?.brokers} corretor(es)</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-green-100 p-2 rounded border border-green-200">
+                            <span className="text-green-700 font-medium">Permanecerão ativos:</span>
+                            <span className="font-bold text-green-700">{previewData.newLimits?.brokers ?? 0} corretor(es) mais antigos</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {(previewData.willFreeze?.managers ?? 0) > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                          <p className="text-sm font-semibold text-amber-800">Gerentes</p>
+                        </div>
+                        <div className="ml-6 space-y-1">
+                          <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
+                            <span className="text-gray-600">Você tem atualmente:</span>
+                            <span className="font-bold text-gray-800">{previewData.currentUsage?.managers ?? 0} gerentes ativos</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-white/50 p-2 rounded">
+                            <span className="text-gray-600">Novo limite do plano:</span>
+                            <span className="font-bold text-amber-700">{previewData.newLimits?.managers ?? 0} gerentes</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-red-100 p-2 rounded border border-red-200">
+                            <span className="text-red-700 font-medium">Serão congelados:</span>
+                            <span className="font-bold text-red-700">{previewData.willFreeze?.managers} gerente(s)</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs bg-green-100 p-2 rounded border border-green-200">
+                            <span className="text-green-700 font-medium">Permanecerão ativos:</span>
+                            <span className="font-bold text-green-700">{previewData.newLimits?.managers ?? 0} gerente(s) mais antigos</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {(previewData.willFreeze?.properties ?? 0) === 0 && 
+                     (previewData.willFreeze?.tenants ?? 0) === 0 && 
+                     (previewData.willFreeze?.owners ?? 0) === 0 && 
+                     (previewData.willFreeze?.brokers ?? 0) === 0 && 
+                     (previewData.willFreeze?.managers ?? 0) === 0 && (
                       <div className="flex items-start gap-3">
                         <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                         <div>
@@ -1167,7 +1336,7 @@ export function AgencyPlanConfig() {
               )}
             </div>
           )}
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-2 sm:gap-0 mt-5">
             <Button variant="outline" onClick={() => setShowUpgradeModal(false)} disabled={changingPlan || creatingPayment}>
               Cancelar
             </Button>

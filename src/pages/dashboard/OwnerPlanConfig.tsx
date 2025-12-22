@@ -43,11 +43,46 @@ import {
 interface PlanChangePreview {
   currentPlan: string;
   newPlan: string;
-  currentLimits: { properties: number; users: number };
-  newLimits: { properties: number; users: number };
-  currentUsage: { properties: number; users: number };
-  willFreeze: { properties: number; users: number };
-  willUnfreeze: { properties: number; users: number };
+  currentLimits: { 
+    properties: number; 
+    users: number;
+    tenants?: number;
+    owners?: number;
+    brokers?: number;
+    managers?: number;
+  };
+  newLimits: { 
+    properties: number; 
+    users: number;
+    tenants?: number;
+    owners?: number;
+    brokers?: number;
+    managers?: number;
+  };
+  currentUsage: { 
+    properties: number; 
+    users: number;
+    tenants?: number;
+    owners?: number;
+    brokers?: number;
+    managers?: number;
+  };
+  willFreeze: { 
+    properties: number; 
+    users: number;
+    tenants?: number;
+    owners?: number;
+    brokers?: number;
+    managers?: number;
+  };
+  willUnfreeze: { 
+    properties: number; 
+    users: number;
+    tenants?: number;
+    owners?: number;
+    brokers?: number;
+    managers?: number;
+  };
   isUpgrade: boolean;
 }
 
@@ -261,6 +296,30 @@ export function OwnerPlanConfig() {
     queryFn: () => plansAPI.getOwnerPlanUsage(userId!),
     enabled: !!userId && canViewPlan,
   });
+
+  // Auto-enforce plan limits when page loads
+  useEffect(() => {
+    if (userId && canViewPlan && planUsage) {
+      // Check if there are items that should be frozen
+      const hasExcessItems = 
+        (planUsage.properties?.current || 0) > (planUsage.properties?.limit || 0) ||
+        (planUsage.tenants?.current || 0) > (planUsage.tenants?.limit || 0);
+      
+      if (hasExcessItems) {
+        plansAPI.enforceCurrentPlanLimitsForOwner(userId)
+          .then(() => {
+            queryClient.invalidateQueries({ queryKey: ['owner-plan-usage', userId] });
+            queryClient.invalidateQueries({ queryKey: ['owner-frozen-entities', userId] });
+            queryClient.invalidateQueries({ queryKey: ['owner-tenants-count', userId] });
+            queryClient.invalidateQueries({ queryKey: ['properties'] });
+            queryClient.invalidateQueries({ queryKey: ['tenants'] });
+          })
+          .catch((error) => {
+            console.error('Error enforcing plan limits:', error);
+          });
+      }
+    }
+  }, [userId, canViewPlan, planUsage, queryClient]);
 
   const { data: frozenEntities } = useQuery({
     queryKey: ['owner-frozen-entities', userId],
@@ -1065,7 +1124,7 @@ export function OwnerPlanConfig() {
               )}
             </div>
           )}
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-2 sm:gap-0 mt-5">
             <Button variant="outline" onClick={() => setShowUpgradeModal(false)} disabled={changingPlan || creatingPayment}>
               Cancelar
             </Button>

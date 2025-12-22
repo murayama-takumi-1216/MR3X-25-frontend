@@ -1882,10 +1882,10 @@ export function Inspections() {
                           return status === 'DISPONIVEL' || status === 'AVAILABLE';
                         })
                         .map((property) => (
-                          <SelectItem key={property.id} value={property.id?.toString()}>
-                            {property.name || property.address}
-                          </SelectItem>
-                        ))}
+                        <SelectItem key={property.id} value={property.id?.toString()}>
+                          {property.name || property.address}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -2518,7 +2518,7 @@ export function Inspections() {
             <DialogHeader className="print-avoid-break">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <DialogTitle className="text-base sm:text-lg">Detalhes da Vistoria</DialogTitle>
+                <DialogTitle className="text-base sm:text-lg">Detalhes da Vistoria</DialogTitle>
                   <DialogDescription className="hidden">Visualize os detalhes completos da vistoria</DialogDescription>
                 </div>
                 <div className="flex items-center gap-2">
@@ -2783,142 +2783,142 @@ export function Inspections() {
                     
                     return (
                       <div className={`grid gap-2 sm:gap-4 ${shouldHideOwnerAndAgency ? 'grid-cols-2' : 'grid-cols-2'}`}>
-                        {/* Inquilino */}
-                        <div
-                          className={`p-2 sm:p-3 border rounded-lg text-center transition-all ${
-                            inspectionDetail.tenantSignedAt
-                              ? 'border-green-300 bg-green-50'
-                              : canUserSign('tenant') && inspectionDetail.status !== 'APROVADA'
-                              ? 'border-orange-300 bg-orange-50 cursor-pointer hover:border-orange-400 hover:shadow-sm'
-                              : ''
-                          }`}
-                          onClick={() => {
-                            if (!inspectionDetail.tenantSignedAt && canUserSign('tenant') && inspectionDetail.status !== 'APROVADA') {
-                              openSignatureModal('tenant');
-                            }
-                          }}
-                        >
-                          {inspectionDetail.tenantSignature ? (
-                            <img src={inspectionDetail.tenantSignature} alt="Assinatura Inquilino" className="h-10 sm:h-12 mx-auto object-contain" />
-                          ) : (
-                            <PenTool className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-muted-foreground" />
-                          )}
-                          <Label className="text-[10px] sm:text-xs text-muted-foreground">Inquilino</Label>
-                          {inspectionDetail.tenantSignedAt ? (
-                            <p className="text-[10px] sm:text-xs text-green-600">
-                              <CheckCircle className="w-3 h-3 inline mr-1" />
-                              Assinado
-                            </p>
-                          ) : canUserSign('tenant') && inspectionDetail.status !== 'APROVADA' ? (
-                            <p className="text-[10px] sm:text-xs text-orange-600 font-medium">Clique para assinar</p>
-                          ) : (
-                            <p className="text-[10px] sm:text-xs text-muted-foreground">Pendente</p>
-                          )}
-                        </div>
+                    {/* Inquilino */}
+                    <div
+                      className={`p-2 sm:p-3 border rounded-lg text-center transition-all ${
+                        inspectionDetail.tenantSignedAt
+                          ? 'border-green-300 bg-green-50'
+                          : canUserSign('tenant') && inspectionDetail.status !== 'APROVADA'
+                          ? 'border-orange-300 bg-orange-50 cursor-pointer hover:border-orange-400 hover:shadow-sm'
+                          : ''
+                      }`}
+                      onClick={() => {
+                        if (!inspectionDetail.tenantSignedAt && canUserSign('tenant') && inspectionDetail.status !== 'APROVADA') {
+                          openSignatureModal('tenant');
+                        }
+                      }}
+                    >
+                      {inspectionDetail.tenantSignature ? (
+                        <img src={inspectionDetail.tenantSignature} alt="Assinatura Inquilino" className="h-10 sm:h-12 mx-auto object-contain" />
+                      ) : (
+                        <PenTool className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-muted-foreground" />
+                      )}
+                      <Label className="text-[10px] sm:text-xs text-muted-foreground">Inquilino</Label>
+                      {inspectionDetail.tenantSignedAt ? (
+                        <p className="text-[10px] sm:text-xs text-green-600">
+                          <CheckCircle className="w-3 h-3 inline mr-1" />
+                          Assinado
+                        </p>
+                      ) : canUserSign('tenant') && inspectionDetail.status !== 'APROVADA' ? (
+                        <p className="text-[10px] sm:text-xs text-orange-600 font-medium">Clique para assinar</p>
+                      ) : (
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">Pendente</p>
+                      )}
+                    </div>
 
-                        {/* Proprietário */}
+                    {/* Proprietário */}
                         {!shouldHideOwnerAndAgency && (
-                          <div
-                            className={`p-2 sm:p-3 border rounded-lg text-center transition-all ${
-                              inspectionDetail.ownerSignedAt
-                                ? 'border-green-300 bg-green-50'
-                                : canUserSign('owner') && inspectionDetail.status !== 'APROVADA'
-                                ? 'border-orange-300 bg-orange-50 cursor-pointer hover:border-orange-400 hover:shadow-sm'
-                                : ''
-                            }`}
-                            onClick={() => {
-                              if (!inspectionDetail.ownerSignedAt && canUserSign('owner') && inspectionDetail.status !== 'APROVADA') {
-                                openSignatureModal('owner');
-                              }
-                            }}
-                          >
-                            {inspectionDetail.ownerSignature ? (
-                              <img src={inspectionDetail.ownerSignature} alt="Assinatura Proprietário" className="h-10 sm:h-12 mx-auto object-contain" />
-                            ) : (
-                              <PenTool className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-muted-foreground" />
-                            )}
-                            <Label className="text-[10px] sm:text-xs text-muted-foreground">Proprietário</Label>
-                            {inspectionDetail.ownerSignedAt ? (
-                              <p className="text-[10px] sm:text-xs text-green-600">
-                                <CheckCircle className="w-3 h-3 inline mr-1" />
-                                Assinado
-                              </p>
-                            ) : canUserSign('owner') && inspectionDetail.status !== 'APROVADA' ? (
-                              <p className="text-[10px] sm:text-xs text-orange-600 font-medium">Clique para assinar</p>
-                            ) : (
-                              <p className="text-[10px] sm:text-xs text-muted-foreground">Pendente</p>
-                            )}
-                          </div>
+                    <div
+                      className={`p-2 sm:p-3 border rounded-lg text-center transition-all ${
+                        inspectionDetail.ownerSignedAt
+                          ? 'border-green-300 bg-green-50'
+                          : canUserSign('owner') && inspectionDetail.status !== 'APROVADA'
+                          ? 'border-orange-300 bg-orange-50 cursor-pointer hover:border-orange-400 hover:shadow-sm'
+                          : ''
+                      }`}
+                      onClick={() => {
+                        if (!inspectionDetail.ownerSignedAt && canUserSign('owner') && inspectionDetail.status !== 'APROVADA') {
+                          openSignatureModal('owner');
+                        }
+                      }}
+                    >
+                      {inspectionDetail.ownerSignature ? (
+                        <img src={inspectionDetail.ownerSignature} alt="Assinatura Proprietário" className="h-10 sm:h-12 mx-auto object-contain" />
+                      ) : (
+                        <PenTool className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-muted-foreground" />
+                      )}
+                      <Label className="text-[10px] sm:text-xs text-muted-foreground">Proprietário</Label>
+                      {inspectionDetail.ownerSignedAt ? (
+                        <p className="text-[10px] sm:text-xs text-green-600">
+                          <CheckCircle className="w-3 h-3 inline mr-1" />
+                          Assinado
+                        </p>
+                      ) : canUserSign('owner') && inspectionDetail.status !== 'APROVADA' ? (
+                        <p className="text-[10px] sm:text-xs text-orange-600 font-medium">Clique para assinar</p>
+                      ) : (
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">Pendente</p>
+                      )}
+                    </div>
                         )}
 
-                        {/* Agência */}
+                    {/* Agência */}
                         {!shouldHideOwnerAndAgency && (
-                          <div
-                            className={`p-2 sm:p-3 border rounded-lg text-center transition-all ${
-                              inspectionDetail.agencySignedAt
-                                ? 'border-green-300 bg-green-50'
-                                : canUserSign('agency') && inspectionDetail.status !== 'APROVADA'
-                                ? 'border-orange-300 bg-orange-50 cursor-pointer hover:border-orange-400 hover:shadow-sm'
-                                : ''
-                            }`}
-                            onClick={() => {
-                              if (!inspectionDetail.agencySignedAt && canUserSign('agency') && inspectionDetail.status !== 'APROVADA') {
-                                openSignatureModal('agency');
-                              }
-                            }}
-                          >
-                            {inspectionDetail.agencySignature ? (
-                              <img src={inspectionDetail.agencySignature} alt="Assinatura Agência" className="h-10 sm:h-12 mx-auto object-contain" />
-                            ) : (
-                              <PenTool className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-muted-foreground" />
-                            )}
-                            <Label className="text-[10px] sm:text-xs text-muted-foreground">Agência</Label>
-                            {inspectionDetail.agencySignedAt ? (
-                              <p className="text-[10px] sm:text-xs text-green-600">
-                                <CheckCircle className="w-3 h-3 inline mr-1" />
-                                Assinado
-                              </p>
-                            ) : canUserSign('agency') && inspectionDetail.status !== 'APROVADA' ? (
-                              <p className="text-[10px] sm:text-xs text-orange-600 font-medium">Clique para assinar</p>
-                            ) : (
-                              <p className="text-[10px] sm:text-xs text-muted-foreground">Pendente</p>
-                            )}
-                          </div>
+                    <div
+                      className={`p-2 sm:p-3 border rounded-lg text-center transition-all ${
+                        inspectionDetail.agencySignedAt
+                          ? 'border-green-300 bg-green-50'
+                          : canUserSign('agency') && inspectionDetail.status !== 'APROVADA'
+                          ? 'border-orange-300 bg-orange-50 cursor-pointer hover:border-orange-400 hover:shadow-sm'
+                          : ''
+                      }`}
+                      onClick={() => {
+                        if (!inspectionDetail.agencySignedAt && canUserSign('agency') && inspectionDetail.status !== 'APROVADA') {
+                          openSignatureModal('agency');
+                        }
+                      }}
+                    >
+                      {inspectionDetail.agencySignature ? (
+                        <img src={inspectionDetail.agencySignature} alt="Assinatura Agência" className="h-10 sm:h-12 mx-auto object-contain" />
+                      ) : (
+                        <PenTool className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-muted-foreground" />
+                      )}
+                      <Label className="text-[10px] sm:text-xs text-muted-foreground">Agência</Label>
+                      {inspectionDetail.agencySignedAt ? (
+                        <p className="text-[10px] sm:text-xs text-green-600">
+                          <CheckCircle className="w-3 h-3 inline mr-1" />
+                          Assinado
+                        </p>
+                      ) : canUserSign('agency') && inspectionDetail.status !== 'APROVADA' ? (
+                        <p className="text-[10px] sm:text-xs text-orange-600 font-medium">Clique para assinar</p>
+                      ) : (
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">Pendente</p>
+                      )}
+                    </div>
                         )}
 
-                        {/* Vistoriador */}
-                        <div
-                          className={`p-2 sm:p-3 border rounded-lg text-center transition-all ${
-                            inspectionDetail.inspectorSignedAt
-                              ? 'border-green-300 bg-green-50'
-                              : canUserSign('inspector') && inspectionDetail.status !== 'APROVADA'
-                              ? 'border-orange-300 bg-orange-50 cursor-pointer hover:border-orange-400 hover:shadow-sm'
-                              : ''
-                          }`}
-                          onClick={() => {
-                            if (!inspectionDetail.inspectorSignedAt && canUserSign('inspector') && inspectionDetail.status !== 'APROVADA') {
-                              openSignatureModal('inspector');
-                            }
-                          }}
-                        >
-                          {inspectionDetail.inspectorSignature ? (
-                            <img src={inspectionDetail.inspectorSignature} alt="Assinatura Vistoriador" className="h-10 sm:h-12 mx-auto object-contain" />
-                          ) : (
-                            <PenTool className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-muted-foreground" />
-                          )}
-                          <Label className="text-[10px] sm:text-xs text-muted-foreground">Vistoriador</Label>
-                          {inspectionDetail.inspectorSignedAt ? (
-                            <p className="text-[10px] sm:text-xs text-green-600">
-                              <CheckCircle className="w-3 h-3 inline mr-1" />
-                              Assinado
-                            </p>
-                          ) : canUserSign('inspector') && inspectionDetail.status !== 'APROVADA' ? (
-                            <p className="text-[10px] sm:text-xs text-orange-600 font-medium">Clique para assinar</p>
-                          ) : (
-                            <p className="text-[10px] sm:text-xs text-muted-foreground">Pendente</p>
-                          )}
-                        </div>
-                      </div>
+                    {/* Vistoriador */}
+                    <div
+                      className={`p-2 sm:p-3 border rounded-lg text-center transition-all ${
+                        inspectionDetail.inspectorSignedAt
+                          ? 'border-green-300 bg-green-50'
+                          : canUserSign('inspector') && inspectionDetail.status !== 'APROVADA'
+                          ? 'border-orange-300 bg-orange-50 cursor-pointer hover:border-orange-400 hover:shadow-sm'
+                          : ''
+                      }`}
+                      onClick={() => {
+                        if (!inspectionDetail.inspectorSignedAt && canUserSign('inspector') && inspectionDetail.status !== 'APROVADA') {
+                          openSignatureModal('inspector');
+                        }
+                      }}
+                    >
+                      {inspectionDetail.inspectorSignature ? (
+                        <img src={inspectionDetail.inspectorSignature} alt="Assinatura Vistoriador" className="h-10 sm:h-12 mx-auto object-contain" />
+                      ) : (
+                        <PenTool className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-muted-foreground" />
+                      )}
+                      <Label className="text-[10px] sm:text-xs text-muted-foreground">Vistoriador</Label>
+                      {inspectionDetail.inspectorSignedAt ? (
+                        <p className="text-[10px] sm:text-xs text-green-600">
+                          <CheckCircle className="w-3 h-3 inline mr-1" />
+                          Assinado
+                        </p>
+                      ) : canUserSign('inspector') && inspectionDetail.status !== 'APROVADA' ? (
+                        <p className="text-[10px] sm:text-xs text-orange-600 font-medium">Clique para assinar</p>
+                      ) : (
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">Pendente</p>
+                      )}
+                    </div>
+                  </div>
                     );
                   })()}
                 </div>

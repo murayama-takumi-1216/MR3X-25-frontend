@@ -820,6 +820,11 @@ export const plansAPI = {
     return response.data;
   },
 
+  enforceCurrentPlanLimitsForOwner: async (userId: string) => {
+    const response = await apiClient.post(`/plans/owner/${userId}/enforce-limits`);
+    return response.data;
+  },
+
   checkOwnerPropertyCreationAllowed: async (userId: string) => {
     const response = await apiClient.get(`/plans/owner/${userId}/check-property-creation`);
     return response.data;
