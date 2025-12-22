@@ -3,6 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
 import apiClient from '../../api/client';
 import {
   FileText, Plus, Search, Send, Eye, Edit,
@@ -59,6 +66,8 @@ export function SalesProposals() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedProspectId, setSelectedProspectId] = useState<string>('');
+  const [selectedPlan, setSelectedPlan] = useState<string>('starter');
 
   const { data: proposals = [], isLoading } = useQuery({
     queryKey: ['sales-proposals'],
@@ -149,8 +158,11 @@ export function SalesProposals() {
       {}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Propostas</h1>
-          <p className="text-muted-foreground">Gerencie suas propostas comerciais</p>
+          <div className="flex items-center gap-3">
+            <FileText className="w-7 h-7 text-primary" />
+            <h1 className="text-2xl font-bold">Propostas</h1>
+          </div>
+          <p className="text-muted-foreground mt-1">Gerencie suas propostas comerciais</p>
         </div>
         <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
@@ -217,18 +229,19 @@ export function SalesProposals() {
                 className="pl-10"
               />
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border rounded-lg bg-background"
-            >
-              <option value="all">Todos os Status</option>
-              {Object.entries(statusConfig).map(([key, config]) => (
-                <option key={key} value={key}>
-                  {config.label}
-                </option>
-              ))}
-            </select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Todos os Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Status</SelectItem>
+                {Object.entries(statusConfig).map(([key, config]) => (
+                  <SelectItem key={key} value={key}>
+                    {config.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -335,19 +348,33 @@ export function SalesProposals() {
 
       {}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => {
+            setShowAddModal(false);
+            setSelectedProspectId('');
+            setSelectedPlan('starter');
+          }}
+        >
+          <div
+            className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="text-xl font-bold mb-4">Nova Proposta</h2>
             <form className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Prospect *</label>
-                <select className="w-full px-3 py-2 border rounded-lg">
-                  <option value="">Selecione um prospect</option>
-                  <option value="1">Imobiliária Centro</option>
-                  <option value="2">Imóveis Premium</option>
-                  <option value="3">Casa & Lar Imóveis</option>
-                  <option value="4">Invest Imóveis</option>
-                </select>
+                <Select value={selectedProspectId} onValueChange={setSelectedProspectId}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione um prospect" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Imobiliária Centro</SelectItem>
+                    <SelectItem value="2">Imóveis Premium</SelectItem>
+                    <SelectItem value="3">Casa & Lar Imóveis</SelectItem>
+                    <SelectItem value="4">Invest Imóveis</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
@@ -358,12 +385,17 @@ export function SalesProposals() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Plano *</label>
-                  <select className="w-full px-3 py-2 border rounded-lg">
-                    <option value="starter">Starter - R$ 800/mês</option>
-                    <option value="business">Business - R$ 1.500/mês</option>
-                    <option value="premium">Premium - R$ 2.500/mês</option>
-                    <option value="enterprise">Enterprise - R$ 5.000/mês</option>
-                  </select>
+                  <Select value={selectedPlan} onValueChange={setSelectedPlan}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione um plano" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="starter">Starter - R$ 800/mês</SelectItem>
+                      <SelectItem value="business">Business - R$ 1.500/mês</SelectItem>
+                      <SelectItem value="premium">Premium - R$ 2.500/mês</SelectItem>
+                      <SelectItem value="enterprise">Enterprise - R$ 5.000/mês</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Desconto (%)</label>
@@ -386,7 +418,15 @@ export function SalesProposals() {
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={() => setShowAddModal(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setSelectedProspectId('');
+                    setSelectedPlan('starter');
+                  }}
+                >
                   Cancelar
                 </Button>
                 <Button type="button" variant="outline">
@@ -403,8 +443,14 @@ export function SalesProposals() {
 
       {}
       {showDetailModal && selectedProposal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setShowDetailModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h2 className="text-xl font-bold">{selectedProposal.title}</h2>

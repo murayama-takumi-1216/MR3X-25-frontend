@@ -3,6 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
 import apiClient from '../../api/client';
 import {
   Building2, Plus, Search, Phone, Mail, MapPin, Calendar,
@@ -43,6 +50,7 @@ export function SalesProspects() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedProspect, setSelectedProspect] = useState<Prospect | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [prospectSource, setProspectSource] = useState<string>('Site');
 
   const { data: prospects = [], isLoading } = useQuery({
     queryKey: ['sales-prospects'],
@@ -60,6 +68,7 @@ export function SalesProspects() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales-prospects'] });
       setShowAddModal(false);
+      setProspectSource('Site');
     },
   });
 
@@ -105,8 +114,11 @@ export function SalesProspects() {
       {}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Agências (Prospects)</h1>
-          <p className="text-muted-foreground">Gerencie suas oportunidades de vendas</p>
+          <div className="flex items-center gap-3">
+            <Building2 className="w-7 h-7 text-primary" />
+            <h1 className="text-2xl font-bold">Agências (Prospects)</h1>
+          </div>
+          <p className="text-muted-foreground mt-1">Gerencie suas oportunidades de vendas</p>
         </div>
         <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
@@ -150,18 +162,19 @@ export function SalesProspects() {
                 className="pl-10"
               />
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border rounded-lg bg-background"
-            >
-              <option value="all">Todos os Status</option>
-              {Object.entries(statusConfig).map(([key, config]) => (
-                <option key={key} value={key}>
-                  {config.label}
-                </option>
-              ))}
-            </select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Todos os Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Status</SelectItem>
+                {Object.entries(statusConfig).map(([key, config]) => (
+                  <SelectItem key={key} value={key}>
+                    {config.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -260,8 +273,17 @@ export function SalesProspects() {
 
       {}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => {
+            setShowAddModal(false);
+            setProspectSource('Site');
+          }}
+        >
+          <div
+            className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="text-xl font-bold mb-4">Novo Prospect</h2>
             <form
               onSubmit={(e) => {
@@ -275,7 +297,7 @@ export function SalesProspects() {
                   address: formData.get('address') as string,
                   city: formData.get('city') as string,
                   state: formData.get('state') as string,
-                  source: formData.get('source') as string,
+                  source: prospectSource,
                   estimatedValue: Number(formData.get('estimatedValue')),
                   notes: formData.get('notes') as string,
                 });
@@ -289,14 +311,19 @@ export function SalesProspects() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Origem</label>
-                  <select name="source" className="w-full px-3 py-2 border rounded-lg">
-                    <option value="Site">Site</option>
-                    <option value="Indicação">Indicação</option>
-                    <option value="LinkedIn">LinkedIn</option>
-                    <option value="Cold Call">Cold Call</option>
-                    <option value="Evento">Evento</option>
-                    <option value="Outros">Outros</option>
-                  </select>
+                  <Select value={prospectSource} onValueChange={setProspectSource}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione a origem" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Site">Site</SelectItem>
+                      <SelectItem value="Indicação">Indicação</SelectItem>
+                      <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                      <SelectItem value="Cold Call">Cold Call</SelectItem>
+                      <SelectItem value="Evento">Evento</SelectItem>
+                      <SelectItem value="Outros">Outros</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -347,7 +374,14 @@ export function SalesProspects() {
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={() => setShowAddModal(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setProspectSource('Site');
+                  }}
+                >
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={createProspectMutation.isPending}>
@@ -361,8 +395,14 @@ export function SalesProspects() {
 
       {}
       {showDetailModal && selectedProspect && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setShowDetailModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h2 className="text-xl font-bold">{selectedProspect.name}</h2>

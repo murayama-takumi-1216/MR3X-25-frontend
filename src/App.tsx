@@ -45,6 +45,8 @@ import { SalesPipeline } from './pages/dashboard/SalesPipeline';
 import { SalesMetrics } from './pages/dashboard/SalesMetrics';
 import { SalesCommissions } from './pages/dashboard/SalesCommissions';
 import { SalesInbox } from './pages/dashboard/SalesInbox';
+import { SalesAgencies } from './pages/dashboard/SalesAgencies';
+import { SalesReports } from './pages/dashboard/SalesReports';
 import {
   AuditorDashboard,
   AuditorLogs,
@@ -252,7 +254,9 @@ function App() {
               <Route path="sales-prospects" element={<SalesProspects />} />
               <Route path="sales-proposals" element={<SalesProposals />} />
               <Route path="sales-pipeline" element={<SalesPipeline />} />
+              <Route path="sales-agencies" element={<SalesAgencies />} />
               <Route path="sales-metrics" element={<SalesMetrics />} />
+              <Route path="sales-reports" element={<SalesReports />} />
               <Route path="sales-commissions" element={<SalesCommissions />} />
               <Route path="sales-inbox" element={<SalesInbox />} />
 

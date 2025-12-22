@@ -1160,7 +1160,7 @@ export function AgencyPlanConfig() {
                             <span className="text-gray-600">Novo limite do plano:</span>
                             <span className="font-bold text-amber-700">{previewData.newLimits?.properties ?? 0} contratos</span>
                           </div>
-                          <div className="flex items-center justify-between text-xs bg-red-100 p-2 rounded border border-red-200">
+                          <div className="flex items-center justify-between text-xs bg-red-10 0 p-2 rounded border border-red-200">
                             <span className="text-red-700 font-medium">Serão congelados:</span>
                             <span className="font-bold text-red-700">{previewData.willFreeze?.properties} contrato(s)</span>
                           </div>

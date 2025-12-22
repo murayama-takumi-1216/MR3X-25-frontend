@@ -70,12 +70,12 @@ const baseNavigation = [
   { name: 'Documentation', href: '/dashboard/api-docs', icon: BookOpen, perm: undefined, roles: ['API_CLIENT'] },
   { name: 'Account Settings', href: '/dashboard/api-settings', icon: UserCog2, perm: undefined, roles: ['API_CLIENT'] },
   
+  { name: 'Dashboard', href: '/dashboard/sales-dashboard', icon: Home, perm: undefined, roles: ['REPRESENTATIVE'] },
   { name: 'Prospects', href: '/dashboard/sales-prospects', icon: Building2, perm: undefined, roles: ['REPRESENTATIVE'] },
   { name: 'Propostas', href: '/dashboard/sales-proposals', icon: FileText, perm: undefined, roles: ['REPRESENTATIVE'] },
-  { name: 'Pipeline', href: '/dashboard/sales-pipeline', icon: Kanban, perm: undefined, roles: ['REPRESENTATIVE'] },
-  { name: 'Métricas', href: '/dashboard/sales-metrics', icon: TrendingUp, perm: undefined, roles: ['REPRESENTATIVE'] },
-  { name: 'Comissões', href: '/dashboard/sales-commissions', icon: Award, perm: undefined, roles: ['REPRESENTATIVE'] },
-  { name: 'Mensagens', href: '/dashboard/sales-inbox', icon: Inbox, perm: undefined, roles: ['REPRESENTATIVE'] },
+  { name: 'Agências', href: '/dashboard/sales-agencies', icon: Building, perm: undefined, roles: ['REPRESENTATIVE'] },
+  { name: 'Relatórios', href: '/dashboard/sales-reports', icon: BarChart3, perm: undefined, roles: ['REPRESENTATIVE'] },
+  { name: 'Chat', href: '/dashboard/chat', icon: MessageSquare, perm: undefined, roles: ['REPRESENTATIVE'] },
   { name: 'Minha Conta', href: '/dashboard/my-account', icon: UserCog, perm: undefined, roles: ['REPRESENTATIVE'] },
   
   { name: 'Logs', href: '/dashboard/auditor-logs', icon: Activity, perm: undefined, roles: ['LEGAL_AUDITOR'] },
@@ -382,14 +382,16 @@ export function DashboardLayout() {
     }
 
     if (user?.role === 'REPRESENTATIVE') {
+      // Exclude base dashboard - REPRESENTATIVE has their own sales-dashboard
+      if (item.href === '/dashboard' && !item.roles) return false;
+
       const allowForRepresentative = [
-        '/dashboard',
+        '/dashboard/sales-dashboard',
         '/dashboard/sales-prospects',
         '/dashboard/sales-proposals',
-        '/dashboard/sales-pipeline',
-        '/dashboard/sales-metrics',
-        '/dashboard/sales-commissions',
-        '/dashboard/sales-inbox',
+        '/dashboard/sales-agencies',
+        '/dashboard/sales-reports',
+        '/dashboard/chat',
         '/dashboard/my-account',
       ];
       if (!allowForRepresentative.includes(item.href)) return false;

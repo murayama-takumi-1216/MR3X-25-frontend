@@ -1949,6 +1949,16 @@ export const salesRepAPI = {
     const response = await apiClient.get('/sales-rep/dashboard/top-prospects');
     return response.data;
   },
+
+  getAgencies: async () => {
+    const response = await apiClient.get('/sales-rep/agencies');
+    return response.data;
+  },
+
+  getAgenciesMetrics: async () => {
+    const response = await apiClient.get('/sales-rep/agencies/metrics');
+    return response.data;
+  },
 };
 
 export const apiClientDashboardAPI = {

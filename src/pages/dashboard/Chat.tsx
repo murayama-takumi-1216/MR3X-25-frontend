@@ -34,8 +34,8 @@ export function Chat() {
   const { hasPermission, user } = useAuth()
   const queryClient = useQueryClient()
 
-  const canViewChat = hasPermission('chat:read')
-  const canCreateChat = hasPermission('chat:create')
+  const canViewChat = hasPermission('chat:read') || user?.role === 'REPRESENTATIVE'
+  const canCreateChat = hasPermission('chat:create') || user?.role === 'REPRESENTATIVE'
   const canDeleteChat = hasPermission('chat:delete')
 
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
@@ -213,7 +213,9 @@ export function Chat() {
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Chat</h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-1">
-              Converse com inquilinos e gerencie comunicações
+              {user?.role === 'REPRESENTATIVE' 
+                ? 'Converse com administradores da plataforma'
+                : 'Converse com inquilinos e gerencie comunicações'}
             </p>
           </div>
         </div>
@@ -541,8 +543,16 @@ export function Chat() {
                   Nenhum usuário disponível para chat
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  <p className="mb-1">• Se você é <strong>proprietário</strong>: cadastre inquilinos e crie contratos primeiro</p>
-                  <p>• Se você é <strong>inquilino</strong>: verifique se está vinculado a um proprietário através de um contrato</p>
+                  {user?.role === 'REPRESENTATIVE' ? (
+                    <p>Você pode conversar apenas com administradores da plataforma (ADMIN).</p>
+                  ) : user?.role === 'PROPRIETARIO' || user?.role === 'INDEPENDENT_OWNER' ? (
+                    <>
+                      <p className="mb-1">• Se você é <strong>proprietário</strong>: cadastre inquilinos e crie contratos primeiro</p>
+                      <p>• Se você é <strong>inquilino</strong>: verifique se está vinculado a um proprietário através de um contrato</p>
+                    </>
+                  ) : (
+                    <p>Nenhum usuário disponível no momento.</p>
+                  )}
                 </div>
               </div>
             ) : (

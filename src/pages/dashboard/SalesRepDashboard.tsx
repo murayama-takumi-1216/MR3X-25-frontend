@@ -11,7 +11,7 @@ import {
 import type { PieLabelRenderProps } from 'recharts';
 import {
   TrendingUp, Users, FileText, DollarSign, Target, Award,
-  Clock, CheckCircle, Inbox
+  Clock, CheckCircle, Inbox, Building2, Home
 } from 'lucide-react';
 
 const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'];
@@ -59,6 +59,11 @@ export function SalesRepDashboard() {
   }, isLoading } = useQuery({
     queryKey: ['sales-rep', 'stats'],
     queryFn: salesRepAPI.getStats,
+  });
+
+  const { data: agenciesMetrics } = useQuery({
+    queryKey: ['sales-agencies-metrics'],
+    queryFn: salesRepAPI.getAgenciesMetrics,
   });
 
   const progressPercentage = useMemo(() => {
@@ -145,9 +150,12 @@ export function SalesRepDashboard() {
     <div className="space-y-6">
       {}
       <div className="bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl p-6 text-white">
-        <h1 className="text-2xl font-bold">
-          Olá, {user?.name || 'Representante'}! 👋
-        </h1>
+        <div className="flex items-center gap-3">
+          <Home className="w-8 h-8" />
+          <h1 className="text-2xl font-bold">
+            Olá, {user?.name || 'Representante'}! 👋
+          </h1>
+        </div>
         <p className="text-pink-100 mt-1">
           Aqui está o resumo do seu desempenho de vendas
         </p>
@@ -228,6 +236,63 @@ export function SalesRepDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Agency Sign-ups Section */}
+      {agenciesMetrics && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Agências Cadastradas</p>
+                  <p className="text-2xl font-bold">{agenciesMetrics.totalAgencies}</p>
+                  <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
+                    <CheckCircle className="w-3 h-3" />
+                    {agenciesMetrics.activeAgencies} ativas
+                  </p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <Building2 className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Status de Ativação</p>
+                  <p className="text-2xl font-bold">{agenciesMetrics.activeAgencies}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    de {agenciesMetrics.totalAgencies} agências
+                  </p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-full">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total de Usuários</p>
+                  <p className="text-2xl font-bold">{agenciesMetrics.totalUsers}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Em todas as agências
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-full">
+                  <Users className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
