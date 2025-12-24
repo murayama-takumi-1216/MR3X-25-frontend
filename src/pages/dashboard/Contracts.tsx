@@ -1476,7 +1476,7 @@ export function Contracts() {
     return false;
   };
 
-  const canDeleteContract = (contract: any): boolean => {
+  const canDeleteContract = (_contract: any): boolean => {
     // Allow deletion for users with delete permission - backend will handle validation
     return true;
   };
