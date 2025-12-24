@@ -360,16 +360,22 @@ export function Inspections() {
         for (const [itemIndex, files] of itemFilePreviews.entries()) {
           if (files.length > 0) {
             const room = inspectionItems[itemIndex]?.room;
+            // Convert room to string if it's a number
+            const roomParam = room !== undefined && room !== null ? String(room) : undefined;
             try {
               await inspectionsAPI.uploadMedia(
                 inspectionId.toString(),
                 files.map(f => f.file),
                 itemIndex,
-                room
+                roomParam
               );
-            } catch (uploadError) {
+            } catch (uploadError: any) {
               console.error(`Error uploading media for item ${itemIndex}:`, uploadError);
-              toast.error(`Erro ao enviar mídia do item ${itemIndex + 1}`);
+              const errorMessage = uploadError?.response?.data?.message || 
+                                   uploadError?.response?.data?.error || 
+                                   uploadError?.message || 
+                                   'Erro desconhecido ao enviar mídia';
+              toast.error(`Erro ao enviar mídia do item ${itemIndex + 1}: ${errorMessage}`);
             }
           }
         }
@@ -417,21 +423,31 @@ export function Inspections() {
       for (const [itemIndex, files] of itemFilePreviews.entries()) {
         if (files.length > 0) {
           const room = inspectionItems[itemIndex]?.room;
+          // Convert room to string if it's a number
+          const roomParam = room !== undefined && room !== null ? String(room) : undefined;
           try {
             await inspectionsAPI.uploadMedia(
               selectedInspection.id,
               files.map(f => f.file),
               itemIndex,
-              room
+              roomParam
             );
-          } catch (uploadError) {
+          } catch (uploadError: any) {
             console.error(`Error uploading media for item ${itemIndex}:`, uploadError);
-            toast.error(`Erro ao enviar mídia do item ${itemIndex + 1}`);
+            const errorMessage = uploadError?.response?.data?.message || 
+                                 uploadError?.response?.data?.error || 
+                                 uploadError?.message || 
+                                 'Erro desconhecido ao enviar mídia';
+            toast.error(`Erro ao enviar mídia do item ${itemIndex + 1}: ${errorMessage}`);
           }
         }
       }
 
+      // Invalidate all inspection-related queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ['inspections'] });
+      // Clear media state to force refetch on next open
+      setExistingMedia(new Map());
+      setMediaToDelete([]);
       closeAllModals();
       toast.success('Vistoria atualizada com sucesso');
     } catch (error: any) {
@@ -466,6 +482,28 @@ export function Inspections() {
     }
   };
 
+  const loadInspectionMedia = async (inspectionId: string) => {
+    try {
+      const mediaList = await inspectionsAPI.getMedia(inspectionId);
+      if (Array.isArray(mediaList)) {
+        const mediaMap = new Map<number, ServerMedia[]>();
+        mediaList.forEach((media: ServerMedia) => {
+          const idx = media.itemIndex ?? -1;
+          if (!mediaMap.has(idx)) {
+            mediaMap.set(idx, []);
+          }
+          mediaMap.get(idx)!.push(media);
+        });
+        setExistingMedia(mediaMap);
+      } else {
+        setExistingMedia(new Map());
+      }
+    } catch (mediaError) {
+      console.error('Error loading media:', mediaError);
+      setExistingMedia(new Map());
+    }
+  };
+
   const handleEditInspection = async (inspection: Inspection) => {
     closeAllModals();
     setInspectionEditLoading(true);
@@ -485,22 +523,8 @@ export function Inspections() {
       });
       setInspectionItems(fullDetails.items || []);
 
-      try {
-        const mediaList = await inspectionsAPI.getMedia(inspection.id);
-        if (Array.isArray(mediaList)) {
-          const mediaMap = new Map<number, ServerMedia[]>();
-          mediaList.forEach((media: ServerMedia) => {
-            const idx = media.itemIndex ?? -1;
-            if (!mediaMap.has(idx)) {
-              mediaMap.set(idx, []);
-            }
-            mediaMap.get(idx)!.push(media);
-          });
-          setExistingMedia(mediaMap);
-        }
-      } catch (mediaError) {
-        console.error('Error loading media:', mediaError);
-      }
+      // Load media separately
+      await loadInspectionMedia(inspection.id);
     } catch (error: any) {
       toast.error(error?.message || 'Erro ao carregar vistoria');
     } finally {
@@ -581,13 +605,40 @@ export function Inspections() {
     if (!files || files.length === 0) return;
 
     const newPreviews: FilePreview[] = [];
-    const maxFileSize = 50 * 1024 * 1024; 
+    const maxFileSize = 100 * 1024 * 1024; // Backend limit is 100MB
+    const maxFilesPerItem = 20; // Backend limit
+    const existingFiles = itemFilePreviews.get(index) || [];
+
+    // Check total file count limit
+    if (existingFiles.length + files.length > maxFilesPerItem) {
+      toast.error(`Limite de ${maxFilesPerItem} arquivos por item. Você já tem ${existingFiles.length} arquivo(s) e tentou adicionar ${files.length}.`);
+      return;
+    }
+
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'video/mp4',
+      'video/webm',
+      'video/quicktime',
+      'video/x-msvideo',
+    ];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
+      // Validate file size
       if (file.size > maxFileSize) {
-        toast.error(`Arquivo ${file.name} excede o tamanho máximo de 50MB`);
+        toast.error(`Arquivo "${file.name}" excede o tamanho máximo de 100MB (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+        continue;
+      }
+
+      // Validate file type
+      if (!allowedMimeTypes.includes(file.type)) {
+        toast.error(`Arquivo "${file.name}" não é um tipo válido. Tipos permitidos: imagens (JPEG, PNG, GIF, WebP) ou vídeos (MP4, WebM, QuickTime, AVI)`);
         continue;
       }
 
@@ -595,7 +646,7 @@ export function Inspections() {
       const isVideo = file.type.startsWith('video/');
 
       if (!isImage && !isVideo) {
-        toast.error(`Arquivo ${file.name} não é uma imagem ou vídeo válido`);
+        toast.error(`Arquivo "${file.name}" não é uma imagem ou vídeo válido`);
         continue;
       }
 
@@ -611,9 +662,28 @@ export function Inspections() {
       setItemFilePreviews(prev => {
         const newMap = new Map(prev);
         const existing = newMap.get(index) || [];
-        newMap.set(index, [...existing, ...newPreviews]);
+        const updated = [...existing, ...newPreviews];
+        
+        // Double-check limit after adding
+        if (updated.length > maxFilesPerItem) {
+          toast.error(`Limite de ${maxFilesPerItem} arquivos por item excedido. Apenas os primeiros ${maxFilesPerItem} arquivos foram adicionados.`);
+          newMap.set(index, updated.slice(0, maxFilesPerItem));
+          // Revoke URLs for excess files
+          updated.slice(maxFilesPerItem).forEach(fp => URL.revokeObjectURL(fp.preview));
+        } else {
+          newMap.set(index, updated);
+        }
+        
         return newMap;
       });
+      
+      if (newPreviews.length < files.length) {
+        toast.warning(`${newPreviews.length} de ${files.length} arquivo(s) foram adicionados. Alguns arquivos foram rejeitados devido a validação.`);
+      } else {
+        toast.success(`${newPreviews.length} arquivo(s) adicionado(s) com sucesso`);
+      }
+    } else {
+      toast.error('Nenhum arquivo válido foi adicionado. Verifique o tamanho e tipo dos arquivos.');
     }
   };
 
@@ -645,13 +715,23 @@ export function Inspections() {
   };
 
   const removeExistingMedia = (itemIndex: number, mediaId: string) => {
-    setMediaToDelete(prev => [...prev, mediaId]);
+    setMediaToDelete(prev => {
+      // Avoid duplicates
+      if (prev.includes(mediaId)) return prev;
+      return [...prev, mediaId];
+    });
     setExistingMedia(prev => {
       const newMap = new Map(prev);
       const media = newMap.get(itemIndex) || [];
       newMap.set(itemIndex, media.filter(m => m.id !== mediaId));
       return newMap;
     });
+  };
+
+  const refreshInspectionMedia = async () => {
+    if (selectedInspection?.id) {
+      await loadInspectionMedia(selectedInspection.id);
+    }
   };
 
   const getMediaUrl = (media: ServerMedia): string => {

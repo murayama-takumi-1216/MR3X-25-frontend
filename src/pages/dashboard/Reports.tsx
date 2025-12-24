@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 import { Button } from '../../components/ui/button'
@@ -27,6 +27,17 @@ export default function Reports() {
   const [tenants, setTenants] = useState<Array<{ id: string; name: string }>>([])
   const [payments, setPayments] = useState<Array<{ propertyId?: string; tenantId?: string; amount?: number; valorPago?: number; paymentType?: string; tipo?: string }>>([])
   const [reportType, setReportType] = useState<'monthly' | 'property' | 'tenant'>('monthly')
+  const [isChartReady, setIsChartReady] = useState<boolean>(false)
+  const chartContainerRef = useRef<HTMLDivElement>(null)
+  const pieChartContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Ensure charts only render after container has dimensions
+    const timer = setTimeout(() => {
+      setIsChartReady(true)
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [data, reportType])
 
   const ensureArray = <T,>(input: T | T[] | { data?: T[]; items?: T[] } | null | undefined): T[] => {
     if (!input) return []
@@ -362,9 +373,13 @@ export default function Reports() {
             </div>
           ) : (
             <>
-              <div className="w-full" style={{ width: '100%', height: '320px', minHeight: '256px', minWidth: '200px', position: 'relative', overflow: 'hidden' }}>
-                {(data.length > 0 || propertyPerformance.length > 0 || tenantPerformance.length > 0) && (
-                  <ResponsiveContainer width="100%" height={300} minWidth={200} debounce={50}>
+              <div 
+              ref={chartContainerRef}
+              className="w-full" 
+              style={{ width: '100%', height: '320px', minHeight: '256px', minWidth: '200px', position: 'relative', overflow: 'hidden' }}
+            >
+                {(data.length > 0 || propertyPerformance.length > 0 || tenantPerformance.length > 0) && isChartReady && (
+                  <ResponsiveContainer width="100%" height={300} minWidth={200} minHeight={256} debounce={50}>
                   {reportType === 'monthly' ? (
                     <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -547,9 +562,13 @@ export default function Reports() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="w-full" style={{ width: '100%', height: '256px', minHeight: '256px', minWidth: '200px', position: 'relative', overflow: 'hidden' }}>
-                {paymentTypeData.length > 0 && (
-                  <ResponsiveContainer width="100%" height={240} minWidth={200} debounce={50}>
+              <div 
+                ref={pieChartContainerRef}
+                className="w-full" 
+                style={{ width: '100%', height: '256px', minHeight: '256px', minWidth: '200px', position: 'relative', overflow: 'hidden' }}
+              >
+                {paymentTypeData.length > 0 && isChartReady && (
+                  <ResponsiveContainer width="100%" height={240} minWidth={200} minHeight={240} debounce={50}>
                     <PieChart>
                       <Pie
                         data={paymentTypeData}

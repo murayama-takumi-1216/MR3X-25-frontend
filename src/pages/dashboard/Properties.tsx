@@ -647,27 +647,88 @@ export function Properties() {
         setUpdating(false);
         return;
       }
-      const propertyToSend = {
+      // Validate monthlyRent
+      const monthlyRentValue = editForm.monthlyRent 
+        ? Number(editForm.monthlyRent.replace(/\D/g, '')) / 100 
+        : undefined;
+      
+      if (monthlyRentValue !== undefined && (isNaN(monthlyRentValue) || monthlyRentValue <= 0)) {
+        toast.error('Valor do aluguel mensal inválido');
+        setUpdating(false);
+        return;
+      }
+
+      const propertyToSend: any = {
         name: editForm.name,
         address: editForm.address,
-        monthlyRent: Number(editForm.monthlyRent.replace(/\D/g, '')) / 100,
         status: selectedProperty.status || 'DISPONIVEL',
         neighborhood: editForm.neighborhood,
         city: editForm.city,
         cep: editForm.cep,
-        dueDay: editForm.dueDay ? Number(editForm.dueDay) : undefined,
         stateNumber: editForm.state,
         ownerId: ownerIdToUse,
-        agencyFee: parsePercentageInput(editForm.agencyFee),
-        registrationNumber: editForm.registrationNumber || undefined,
-        builtArea: editForm.builtArea ? Number(editForm.builtArea.replace(/\D/g, '')) / 100 : undefined,
-        totalArea: editForm.totalArea ? Number(editForm.totalArea.replace(/\D/g, '')) / 100 : undefined,
-        description: editForm.description || undefined,
-        furnitureList: editForm.furnitureList || undefined,
-        condominiumName: editForm.condominiumName || undefined,
-        condominiumFee: editForm.condominiumFee ? Number(editForm.condominiumFee.replace(/\D/g, '')) / 100 : undefined,
-        iptuValue: editForm.iptuValue ? Number(editForm.iptuValue.replace(/\D/g, '')) / 100 : undefined,
       };
+
+      // Only include fields that have valid values
+      if (monthlyRentValue !== undefined && !isNaN(monthlyRentValue) && monthlyRentValue > 0) {
+        propertyToSend.monthlyRent = monthlyRentValue;
+      }
+
+      if (editForm.dueDay) {
+        const dueDayNum = Number(editForm.dueDay);
+        if (!isNaN(dueDayNum) && dueDayNum >= 1 && dueDayNum <= 31) {
+          propertyToSend.dueDay = dueDayNum;
+        }
+      }
+
+      const agencyFeeValue = parsePercentageInput(editForm.agencyFee);
+      if (agencyFeeValue !== undefined && !isNaN(agencyFeeValue)) {
+        propertyToSend.agencyFee = agencyFeeValue;
+      }
+
+      if (editForm.registrationNumber) {
+        propertyToSend.registrationNumber = editForm.registrationNumber;
+      }
+
+      if (editForm.builtArea) {
+        const builtAreaValue = Number(editForm.builtArea.replace(/\D/g, '')) / 100;
+        if (!isNaN(builtAreaValue) && builtAreaValue > 0) {
+          propertyToSend.builtArea = builtAreaValue;
+        }
+      }
+
+      if (editForm.totalArea) {
+        const totalAreaValue = Number(editForm.totalArea.replace(/\D/g, '')) / 100;
+        if (!isNaN(totalAreaValue) && totalAreaValue > 0) {
+          propertyToSend.totalArea = totalAreaValue;
+        }
+      }
+
+      if (editForm.description) {
+        propertyToSend.description = editForm.description;
+      }
+
+      if (editForm.furnitureList) {
+        propertyToSend.furnitureList = editForm.furnitureList;
+      }
+
+      if (editForm.condominiumName) {
+        propertyToSend.condominiumName = editForm.condominiumName;
+      }
+
+      if (editForm.condominiumFee) {
+        const condominiumFeeValue = Number(editForm.condominiumFee.replace(/\D/g, '')) / 100;
+        if (!isNaN(condominiumFeeValue) && condominiumFeeValue >= 0) {
+          propertyToSend.condominiumFee = condominiumFeeValue;
+        }
+      }
+
+      if (editForm.iptuValue) {
+        const iptuValue = Number(editForm.iptuValue.replace(/\D/g, '')) / 100;
+        if (!isNaN(iptuValue) && iptuValue >= 0) {
+          propertyToSend.iptuValue = iptuValue;
+        }
+      }
 
       await updatePropertyMutation.mutateAsync({ id: selectedProperty.id, data: propertyToSend });
       toast.success('Imóvel atualizado com sucesso!');
@@ -677,6 +738,9 @@ export function Properties() {
         try {
           await propertiesAPI.uploadPropertyImages(selectedProperty.id, editSelectedImages);
           setEditSelectedImages([]);
+          setImageRefreshTrigger(prev => prev + 1);
+          // Invalidate queries to refresh property list and images
+          queryClient.invalidateQueries({ queryKey: ['properties'] });
           toast.success('Imagens adicionadas com sucesso!');
         } catch (error) {
           console.error('Error uploading images:', error);
@@ -684,10 +748,14 @@ export function Properties() {
         } finally {
           setEditUploadingImages(false);
         }
+      } else {
+        // Even if no new images, refresh to ensure property list is up to date
+        queryClient.invalidateQueries({ queryKey: ['properties'] });
       }
 
       setShowEditModal(false);
       setSelectedProperty(null);
+      setExistingImageCount(0);
       setEditForm({
         name: '',
         address: '',
@@ -724,12 +792,15 @@ export function Properties() {
     setShowDetailModal(true);
 
     try {
-      // Simulate loading or fetch additional data if needed
-      // For now, we'll use the property data directly but show loading state
-      await new Promise(resolve => setTimeout(resolve, 300)); // Small delay for UX
-      setPropertyDetail(property);
+      // Fetch fresh property data to ensure we have the latest information
+      const freshProperty = await propertiesAPI.getPropertyById(property.id);
+      setPropertyDetail(freshProperty);
+      // Trigger image refresh to ensure latest images are loaded
+      setImageRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Error loading property details:', error);
+      // Fallback to the property data we have
+      setPropertyDetail(property);
       toast.error('Erro ao carregar detalhes do imóvel');
     } finally {
       setPropertyDetailLoading(false);
@@ -740,6 +811,7 @@ export function Properties() {
     closeAllModals();
     setSelectedProperty(property);
     setExistingImageCount(0);
+    setEditSelectedImages([]);
     setEditModalLoading(true);
     setShowEditModal(true);
 
@@ -1013,7 +1085,7 @@ export function Properties() {
     return propertyData?.status || 'PENDENTE';
   };
 
-  const PropertyImagesCarousel = ({ propertyId, propertyName }: { propertyId: string, propertyName?: string }) => {
+  const PropertyImagesCarousel = ({ propertyId, propertyName, refreshTrigger }: { propertyId: string, propertyName?: string, refreshTrigger?: number }) => {
     const [images, setImages] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -1023,9 +1095,10 @@ export function Properties() {
         try {
           setLoading(true);
           const data = await propertiesAPI.getPropertyImages(propertyId);
-          setImages(data);
+          setImages(Array.isArray(data) ? data : []);
         } catch (err) {
           console.error('Error loading images:', err);
+          setImages([]);
         } finally {
           setLoading(false);
         }
@@ -1034,7 +1107,7 @@ export function Properties() {
       if (propertyId) {
         fetchImages();
       }
-    }, [propertyId]);
+    }, [propertyId, refreshTrigger]);
 
     const nextImage = () => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -1137,7 +1210,7 @@ export function Properties() {
     );
   };
 
-  const ExistingImages = ({ propertyId, onImageCountChange, onImageDeleted }: { propertyId: string, onImageCountChange?: (count: number) => void, onImageDeleted?: () => void }) => {
+  const ExistingImages = ({ propertyId, onImageCountChange, onImageDeleted, refreshTrigger }: { propertyId: string, onImageCountChange?: (count: number) => void, onImageDeleted?: () => void, refreshTrigger?: number }) => {
     const [images, setImages] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -1152,6 +1225,7 @@ export function Properties() {
           }
         } catch (err) {
           console.error('Error loading existing images:', err);
+          setImages([]);
           if (onImageCountChange) {
             onImageCountChange(0);
           }
@@ -1163,7 +1237,7 @@ export function Properties() {
       if (propertyId) {
         fetchImages();
       }
-    }, [propertyId, onImageCountChange]);
+    }, [propertyId, onImageCountChange, refreshTrigger]);
 
     if (loading) {
       return (
@@ -1213,6 +1287,8 @@ export function Properties() {
                     await propertiesAPI.deletePropertyImage(propertyId, image.id.toString());
                     const updatedImages = images.filter(img => img.id !== image.id);
                     setImages(updatedImages);
+                    // Trigger refresh for PropertyImage component in property list
+                    setImageRefreshTrigger(prev => prev + 1);
                     if (onImageCountChange) {
                       onImageCountChange(updatedImages.length);
                     }
@@ -1236,20 +1312,54 @@ export function Properties() {
 
   const PropertyImage = ({ propertyId, propertyName }: { propertyId: string, propertyName?: string }) => {
     const [errored, setErrored] = useState(false);
+    const [hasImages, setHasImages] = useState<boolean | null>(null);
+    const [primaryImageId, setPrimaryImageId] = useState<string | null>(null);
 
     useEffect(() => {
       setErrored(false);
+      setHasImages(null);
+      setPrimaryImageId(null);
+
+      // Check if property has images before trying to display
+      const checkImages = async () => {
+        try {
+          const images = await propertiesAPI.getPropertyImages(propertyId);
+          if (Array.isArray(images) && images.length > 0) {
+            const primary = images.find((img: any) => img.isPrimary) || images[0];
+            setHasImages(true);
+            setPrimaryImageId(primary.id);
+          } else {
+            setHasImages(false);
+          }
+        } catch (err) {
+          console.error('Error checking images:', err);
+          setHasImages(false);
+        }
+      };
+
+      if (propertyId) {
+        checkImages();
+      }
     }, [propertyId, imageRefreshTrigger]);
 
-    if (errored) {
+    if (hasImages === false || errored) {
       return <ImageIcon className="w-12 h-12 text-gray-300" aria-label="Sem imagem" />;
     }
 
-    const imageUrl = `${API_URL}/properties/${propertyId}/image/public?t=${imageRefreshTrigger}`;
+    if (hasImages === null || !primaryImageId) {
+      return (
+        <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center animate-pulse">
+          <ImageIcon className="w-8 h-8 text-gray-300" />
+        </div>
+      );
+    }
+
+    // Use imageId for cache-busting and to ensure we get the correct image
+    const imageUrl = `${API_URL}/properties/${propertyId}/image/public?imageId=${primaryImageId}&t=${imageRefreshTrigger}&_=${Date.now()}`;
 
     return (
       <img
-        key={`${propertyId}-${imageRefreshTrigger}`}
+        key={`${propertyId}-${primaryImageId}-${imageRefreshTrigger}`}
         src={imageUrl}
         alt={propertyName || 'Imóvel'}
         className="object-cover w-full h-full"
@@ -2229,7 +2339,11 @@ export function Properties() {
                 {selectedProperty && <ExistingImages
                   propertyId={selectedProperty.id}
                   onImageCountChange={setExistingImageCount}
-                  onImageDeleted={refreshProperties}
+                  onImageDeleted={() => {
+                    refreshProperties();
+                    setImageRefreshTrigger(prev => prev + 1);
+                  }}
+                  refreshTrigger={imageRefreshTrigger}
                 />}
 
                 { }
@@ -2295,6 +2409,7 @@ export function Properties() {
                   <PropertyImagesCarousel
                     propertyId={propertyDetail.id}
                     propertyName={propertyDetail.name}
+                    refreshTrigger={imageRefreshTrigger}
                   />
                 </div>
 

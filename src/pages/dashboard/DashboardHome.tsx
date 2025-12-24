@@ -283,7 +283,7 @@ export function DashboardHome() {
             <CardContent>
               <div className="w-full" style={{ width: '100%', height: '320px', minHeight: '256px', position: 'relative' }}>
                 {revenueData && revenueData.some(d => d.value > 0) ? (
-                  <ResponsiveContainer width="100%" height={320} debounce={50}>
+                  <ResponsiveContainer width="100%" height={320} minWidth={200} minHeight={256} debounce={50}>
                     <PieChart>
                       <Pie
                         data={revenueData}
@@ -325,7 +325,7 @@ export function DashboardHome() {
             <CardContent>
               <div className="w-full" style={{ width: '100%', height: '320px', minHeight: '256px', position: 'relative' }}>
                 {propertyStatusData && propertyStatusData.some(d => d.value > 0) ? (
-                  <ResponsiveContainer width="100%" height={320} debounce={50}>
+                  <ResponsiveContainer width="100%" height={320} minWidth={200} minHeight={256} debounce={50}>
                     <PieChart>
                       <Pie
                         data={propertyStatusData}
@@ -421,7 +421,7 @@ export function DashboardHome() {
             <CardContent>
               <div className="w-full" style={{ width: '100%', height: '320px', minHeight: '256px', position: 'relative' }}>
                 {defaultInadimplenciaData && defaultInadimplenciaData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={320} debounce={50}>
+                  <ResponsiveContainer width="100%" height={320} minWidth={200} minHeight={256} debounce={50}>
                     <BarChart data={defaultInadimplenciaData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" fontSize={12} />
